@@ -1,4 +1,5 @@
 .gitattributes
+.github/FUNDING.yml
 .github/workflows/source-preview.yml
 .gitignore
 AGENTS.md
