@@ -45,8 +45,8 @@
     },
     {
       "path": "README.md",
-      "sha256": "5305eb1574d8127a198aab58d1b749162d57ae0e830b61384a69bf6dff968784",
-      "bytes": 10321,
+      "sha256": "21c945d930590f7a268e7f0c20326ed0f7ea3861c8b71a9c330dd914c86a5201",
+      "bytes": 10385,
       "mode": 420,
       "normalized": false
     },
@@ -11595,8 +11595,8 @@
     },
     {
       "path": "tools/release/templates/README.md",
-      "sha256": "5305eb1574d8127a198aab58d1b749162d57ae0e830b61384a69bf6dff968784",
-      "bytes": 10321,
+      "sha256": "21c945d930590f7a268e7f0c20326ed0f7ea3861c8b71a9c330dd914c86a5201",
+      "bytes": 10385,
       "mode": 420,
       "normalized": false
     },

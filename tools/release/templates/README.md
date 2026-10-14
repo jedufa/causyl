@@ -37,25 +37,25 @@ The ambition spans scientific research, software, engineering and fabrication, m
 <table>
 <tr><td width="50%" valign="top">
 
-**🔬 Research & discovery**
+<strong>🔬 Research &amp; discovery</strong>
 
 Investigate questions, examine hypotheses, assemble references and propose experiments for human review.
 
 </td><td width="50%" valign="top">
 
-**🛠️ Engineering & creation**
+<strong>🛠️ Engineering &amp; creation</strong>
 
 Work through designs, code, technical problems and bounded implementation tasks, with outputs that can be inspected.
 
 </td></tr><tr><td valign="top">
 
-**🧪 Experiment & verification**
+<strong>🧪 Experiment &amp; verification</strong>
 
 Run controlled checks where appropriate, compare outcomes and separate observed results from optimistic interpretations.
 
 </td><td valign="top">
 
-**🧭 Mission control**
+<strong>🧭 Mission control</strong>
 
 See the work in progress, assign authority, review agent results and decide when to stop, resume or change direction.
 
