@@ -2,13 +2,13 @@
 
 # CAUSYL
 
-### Keep the mission alive beyond the conversation.
+### Your lab. Your agents. Your mission.
 
-**A persistent, operator-guided laboratory control plane for complex work.**
+**An agent-based laboratory for research, engineering, and ambitious projects, with you at the controls.**
 
-*From human intent to coordinated tasks, honest recovery, and evidence you can inspect.*
+*Imagine a digital workshop where specialized AI agents can investigate, design, build, experiment, and review, working toward a mission that doesn't disappear when a conversation ends.*
 
-[**The idea ↓**](#more-than-an-agent-chat) · [**See the interface ↓**](#inside-the-operator-plane) · [**Try the verified preview ↓**](#try-the-verified-offline-slice) · [**Current capabilities ↓**](#what-is-ready-today)
+[**Explore the lab ↓**](#the-vision-your-own-agent-powered-laboratory) · [**See the interface ↓**](#inside-the-operator-plane) · [**Try the verified preview ↓**](#try-the-verified-offline-slice) · [**What works today ↓**](#what-is-ready-today)
 
 <br>
 
@@ -20,64 +20,77 @@
 
 ---
 
-## More than an agent chat
+## The vision: your own agent-powered laboratory
 
-Complex work rarely finishes in one session. Research campaigns span days. Software changes pass through multiple reviews. Experiments depend on earlier results. Machines restart, agents lose context, and a polished status message does not prove that the work was done.
+Picture an engineering laboratory with a mission on the table.
 
-**Causyl is an attempt to give that work a durable home.**
+You set the goal. **A research agent** investigates possibilities. **An engineering agent** works through designs or code. **An experimental agent** proposes tests. **A reviewer** challenges the results. Their work comes back to a shared place where you can inspect it, redirect it, or decide what happens next.
 
-Its intended role is a persistent laboratory assistant and control plane: **the human sets direction; the system tracks the mission, organizes bounded work, delegates to available execution systems, preserves evidence, and makes unfinished or interrupted work visible again.**
+That's the laboratory Causyl aims to make possible: **a coordinated team of specialist digital assistants, directed by a human, with persistent missions and real evidence rather than isolated answers.**
 
-The ambition goes beyond coding. The architecture is designed to accommodate **scientific research, engineering and fabrication, materials and structure research, and software development**, without pretending one generic agent can safely perform all those disciplines today.
+The ambition spans scientific research, software, engineering and fabrication, materials and structures, and long-running projects. Think of the digital-assistant-powered workshop of science fiction, built around a practical constraint: **the laboratory must never pretend something happened merely because an agent says it did.**
 
-> **The principle:** An assistant should remember what matters, know what is actually true, and never confuse activity with progress.
+> **You lead the laboratory. Agents help do the work. Causyl keeps everyone oriented.**
 
-## How the laboratory is meant to work
-
-```mermaid
-flowchart LR
-    H["Human intent<br/>and constraints"] --> P["Missions, campaigns<br/>and bounded plans"]
-    P --> T["Durable task register<br/>and work ledger"]
-    T --> X["Delegated jobs<br/>and agent workflows"]
-    X --> V["Verification<br/>and evidence"]
-    V --> R["Operator review<br/>and next decisions"]
-    R -. "continue or replan" .-> P
-    C["Continuity, scheduling<br/>and recovery"] -.-> T
-    C -.-> X
-    C -.-> V
-```
-
-*This is the **intended system model**, not a claim that every arrow is exercised end to end by the 0.1.0a3 public preview.*
+### One mission. Many possible specialists.
 
 <table>
 <tr><td width="50%" valign="top">
 
-### 🧭 Missions, not isolated prompts
+**🔬 Research & discovery**
 
-Turn broad intent into persistent plans, smaller governed tasks, and explicit acceptance conditions. Preserve uncertainty instead of turning it into an improvised command.
+Investigate questions, examine hypotheses, assemble references and propose experiments for human review.
 
 </td><td width="50%" valign="top">
 
-### 🤝 Delegation under supervision
+**🛠️ Engineering & creation**
 
-Use agent roles, jobs, workflows, and review checkpoints as bounded helpers. The operator remains responsible for direction and authority.
+Work through designs, code, technical problems and bounded implementation tasks, with outputs that can be inspected.
 
 </td></tr><tr><td valign="top">
 
-### 🔄 Continuity through interruption
+**🧪 Experiment & verification**
 
-Keep durable task state, handoffs, and recovery decisions so a restart does not become a fictional success or an automatic rerun.
+Run controlled checks where appropriate, compare outcomes and separate observed results from optimistic interpretations.
 
 </td><td valign="top">
 
-### 🔎 Proof before promotion
+**🧭 Mission control**
 
-Associate execution with artifacts, results, and verifiers. If required evidence is missing, work should remain visibly blocked or uncertain.
+See the work in progress, assign authority, review agent results and decide when to stop, resume or change direction.
 
 </td></tr>
 </table>
 
-These capabilities have different maturity levels. The full operator service, provider-backed delegation and research workflows are **not certified as an integrated, production-ready laboratory**.
+*These are **envisioned laboratory roles and workflows**, not a claim that all agent types are implemented or independently validated in the current public release.*
+
+## From your idea to a coordinated laboratory
+
+```mermaid
+flowchart TB
+    H["YOU<br/>Mission, questions, decisions"]
+    P["CAUSYL<br/>Plans · Tasks · Boundaries"]
+    H --> P
+    P --> R["Research<br/>agents"]
+    P --> E["Engineering<br/>agents"]
+    P --> X["Experiment<br/>agents"]
+    P --> Q["Review<br/>agents"]
+    R --> A["Shared work, artifacts<br/>and evidence"]
+    E --> A
+    X --> A
+    Q --> A
+    A --> M["Mission memory<br/>Status · Handoffs · Recovery"]
+    M --> H
+    style H fill:#204457,color:#fff,stroke:#7baebc
+    style P fill:#14534f,color:#fff,stroke:#70c5b4
+    style M fill:#35485a,color:#fff,stroke:#93a9c1
+```
+
+*Conceptual vision, not a currently demonstrated end-to-end multi-agent execution graph.*
+
+**Why a laboratory needs a control plane:** complex work takes days, spans disciplines and gets interrupted. Causyl is designed to hold the mission together: durable tasks and handoffs, bounded delegation, inspectable artifacts, verification and honest recovery. Progress belongs to the mission, not to whichever agent is currently talking.
+
+The project’s [mission contract](governance/plane_mission_contract_v1.json) defines the intended system as a persistent, operator-guided laboratory assistant that tracks work, delegates long tasks, recovers after interruption and reports with evidence. The public 0.1.0a3 source preview demonstrates a narrower subset; [see exactly what is verified](#what-is-ready-today).
 
 ## Inside the operator plane
 
@@ -155,9 +168,9 @@ Causyl separates **the human-facing plane** from **the durable truth that the pl
 
 The project's [mission contract](governance/plane_mission_contract_v1.json) is the clearest source for its long-term identity. The [limitations](docs/release/LIMITATIONS.md) are the clearest source for what this exact public preview does **not** establish.
 
-## Human direction. Durable truth. Bounded autonomy.
+## A lab with you at the controls
 
-Causyl is **not** intended to be a magical always-thinking agent or an unattended laboratory director. Its design uses durable records and explicit boundaries so the operator can understand what is active, blocked, done, or uncertain.
+Causyl is an **operator-directed lab**, not a magically omniscient assistant or an unattended laboratory director. Its design uses durable records and explicit boundaries so the operator can understand what is active, blocked, done, or uncertain.
 
 The current operator runtime is opt-in and single-user on loopback. Agent/provider paths require separate configuration and validation. Do not expose the service on the Internet or assume its source-preview tests certify operational security.
 
@@ -175,8 +188,8 @@ First-party source, tests and documentation are **MIT licensed**. Copyright © 2
 
 <div align="center">
 
-### Give ambitious work a memory. Give progress a proof.
+### Bring the lab to your mission. Keep the human in command.
 
-**CAUSYL · A persistent laboratory assistant, with the human in control.**
+**CAUSYL · Your agent-powered laboratory, with durable truth underneath.**
 
 </div>
