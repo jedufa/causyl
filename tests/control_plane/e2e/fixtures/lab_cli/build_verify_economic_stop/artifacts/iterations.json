@@ -1,0 +1,14 @@
+[
+  {
+    "builder_summary": "no meaningful new signal",
+    "evidence_artifacts": [
+      "candidate_report_v1"
+    ],
+    "validation_commands": [],
+    "verifier_verdict": "",
+    "confidence_delta": 0.0,
+    "stagnant_iterations": 2,
+    "expected_gain": 0.0,
+    "cost_per_iteration": 30.0
+  }
+]

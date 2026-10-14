@@ -1,0 +1,70 @@
+{
+  "schema_version": "canonical_job_shape_contract_v1",
+  "uid": "PIS-20260406-053811Z-8C0B",
+  "contract_family": "canonical_job_shape",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_canonical_job_shape_vocabulary_v1.md",
+  "allowlisted_shape_names": [
+    "verification_loop_job",
+    "fanout_job",
+    "campaign_job",
+    "experiment_run_job",
+    "delegation_tree_job"
+  ],
+  "alias_policy": "reject_noncanonical_names",
+  "shapes": {
+    "verification_loop_job": {
+      "status": "current",
+      "future_facing": false,
+      "recursive": false,
+      "definition": "A bounded repair or build-verify loop that iterates builder and verifier work until a proof-bearing stop condition is reached.",
+      "current_repo_mappings": [
+        {
+          "surface": "scheduled_jobs.job_kind",
+          "value": "build_verify_loop"
+        }
+      ]
+    },
+    "fanout_job": {
+      "status": "current",
+      "future_facing": false,
+      "recursive": false,
+      "definition": "A coordinating job that launches multiple child jobs or workers from one parent objective while keeping write scope and evidence policy bounded.",
+      "current_repo_mappings": [
+        {
+          "surface": "scheduled_jobs.job_kind",
+          "value": "swarm_launch"
+        }
+      ]
+    },
+    "campaign_job": {
+      "status": "named_not_yet_implemented",
+      "future_facing": true,
+      "recursive": false,
+      "definition": "A multi-phase program or campaign coordinator that sequences related jobs over time under one durable campaign identity.",
+      "current_repo_mappings": []
+    },
+    "experiment_run_job": {
+      "status": "current",
+      "future_facing": false,
+      "recursive": false,
+      "definition": "A job whose primary purpose is to launch and track an experiment run under the canonical experiment contract and run lifecycle truth.",
+      "current_repo_mappings": [
+        {
+          "surface": "scheduled_jobs.job_kind",
+          "value": "project_runner"
+        }
+      ]
+    },
+    "delegation_tree_job": {
+      "status": "future_recursive_shape",
+      "future_facing": true,
+      "recursive": true,
+      "definition": "A future recursive job shape for durable delegation trees where child jobs can themselves become managed parents under the same contract family.",
+      "current_repo_mappings": []
+    }
+  }
+}

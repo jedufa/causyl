@@ -1,0 +1,52 @@
+{
+  "scenarios": [
+    {
+      "key": "one_workflow_shadow",
+      "description": "Benchmark one covered workflow in shadow mode against the current scheduler without letting the candidate mutate canonical truth.",
+      "required_dimensions": [
+        "operator_truth",
+        "dependency_admission",
+        "terminal_retirement",
+        "continuity_restart",
+        "closeout_promotion",
+        "complexity"
+      ],
+      "required_artifacts": {
+        "operator_truth": ["jobs", "surface_projections"],
+        "dependency_admission": ["jobs"],
+        "terminal_retirement": ["receipts"],
+        "continuity_restart": ["receipts"],
+        "closeout_promotion": ["family_records"],
+        "complexity": ["code_metrics"]
+      },
+      "complexity_budget": {
+        "target_line_reduction_pct": 20.0
+      }
+    },
+    {
+      "key": "production_stress_shadow",
+      "description": "Synthetic production-readiness stress suite for v2 scheduler shadow/canary ownership before bypassing legacy canonical execution.",
+      "required_dimensions": [
+        "operator_truth",
+        "dependency_admission",
+        "stress_volume",
+        "destructive_conditions",
+        "ownership_isolation",
+        "internal_wiring",
+        "complexity"
+      ],
+      "required_artifacts": {
+        "operator_truth": ["jobs", "surface_projections"],
+        "dependency_admission": ["jobs"],
+        "stress_volume": ["jobs", "compiled_graphs"],
+        "destructive_conditions": ["continuity_records", "receipts"],
+        "ownership_isolation": ["closeout_records", "notes"],
+        "internal_wiring": ["surface_projections"],
+        "complexity": ["code_metrics"]
+      },
+      "complexity_budget": {
+        "target_line_reduction_pct": 20.0
+      }
+    }
+  ]
+}

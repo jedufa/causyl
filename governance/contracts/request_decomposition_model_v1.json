@@ -1,0 +1,48 @@
+{
+  "schema_version": "request_decomposition_model_v1",
+  "required_fields": [
+    "canonical_layers",
+    "decomposition",
+    "phase1_mapping_reference",
+    "schema_version"
+  ],
+  "extends_existing_phase1_mapping": true,
+  "canonical_layers": [
+    "intent_layer",
+    "work_shape_layer",
+    "risk_authority_layer",
+    "capability_layer",
+    "learning_layer"
+  ],
+  "required_layer_fields": {
+    "intent_layer": [
+      "operator_request",
+      "intent_family",
+      "requested_result_class",
+      "operator_verb"
+    ],
+    "work_shape_layer": [
+      "execution_shape",
+      "stage_ladder",
+      "validation_mode",
+      "resume_safe"
+    ],
+    "risk_authority_layer": [
+      "authority_class",
+      "review_boundary",
+      "safety_class"
+    ],
+    "capability_layer": [
+      "deterministic_capability_class",
+      "playbook_reference",
+      "fallback_policy",
+      "required_evidence_gatherers"
+    ],
+    "learning_layer": [
+      "fallback_capture_required",
+      "capability_gap_candidates",
+      "improvement_pressure_class"
+    ]
+  },
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

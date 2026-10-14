@@ -1,0 +1,31 @@
+{
+  "name": "phase3_pass_complete_no_recommendation",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_phase3_blocked_chain_explain_and_recommend_v1",
+  "git_repo": false,
+  "payload": {
+    "report": {
+      "chain_id": "build_verify_loop_v1::phase3-pass",
+      "playbook_id": "build_verify_loop_v1",
+      "action_family": "build_verify",
+      "final_chain_outcome": "completed_with_pass",
+      "final_verifier_verdict": "PASS",
+      "terminal_reason": "verifier_pass",
+      "step_records": [],
+      "failure_escalation_log": []
+    }
+  },
+  "expected_terminal_status": "ok",
+  "expected_receipt": {
+    "proof_gap": false
+  },
+  "expected_snapshot": {
+    "operator_state": "pass"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

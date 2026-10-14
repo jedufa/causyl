@@ -1,0 +1,40 @@
+{
+  "schema_version": "codex_usage_transparency_v1",
+  "required_fields": [
+    "absorption_eligibility_class",
+    "action_family",
+    "codex_used",
+    "economic_recommendation_class",
+    "evidence_references",
+    "fallback_event_count",
+    "improvement_decision",
+    "recurrence_class",
+    "rejection_reason",
+    "schema_version",
+    "usage_reason"
+  ],
+  "allowed_recurrence_classes": [
+    "none",
+    "unknown",
+    "one_off",
+    "repeated_absorbable",
+    "repeated_uneconomic",
+    "repeated"
+  ],
+  "allowed_absorption_eligibility_classes": [
+    "none",
+    "unknown",
+    "insufficient_history",
+    "eligible",
+    "uneconomic",
+    "rejected"
+  ],
+  "allowed_economic_recommendation_classes": [
+    "none",
+    "manual_review",
+    "observe_more",
+    "build_deterministic_capability",
+    "keep_codex_fallback"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

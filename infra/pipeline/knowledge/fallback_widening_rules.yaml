@@ -1,0 +1,172 @@
+version: 1
+phase: 2
+notes: Deterministic fallback and widening rules applied when initial retrieval is
+  insufficient or confidence is low. Each widening action must target missing implementation
+  evidence rather than broad semantic drift.
+rules:
+- id: fwr_001
+  name: add_generic_fallback_queries
+  trigger: single_trigger_only OR no_family_activated
+  action: append_generic_conceptual_queries
+  queries_to_add:
+  - find guard logic that rejects illegal state mutation before write
+  - find ownership or claim logic that serializes mutation and release
+  - find durable audit or receipt emission for scheduler or operator actions
+  - find idempotency or duplicate suppression around retries and dispatch
+  confidence_recovery: '+0.10'
+- id: fwr_002
+  name: expand_query_diversity
+  trigger: active_family_count >= 4 OR generic_fallback_active
+  action: generate_additional_queries_for_each_active_family
+  max_additional_queries_per_family: 2
+  confidence_recovery: '+0.08'
+- id: fwr_003
+  name: force_generic_family_and_broad_retrieval
+  trigger: no_family_activated AND low_confidence
+  action: assign_generic_family_and_use_broad_subsystem_list
+  fallback_subsystems:
+  - state_persistence
+  - validation
+  - observability
+  - recovery_mechanisms
+  confidence_recovery: '+0.05'
+- id: fwr_004
+  name: expand_retrieval_for_missing_subsystem
+  trigger: required_subsystem_not_in_bundle
+  action: add_targeted_query_for_missing_subsystem
+  query_template: find code that owns {missing_subsystem} decisions, mutation, or
+    invariant enforcement
+  confidence_recovery: '+0.12'
+- id: fwr_005
+  name: reject_bundle_and_re_query
+  trigger: all_bundle_files_are_passive OR cross_cutting_flags_no_implementation_signal
+  action: discard_current_bundle_and_rerun_retrieval_with_adjusted_filters
+  filter_adjustments:
+  - exclude files matched by passive_relevance_patterns
+  - prefer files with mutation, validation, ownership, or recovery signals
+  confidence_recovery: '+0.15'
+- id: fwr_006
+  name: add_test_subsystem_query
+  trigger: high_risk_no_tests
+  action: add_query_for_test_files_in_active_subsystems
+  query_template: find tests that exercise {active_subsystem} invariants, retries,
+    or mutation safety
+  confidence_recovery: '+0.05'
+- id: fwr_007
+  name: add_lease_claims_subsystem_query
+  trigger: ownership_concern_unresolved
+  action: add_lease_claims_query
+  queries_to_add:
+  - find claim acquisition and claim release logic
+  - find lease expiry, renewal, or fencing-token validation logic
+  - find ownership handoff or stale-owner reclamation logic
+  confidence_recovery: '+0.08'
+- id: fwr_008
+  name: add_recovery_mechanisms_subsystem_query
+  trigger: recovery_concern_no_repair_file
+  action: add_recovery_query
+  queries_to_add:
+  - find orphan detection and orphan repair logic
+  - find reconciliation loop or convergence pass logic
+  - find crash recovery bootstrap or state repair logic
+  confidence_recovery: '+0.08'
+- id: fwr_009
+  name: add_idempotency_subsystem_query
+  trigger: idempotency_concern_unresolved
+  action: add_idempotency_query
+  queries_to_add:
+  - find idempotency key persistence and duplicate suppression logic
+  - find replay safety checks around retries, callbacks, or message redelivery
+  confidence_recovery: '+0.08'
+- id: fwr_010
+  name: add_audit_receipts_subsystem_query
+  trigger: operator_action_no_audit_file
+  action: add_audit_query
+  queries_to_add:
+  - find durable audit receipt emission logic
+  - find operator action evidence recording or append-only history logic
+  confidence_recovery: '+0.06'
+- id: fwr_011
+  name: add_validation_subsystem_query
+  trigger: mutation_without_validation
+  action: add_validation_guard_query
+  queries_to_add:
+  - find precondition checks that reject illegal mutation
+  - find schema or state legality validation before write
+  confidence_recovery: '+0.07'
+- id: fwr_012
+  name: add_version_check_subsystem_query
+  trigger: stale_state_concern_unresolved
+  action: add_version_check_query
+  queries_to_add:
+  - find version or generation checks before write
+  - find optimistic locking or compare-and-swap enforcement
+  - find stale-state rejection or lost-update prevention
+  confidence_recovery: '+0.07'
+- id: fwr_013
+  name: add_concurrency_control_subsystem_query
+  trigger: concurrency_concern_unresolved
+  action: add_concurrency_query
+  queries_to_add:
+  - find exclusive lock acquisition and release logic
+  - find concurrent mutation fencing, sequencing, or single-flight enforcement
+  confidence_recovery: '+0.07'
+- id: fwr_014
+  name: switch_to_design_mode_profile
+  trigger: design_mode_indicator
+  action: reassign_task_profile_to_design_mode
+  profile_overrides:
+  - 'primary_task_type: design_or_planning'
+  - 'task_mode: planning_only'
+  - 'expected_edit_scope: no_direct_edits'
+  confidence_recovery: '+0.05'
+- id: fwr_015
+  name: add_heartbeat_subsystem_query
+  trigger: heartbeat_task_no_liveness_file
+  action: add_heartbeat_query
+  queries_to_add:
+  - find heartbeat update and expiry logic
+  - find stale worker detection and claim reclamation logic
+  confidence_recovery: '+0.06'
+- id: fwr_016
+  name: add_timeouts_deadlines_subsystem_query
+  trigger: deadline_task_no_timeout_file
+  action: add_timeout_query
+  queries_to_add:
+  - find deadline computation and timeout enforcement logic
+  - find cancellation, expiry, or timeout dispatch paths
+  confidence_recovery: '+0.06'
+- id: fwr_017
+  name: add_configuration_subsystem_query
+  trigger: config_task_no_config_file
+  action: add_config_query
+  queries_to_add:
+  - find configuration revision tracking or snapshot logic
+  - find config drift detection or revision pinning logic
+  confidence_recovery: '+0.06'
+- id: fwr_018
+  name: broad_design_context_retrieval
+  trigger: design_mode_no_planning_context
+  action: retrieve_all_primary_subsystem_overviews
+  subsystems_to_query:
+  - scheduler_core
+  - state_persistence
+  - recovery_mechanisms
+  - validation
+  - observability
+  confidence_recovery: '+0.10'
+- id: fwr_019
+  name: add_schema_subsystem_query
+  trigger: persistence_without_schema
+  action: add_schema_migration_query
+  queries_to_add:
+  - find schema migration and compatibility logic
+  - find record-version checks and backward-compatibility enforcement
+  confidence_recovery: '+0.04'
+- id: fwr_020
+  name: request_clarification_or_use_generic
+  trigger: vague_description AND block_plan == false
+  action: annotate_plan_with_unresolved_questions_and_proceed_with_generic
+  unresolved_note: Task description is too underspecified for narrow deterministic
+    classification. Proceed with generic assumptions and mark the plan as uncertain.
+  confidence_recovery: '0.00'

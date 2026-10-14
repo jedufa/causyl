@@ -1,0 +1,37 @@
+{
+  "name": "learning_rejected_absorption",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": false,
+  "prompt_variants": [
+    "why was this rejected for absorption"
+  ],
+  "artifact_inputs": {
+    "fallback_events_file": "artifacts/fallback_events.json"
+  },
+  "payload": {
+    "cli_args": [
+      "--fallback-events-file",
+      "{fallback_events_file}"
+    ]
+  },
+  "expected_terminal_status": "ok",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "action_id": "repeated_patch_fallback_to_approved_upgrade_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "repeated_patch_fallback_to_approved_upgrade_v1",
+    "authority_class": "read_only"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

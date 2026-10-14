@@ -1,0 +1,8 @@
+{
+  "expected_primary_stage8_behavior": "accept",
+  "fixture_name": "success_apply_patch.txt",
+  "format_family": "apply_patch",
+  "notes": "Reality-shaped non-live fixture.",
+  "provenance_type": "synthetic_repo_diff",
+  "source_reference": "baseline-260 stage8 non-live harness"
+}

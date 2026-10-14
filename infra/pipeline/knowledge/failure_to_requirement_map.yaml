@@ -1,0 +1,181 @@
+version: 1
+phase: 1
+notes: Deterministic mapping from concrete failure modes to the derived requirements
+  and invariants they violate. Mappings were tightened to reduce vague or duplicated
+  requirement references.
+mappings:
+- failure_mode: duplicate_dispatch
+  violated_requirements:
+  - prevent duplicate execution for the same logical job instance
+  - validate launch eligibility, enabled state, and ownership before dispatch
+  - suppress dispatch when current schedule truth is stale or disabled
+  required_invariants:
+  - at most one active execution may exist for a logical job instance at any time
+  - dispatch must require current eligibility, enabled state, and non-stale ownership
+    truth
+- failure_mode: stale_claim_reuse
+  violated_requirements:
+  - reject claim reuse when lease or heartbeat evidence is stale
+  - reconcile current ownership before reassignment
+  - require durable expiry or revocation evidence before claim transfer
+  required_invariants:
+  - ownership decisions must use committed heartbeat truth or explicit expiry windows
+  - expired leases must not authorize new mutations or continued dispatch
+- failure_mode: illegal_state_transition
+  violated_requirements:
+  - validate lifecycle legality before state mutation
+  - reject transitions that skip required predecessors
+  - protect terminal state from unsafe re-entry
+  required_invariants:
+  - workflow transitions must follow the declared legal state graph with no skipped
+    mandatory states
+  - an attempt may enter a terminal state at most once
+- failure_mode: completion_before_output_commit
+  violated_requirements:
+  - require durable output commit before recording success
+  - emit durable evidence only after final outcome is committed
+  - prevent terminal success when dependent writes are incomplete
+  required_invariants:
+  - completion must not be recorded before durable outputs and final receipts are
+    committed
+  - every externally visible mutation must produce durable evidence with stable correlation
+    identity
+- failure_mode: retry_budget_reset_on_restart
+  violated_requirements:
+  - persist retry counters and breaker state across restart
+  - preserve attempt lineage when restart occurs
+  - prevent implicit reset of retry budget on recovery
+  required_invariants:
+  - retry attempt counters must increase monotonically within a lineage and survive
+    restart
+  - backoff windows, retry budgets, and breaker state must survive restart and recovery
+- failure_mode: operator_override_without_audit
+  violated_requirements:
+  - record actor identity, reason code, and target for manual override
+  - reject override paths that bypass guard checks without evidence
+  - emit durable evidence for destructive manual actions
+  required_invariants:
+  - manual actions must emit actor identity, reason code, target identity, and resulting
+    outcome
+  - manual override paths must enforce the same legality checks as automatic control
+    paths
+- failure_mode: split_brain_ownership
+  violated_requirements:
+  - require valid term or fencing proof before protected write
+  - suppress ownership mutation under quorum uncertainty
+  - fence prior owner before activating new owner
+  required_invariants:
+  - protected writes require a valid current epoch, term, or fencing token
+  - ownership transfer must fence, revoke, or supersede the prior owner before reassignment
+- failure_mode: recovery_replays_committed_side_effect
+  violated_requirements:
+  - distinguish committed work from incomplete work before replay
+  - block recovery from re-emitting already committed side effects
+  - link repair evidence to original failure lineage
+  required_invariants:
+  - replay must distinguish committed work from incomplete work before side effects
+    are retried
+  - successful external side effects must not be repeated by retry logic
+- failure_mode: ack_before_processing_commit
+  violated_requirements:
+  - acknowledge queue work only after durable processing outcome
+  - preserve delivery lineage across retry and replay
+  - do not clear claim ownership until outcome is committed
+  required_invariants:
+  - acknowledgement must not occur before the durable processing outcome is committed
+  - delivery attempt lineage must remain reconstructable across retry, timeout, and
+    replay
+- failure_mode: cleanup_removes_recoverable_state
+  violated_requirements:
+  - preserve active and recoverable truth during cleanup
+  - retain evidence required for audit and deduplication
+  - emit durable evidence for destructive retention actions
+  required_invariants:
+  - cleanup must not remove active, recoverable, or still-referenced truth
+  - retention policy must preserve evidence required for audit, replay safety, and
+    deduplication
+- failure_mode: missing_audit_receipt
+  violated_requirements:
+  - require durable evidence for every externally visible mutation
+  - preserve stable correlation identity across related actions
+  - fail mutation paths closed when mandatory evidence cannot be emitted
+  required_invariants:
+  - every externally visible mutation must produce durable evidence with stable correlation
+    identity
+  - evidence emission failure must not be silently swallowed by the mutating path
+- failure_mode: deadline_from_stale_start
+  violated_requirements:
+  - derive deadline from current attempt identity and start truth
+  - use a single consistent clock source for remaining-time calculation
+  - reconcile completion before timeout mutation
+  required_invariants:
+  - deadline truth must survive pause, resume, restart, and recovery
+  - remaining time calculations must use a single consistent clock source
+- failure_mode: configuration_drift_undetected
+  violated_requirements:
+  - bind every execution to a stable configuration revision
+  - record enough evidence to detect semantic config drift
+  - reject mixed-version config views for protected mutations
+  required_invariants:
+  - each execution must bind to a stable configuration revision or snapshot
+  - configuration drift must be detectable from persisted execution evidence
+- failure_mode: heartbeat_write_not_durable
+  violated_requirements:
+  - persist heartbeat truth before using it for ownership decisions
+  - fence stale workers before reclaiming ownership
+  - treat missing durable heartbeat evidence as uncertainty
+  required_invariants:
+  - ownership decisions must use committed heartbeat truth or explicit expiry windows
+  - stale workers must not retain active ownership after reclamation
+- failure_mode: dependency_gate_uses_stale_snapshot
+  violated_requirements:
+  - compute eligibility from current dependency truth
+  - retain stable blocked reasons until dependency truth changes
+  - emit evidence for dependency override decisions
+  required_invariants:
+  - work may launch only when all required dependencies are durably satisfied
+  - eligibility decisions must read current dependency state rather than stale cache
+    state
+- failure_mode: late_event_overwrites_newer_state
+  violated_requirements:
+  - prevent stale observations from overwriting newer committed truth
+  - require version or generation validation on protected writes
+  - treat projections as non-authoritative for mutation
+  required_invariants:
+  - stale observations must not overwrite newer committed truth
+  - mutating writes must validate current resource generation or equivalent version
+    truth
+- failure_mode: orphaned_run_without_terminal_resolution
+  violated_requirements:
+  - converge orphaned partial state to terminal or explicitly recoverable truth
+  - emit repair evidence when resolving orphaned execution
+  - avoid creating duplicate active entities during repair
+  required_invariants:
+  - orphaned partial state must converge to a known safe, terminal, or explicitly
+    recoverable state
+  - recovery passes must be safe to rerun without creating duplicate active entities
+- failure_mode: resume_from_obsolete_checkpoint
+  violated_requirements:
+  - resume only from the latest legal committed checkpoint
+  - reload current durable truth before resume mutation
+  - preserve lineage identity across resume and repair
+  required_invariants:
+  - resume must start from the latest committed checkpoint that is legal for the current
+    lineage
+  - workflow lineage identifiers must remain stable across retries, resume, and repair
+- failure_mode: backfill_overlaps_live_schedule
+  violated_requirements:
+  - distinguish backfill runs from ordinary scheduled runs
+  - prevent duplicate processing of historical intervals
+  - isolate synthetic backfill outcomes from live scheduling cursors
+  required_invariants:
+  - backfill runs must be explicitly distinguishable from ordinary scheduled runs
+  - historical intervals must not be processed twice without explicit override evidence
+- failure_mode: schema_migration_mixes_versions
+  violated_requirements:
+  - make record-set schema version explicit during migration
+  - prevent mixed-version data from driving protected mutations
+  - preserve lineage when restoring or migrating durable data
+  required_invariants:
+  - every persisted record set must expose an identifiable schema or revision version
+  - restored or migrated data must preserve lineage to the original committed source

@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Causyl Orchestrator Agent</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <style>
+    .orch-root{padding:16px;display:grid;gap:14px;max-width:1080px;margin:0 auto;width:100%;overflow-x:clip;}
+    .orch-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .orch-block{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,0.10);min-width:0;overflow-x:clip;}
+    .orch-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:6px;}
+    .orch-value{font-size:13px;line-height:1.35;word-break:break-word;}
+    .orch-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .orch-controls .btn{min-width:100px;flex:0 0 auto;width:auto;max-width:100%;}
+    .orch-controls button.btn:disabled,
+    .orch-controls button.btn[aria-disabled="true"]{
+      opacity:0.55;
+      filter:saturate(0.55);
+      cursor:not-allowed;
+      border-color:rgba(130,140,155,0.65);
+      background:rgba(90,100,115,0.28);
+      color:rgba(180,190,205,0.92) !important;
+      -webkit-text-fill-color:rgba(180,190,205,0.92);
+      box-shadow:none;
+    }
+    .status-line{font-size:12px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;max-width:100%;min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:normal;}
+    #pisSelectMeta{max-width:100%;min-width:0;overflow-wrap:anywhere;word-break:break-word;white-space:normal;}
+    .single-panel{display:grid;gap:12px;min-width:0;overflow-x:clip;}
+    .ctx-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+    .ctx-grid .orch-block{min-height:72px;}
+    .ctx-wide{grid-column:1 / -1;min-width:0;}
+    #pisSelect{display:block;inline-size:100%;width:100%;max-width:100%;min-width:0;field-sizing:fixed;}
+    #extraInfo{width:100%;min-height:110px;resize:vertical;}
+    #pisPreview{max-height:280px;overflow:auto;white-space:pre-wrap;}
+    #agentChatter{max-height:380px;overflow:auto;}
+    .chatter-tabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;max-width:100%;}
+    .chatter-tab{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,0.03);color:var(--text);font-size:12px;cursor:pointer;}
+    .chatter-tab.active{background:rgba(102,163,255,0.16);border-color:rgba(102,163,255,0.55);}
+    .chatter-tab:focus-visible{outline:2px solid rgba(102,163,255,0.7);outline-offset:2px;}
+    .chatter-tab.has-unread{border-color:rgba(255,177,102,0.6);box-shadow:0 0 0 2px rgba(255,177,102,0.18) inset;}
+    .chatter-tab.is-processing{box-shadow:0 0 0 2px rgba(102,163,255,0.20) inset;}
+    .chatter-tab.processing-builder{border-color:rgba(102,163,255,0.7);}
+    .chatter-tab.processing-assurer{border-color:rgba(123,241,168,0.72);}
+    .chatter-tab.processing-generalist{border-color:rgba(255,177,102,0.72);}
+    .tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 5px;margin-left:6px;border-radius:999px;background:rgba(255,177,102,0.2);color:rgba(255,214,166,0.98);font-size:10px;font-weight:700;}
+    .agent-activity{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+    .agent-chip{display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;padding:5px 10px;border-radius:12px;border:1px solid rgba(130,140,155,0.4);background:rgba(255,255,255,0.03);font-size:11px;color:var(--muted);min-width:92px;}
+    .agent-chip-title{display:inline-flex;align-items:center;gap:6px;}
+    .agent-chip-time{font-size:10px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
+    .agent-chip.active .agent-chip-time{color:var(--text);}
+    .agent-chip .dot{width:8px;height:8px;border-radius:999px;background:rgba(130,140,155,0.75);}
+    .agent-chip.role-builder .dot{background:rgba(102,163,255,0.75);}
+    .agent-chip.role-assurer .dot{background:rgba(123,241,168,0.75);}
+    .agent-chip.role-generalist .dot{background:rgba(255,177,102,0.75);}
+    .agent-chip.active{color:var(--text);}
+    .agent-chip.active.role-builder{border-color:rgba(102,163,255,0.75);background:rgba(102,163,255,0.16);}
+    .agent-chip.active.role-assurer{border-color:rgba(123,241,168,0.75);background:rgba(123,241,168,0.14);}
+    .agent-chip.active.role-generalist{border-color:rgba(255,177,102,0.75);background:rgba(255,177,102,0.14);}
+    .msg{padding:7px 8px;border-bottom:1px solid rgba(80,100,120,0.25);border-left:3px solid rgba(120,130,140,0.6);}
+    .msg:last-child{border-bottom:none;}
+    .msg-meta{font-size:11px;color:var(--muted);}
+    .msg-text{font-size:13px;line-height:1.35;white-space:pre-wrap;overflow-wrap:anywhere;}
+    .msg.role-builder{border-left-color:rgba(102,163,255,0.75);background:rgba(102,163,255,0.08);}
+    .msg.role-assurer{border-left-color:rgba(123,241,168,0.8);background:rgba(123,241,168,0.08);}
+    .msg.role-generalist{border-left-color:rgba(255,177,102,0.82);background:rgba(255,177,102,0.08);}
+    details.advanced-ctx{border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,0.08);}
+    details.advanced-ctx summary{cursor:pointer;list-style:none;padding:10px 12px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px;}
+    details.advanced-ctx[open] summary{border-bottom:1px solid rgba(80,100,120,0.25);}
+    details.advanced-ctx .ctx-grid{padding:10px;}
+    .exec-status{display:grid;gap:8px;}
+    .exec-rail{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+    .exec-step{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border:1px solid rgba(130,140,155,0.35);border-radius:999px;background:rgba(255,255,255,0.02);}
+    .exec-dot{width:9px;height:9px;border-radius:999px;background:rgba(150,160,175,0.7);}
+    .exec-name{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.2px;}
+    .exec-step.is-active{border-color:rgba(102,163,255,0.55);background:rgba(102,163,255,0.12);}
+    .exec-step.is-done{border-color:rgba(123,241,168,0.45);background:rgba(123,241,168,0.12);}
+    .exec-step.is-active .exec-dot{background:rgba(102,163,255,0.95);box-shadow:0 0 0 3px rgba(102,163,255,0.18);}
+    .exec-step.is-done .exec-dot{background:rgba(123,241,168,0.95);}
+    .exec-step.step-failed.is-active{border-color:rgba(255,92,122,0.6);background:rgba(255,92,122,0.12);}
+    .exec-step.step-failed.is-active .exec-dot{background:rgba(255,92,122,0.95);box-shadow:0 0 0 3px rgba(255,92,122,0.2);}
+    .exec-step.step-stopped.is-active{border-color:rgba(255,177,102,0.6);background:rgba(255,177,102,0.12);}
+    .exec-step.step-stopped.is-active .exec-dot{background:rgba(255,177,102,0.95);box-shadow:0 0 0 3px rgba(255,177,102,0.2);}
+    .exec-status-label{font-size:12px;color:var(--text);}
+    .exec-status-meta{font-size:11px;color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;white-space:pre-wrap;overflow-wrap:anywhere;}
+    .wfconv-meta{font-size:12px;color:var(--muted);margin-top:8px;}
+    .wfconv-stream{display:grid;gap:10px;max-height:560px;overflow:auto;padding:12px;}
+    .wfconv-bubble{max-width:min(92%,840px);border-radius:16px;padding:10px 12px;border:1px solid rgba(130,140,155,0.28);background:rgba(255,255,255,0.04);}
+    .wfconv-bubble.actor-user{margin-left:auto;background:rgba(245,245,245,0.08);border-color:rgba(210,210,210,0.18);}
+    .wfconv-bubble.actor-generalist{background:rgba(255,177,102,0.10);border-color:rgba(255,177,102,0.35);}
+    .wfconv-bubble.actor-builder{background:rgba(102,163,255,0.10);border-color:rgba(102,163,255,0.35);}
+    .wfconv-bubble.actor-assurer{background:rgba(123,241,168,0.10);border-color:rgba(123,241,168,0.35);}
+    .wfconv-bubble.actor-system{background:rgba(150,160,175,0.08);border-color:rgba(150,160,175,0.28);}
+    .wfconv-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;font-size:11px;color:var(--muted);margin-bottom:6px;}
+    .wfconv-head-main{display:grid;gap:2px;min-width:0;}
+    .wfconv-title{font-weight:600;color:var(--text);}
+    .wfconv-kind{display:inline-flex;align-items:center;padding:2px 6px;border-radius:999px;border:1px solid rgba(130,140,155,0.25);font-size:10px;text-transform:uppercase;letter-spacing:0.25px;}
+    .wfconv-text{font-size:13px;line-height:1.38;white-space:pre-wrap;overflow-wrap:anywhere;}
+    .orch-summary{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:rgba(0,0,0,0.08);}
+    .orch-summary-top{display:grid;grid-template-columns:minmax(0,1.3fr) auto;gap:10px;align-items:start;}
+    .orch-summary-meta{display:grid;gap:6px;min-width:0;}
+    .orch-status-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+    .orch-status-chip{padding:8px 10px;border:1px solid rgba(130,140,155,0.28);border-radius:10px;background:rgba(255,255,255,0.03);min-width:0;}
+    .orch-status-chip .orch-label{margin-bottom:4px;}
+    .orch-status-chip .status-line{font-size:11px;}
+    .utilities-grid{display:grid;gap:10px;padding:10px;}
+    .utility-card{display:grid;gap:8px;padding:10px;border:1px solid rgba(130,140,155,0.25);border-radius:12px;background:rgba(255,255,255,0.03);min-width:0;}
+    .utility-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+    .utility-wide{grid-column:1 / -1;}
+    @media (max-width: 900px){
+      .orch-grid,.ctx-grid{grid-template-columns:1fr;}
+      .ctx-wide{grid-column:auto;}
+      .orch-summary-top,.orch-status-grid,.utility-grid{grid-template-columns:1fr;}
+      .utility-wide{grid-column:auto;}
+    }
+    @media (max-width: 700px){
+      .orch-root{padding:12px;gap:12px;}
+      .card-title{font-size:15px;}
+      .orch-label{font-size:10px;}
+      .orch-value,.status-line,.msg-text{font-size:12px;line-height:1.35;}
+      .orch-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+      .orch-controls .btn{min-width:0;width:100%;font-size:14px;padding:10px 8px;}
+      #pisSelect,#extraInfo{font-size:16px;}
+      #pisPreview{max-height:34vh;}
+      #agentChatter{max-height:42vh;}
+      .wfconv-stream{max-height:44vh;padding:8px;gap:8px;}
+      .wfconv-bubble{max-width:100%;padding:9px 10px;border-radius:14px;}
+      .wfconv-head{display:grid;grid-template-columns:1fr;gap:4px;}
+      .wfconv-head-main{gap:1px;}
+      .wfconv-kind{justify-self:start;font-size:9px;padding:2px 5px;}
+      .wfconv-title{font-size:12px;line-height:1.25;}
+      .wfconv-text{font-size:12px;line-height:1.34;}
+      #workflowConversationMeta{font-size:11px;line-height:1.3;}
+      #workflowConversationPanel > div{padding:8px !important;}
+    }
+    @media (max-width: 480px){
+      .chatter-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;align-items:stretch;overflow-x:clip;}
+      .chatter-tab{width:100%;min-width:0;max-width:100%;padding:8px 9px;font-size:12px;white-space:normal;word-break:break-word;overflow-wrap:anywhere;hyphens:auto;line-height:1.2;min-height:34px;box-sizing:border-box;}
+      .tab-badge{margin-left:4px;}
+      .orch-root{padding:10px;gap:10px;}
+      .wfconv-stream{max-height:40vh;padding:6px;}
+      .wfconv-bubble{padding:8px 9px;border-radius:12px;}
+      .wfconv-head{font-size:10px;}
+      .wfconv-title{font-size:11px;}
+      .wfconv-text{font-size:11px;line-height:1.32;}
+      .wfconv-kind{font-size:9px;}
+      #workflowConversationPanel .row{align-items:flex-start;}
+      #workflowConversationPanel .btn.small{padding:6px 8px;font-size:11px;}
+    }
+    body.embedded-shell .topbar{ display:none; }
+    body.embedded-shell .orch-root{ padding:10px; max-width:none; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-title">Orchestrator Agent</div>
+      <div class="brand-sub">PIS-bound orchestration control</div>
+    </div>
+    <div class="topbar-actions">
+      <a class="btn" href="/">Main UI</a>
+      <button id="btnRefresh" class="btn">Refresh</button>
+    </div>
+  </header>
+
+  <main class="orch-root">
+    <section id="workflowConversationOwner" class="card single-panel">
+      <div class="card-title">WF-01 Conversation</div>
+      <div class="row" style="justify-content:space-between;align-items:center;">
+        <div class="wfconv-meta" id="workflowConversationMeta">Read-only transcript synthesized from workflow runtime files.</div>
+        <div class="row" style="gap:8px;align-items:center;">
+          <button id="btnToggleConversationFilter" class="btn small" title="Toggle status/detail filtering for workflow conversation">Meaningful Only</button>
+          <button id="btnCopyConversation" class="btn small" title="Copy workflow conversation transcript">Copy All</button>
+        </div>
+      </div>
+      <div id="workflowConversation" class="orch-block wfconv-stream">No workflow conversation yet.</div>
+    </section>
+
+    <section id="orchCard" class="card single-panel">
+      <div class="card-title">Orchestrator Single-Panel UI</div>
+
+      <section class="orch-summary" aria-label="Workflow summary and controls">
+        <div class="orch-summary-top">
+          <div class="orch-summary-meta">
+            <div class="orch-label">Select PIS</div>
+            <select id="pisSelect" class="input mono">
+              <option value="__NO_PIS__">No PIS (orchestrator-only chat)</option>
+              <option value="">Loading PIS items...</option>
+            </select>
+            <div id="pisSelectMeta" class="status-line">title: - | slug: -</div>
+          </div>
+          <div class="orch-controls">
+            <button id="btnAssign" class="btn ok">Assign</button>
+            <button id="btnStart" class="btn ok">Start</button>
+            <button id="btnStop" class="btn danger">Stop</button>
+            <button id="btnResume" class="btn">Resume</button>
+            <button id="btnResolveWorkflow" class="btn">Resolve Latest</button>
+          </div>
+        </div>
+        <div class="orch-status-grid">
+          <div class="orch-status-chip">
+            <div class="orch-label">Workflow</div>
+            <div class="status-line" id="workflowIdLine">workflow: -</div>
+            <div class="status-line" id="statusLine">status: idle</div>
+          </div>
+          <div class="orch-status-chip">
+            <div class="orch-label">Timing</div>
+            <div class="status-line" id="elapsedLine">elapsed: 0s</div>
+            <div class="status-line" id="heartbeatLine">heartbeat: -</div>
+          </div>
+          <div class="orch-status-chip">
+            <div class="orch-label">Agents</div>
+            <div class="agent-activity" id="agentActivity" aria-label="Agent activity status">
+              <div class="agent-chip role-builder" id="agentChipBuilder">
+                <div class="agent-chip-title"><span class="dot"></span>Builder</div>
+                <div class="agent-chip-time" id="agentTimeBuilder">idle</div>
+              </div>
+              <div class="agent-chip role-assurer" id="agentChipAssurer">
+                <div class="agent-chip-title"><span class="dot"></span>Assurer</div>
+                <div class="agent-chip-time" id="agentTimeAssurer">idle</div>
+              </div>
+              <div class="agent-chip role-generalist" id="agentChipGeneralist">
+                <div class="agent-chip-title"><span class="dot"></span>Generalist</div>
+                <div class="agent-chip-time" id="agentTimeGeneralist">idle</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div>
+        <div class="row" style="justify-content:space-between;align-items:center;">
+          <div class="card-title">Agents Chatter</div>
+          <div class="row" style="gap:8px;align-items:center;">
+            <button id="btnToggleChatterFilter" class="btn small" title="Toggle internal prompt filtering for agent chatter">Meaningful Only</button>
+            <button id="btnCopyChatter" class="btn small" title="Copy currently active chatter tab">Copy All</button>
+          </div>
+        </div>
+        <div class="chatter-tabs" id="chatterTabs">
+          <button class="chatter-tab active" data-role="all" id="tabAll">All</button>
+          <button class="chatter-tab" data-role="builder" id="tabBuilder">Builder</button>
+          <button class="chatter-tab" data-role="assurer" id="tabAssurer">Assurer</button>
+          <button class="chatter-tab" data-role="generalist" id="tabGeneralist">Generalist</button>
+        </div>
+        <div id="agentChatter" class="orch-block" style="margin-top:8px;">No chatter yet.</div>
+      </div>
+
+      <details id="runSetupPanel" class="advanced-ctx" style="margin-top:8px;">
+        <summary>Utilities</summary>
+        <div class="utilities-grid">
+          <div class="utility-card utility-wide">
+            <div class="card-title">PIS Preview</div>
+            <div id="pisTitle" class="status-line">title: -</div>
+            <div id="pisPreview" class="orch-block">Select a PIS to preview.</div>
+          </div>
+          <div class="utility-card utility-wide">
+            <div class="card-title">Run Setup</div>
+            <div class="orch-label">Extra Instruction (optional)</div>
+            <textarea id="extraInfo" class="input" placeholder="Additional instructions appended to orchestrator requests..."></textarea>
+            <div class="utility-grid">
+              <div>
+                <div class="orch-label">max_iterations</div>
+                <select id="maxIterations" class="input mono">
+                  <option value="0">0 (orchestrator-only)</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4" selected>4 (default)</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                </select>
+              </div>
+              <div>
+                <div class="orch-label">timeout_s</div>
+                <select id="timeoutSec" class="input mono">
+                  <option value="300">300</option>
+                  <option value="600">600</option>
+                  <option value="900">900</option>
+                  <option value="1200">1200</option>
+                  <option value="1800">1800</option>
+                  <option value="2400">2400</option>
+                  <option value="3600">3600</option>
+                  <option value="7000" selected>7000 (default)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="utility-card">
+            <div class="card-title">Context</div>
+            <div class="orch-label">Context Label</div>
+            <div id="orchPhase" class="orch-value">Orchestrator Single-Panel Web UI</div>
+            <div class="orch-label">PIS Stage</div>
+            <div id="orchSubphase" class="orch-value">Iteration 1</div>
+            <div class="orch-label">Objective</div>
+            <div id="orchObjective" class="orch-value">-</div>
+          </div>
+          <div class="utility-card utility-wide">
+            <div class="card-title">Execution Status</div>
+            <div class="orch-label">Execution Status</div>
+            <div class="exec-status" id="orchExecutionStatus">
+              <div class="exec-rail">
+                <div class="exec-step step-assigned" data-exec-step="assigned"><span class="exec-dot"></span><span class="exec-name">Assigned</span></div>
+                <div class="exec-step step-running" data-exec-step="running"><span class="exec-dot"></span><span class="exec-name">Running</span></div>
+                <div class="exec-step step-stopped" data-exec-step="stopped"><span class="exec-dot"></span><span class="exec-name">Stopped</span></div>
+                <div class="exec-step step-completed" data-exec-step="completed"><span class="exec-dot"></span><span class="exec-name">Completed</span></div>
+                <div class="exec-step step-failed" data-exec-step="failed"><span class="exec-dot"></span><span class="exec-name">Failed</span></div>
+              </div>
+              <div id="orchExecutionLabel" class="exec-status-label">current: idle</div>
+              <div id="orchExecutionMeta" class="exec-status-meta">status=idle | turn=- | iter=0/0 | active_role=- | binding=-</div>
+            </div>
+          </div>
+          <div class="utility-card">
+            <div class="card-title">Workflow Link</div>
+            <div class="orch-label">Workflow ID</div>
+            <div id="orchWorkflowId" class="orch-value">-</div>
+            <div class="orch-label">Deep Link</div>
+            <a id="orchWorkflowLink" class="orch-value" href="/agents">/agents</a>
+          </div>
+        </div>
+      </details>
+
+    </section>
+  </main>
+
+  <script src="/static/agents.js"></script>
+  <script>
+    (function(){
+      try{
+        var params = new URLSearchParams(window.location.search || "");
+        if(params.get("embedded") === "1"){
+          document.body.classList.add("embedded-shell");
+        }
+      }catch(_e){}
+    })();
+  </script>
+</body>
+</html>

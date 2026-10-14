@@ -1,0 +1,51 @@
+{
+  "name": "patch_pass_basic",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_patch_apply_chain_v1",
+  "git_repo": true,
+  "seed_target_pis": {
+    "title": "fcee patch pass basic",
+    "slug": "fcee-patch-pass-basic",
+    "pis_markdown": "# acceptance\n\n- prove patch chain\n"
+  },
+  "artifact_inputs": {
+    "patch_file": "artifacts/hello.patch"
+  },
+  "payload": {
+    "request": {
+      "task_id": "fcee_patch_pass_basic",
+      "action_family": "patch_apply",
+      "execution_mode": "deterministic_then_codex",
+      "context_bundle_id": "lab_delivery_safety_v1",
+      "requested_by": "operator",
+      "source_event": "api",
+      "authority_scope": "repo_mutation",
+      "validation_commands": [
+        "python -c \"from pathlib import Path; import sys; sys.exit(0 if Path('hello.txt').read_text() == 'hello world\\n' else 1)\""
+      ],
+      "evidence_artifacts": [
+        "patch_input"
+      ],
+      "verifier_verdict": "PASS"
+    }
+  },
+  "expected_terminal_status": "ok",
+  "allowed_mutation_prefixes": [
+    "governance/ledger/patch_instruction_sheets/",
+    "hello.txt"
+  ],
+  "expected_receipt": {
+    "proof_gap": false,
+    "recovery_used": false
+  },
+  "expected_snapshot": {
+    "final_chain_outcome": "completed_with_pass",
+    "operator_state": "completed_with_pass"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

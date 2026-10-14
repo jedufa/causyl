@@ -1,0 +1,94 @@
+{
+  "schema_version": "experiment_monorepo_scaling_policy_v1",
+  "policy_id": "experiment-monorepo-scaling",
+  "policy_version": "1.0.0",
+  "metadata": {
+    "title": "Experiment Monorepo Scaling Policy",
+    "created_at_utc": "2026-04-13T00:00:00Z",
+    "source_intent_uid": "IS-20260403-212914Z-1260",
+    "supporting_verified_pis_uids": [
+      "PIS-20260409-091333Z-AD40",
+      "PIS-20260404-193206Z-15CE"
+    ],
+    "canonical_doc_rel": "docs/contracts/contract_experiment_monorepo_scaling_policy_v1.md",
+    "split_checklist_rel": "governance/experiment_repo_split_criteria_checklist_v1.json",
+    "storage_review_process_rel": "governance/experiment_storage_growth_review_process_v1.json"
+  },
+  "default_posture": {
+    "repo_strategy": "monorepo_first",
+    "summary": "Keep contracts, schemas, shared tooling, and light experiment metadata in one repo by default.",
+    "heavy_runtime_data_rule": "Heavy run outputs, checkpoints, datasets, logs, and generated runtime residue must live in approved external artifact roots rather than tracked repo paths.",
+    "operator_value": "One central index should remain sufficient to discover experiments, artifact roots, and policy class."
+  },
+  "truth_boundary": {
+    "belongs_in_repo": [
+      "contracts",
+      "schemas",
+      "light experiment metadata",
+      "reverse-pointer surfaces",
+      "shared tooling",
+      "operator-facing policy artifacts"
+    ],
+    "belongs_outside_repo": [
+      "runtime outputs",
+      "heavy artifacts",
+      "datasets",
+      "checkpoints",
+      "large generated logs",
+      "ephemeral execution residue"
+    ],
+    "upstream_contract_dependency": "IS-20260403-212914Z-47F9"
+  },
+  "warning_thresholds": {
+    "tracked_repo": {
+      "warn_file_count": 8000,
+      "warn_total_size_mib": 24,
+      "split_candidate_file_count": 10000,
+      "split_candidate_total_size_mib": 32
+    },
+    "per_experiment_tracked_slice": {
+      "warn_file_count": 1200,
+      "warn_total_size_mib": 4,
+      "split_candidate_file_count": 1800,
+      "split_candidate_total_size_mib": 8
+    },
+    "governance_truth_slice": {
+      "warn_file_count": 4000,
+      "warn_total_size_mib": 8,
+      "split_candidate_file_count": 5000,
+      "split_candidate_total_size_mib": 12
+    },
+    "single_tracked_file_mib": {
+      "warn": 5,
+      "split_candidate": 12
+    }
+  },
+  "split_justification_rules": {
+    "allowed_reasons": [
+      "dependency_divergence",
+      "access_boundary",
+      "release_boundary",
+      "compliance_or_legal_isolation",
+      "tracked_truth_growth_exceeds_thresholds_after_pruning"
+    ],
+    "disallowed_reasons": [
+      "heavy_runtime_outputs_should_have_lived_in_external_artifact_roots",
+      "repo_split_as_status_signal",
+      "vague_scale_anxiety",
+      "temporary_local_tooling_pain_without_boundary_divergence"
+    ],
+    "required_pre_split_remediations": [
+      "enforce external artifact roots",
+      "prune tracked generated residue",
+      "archive or compress non-canonical tracked bulk",
+      "repair discovery/index surfaces instead of fragmenting them"
+    ]
+  },
+  "invariants": [
+    "Monorepo-first remains the default unless an explicit split justification is recorded.",
+    "External artifact roots are the first answer to runtime growth.",
+    "Split decisions must preserve one central discovery index for experiments and artifact roots.",
+    "Shared contracts and schemas should remain centralized unless isolation is mandatory.",
+    "A repo split without recorded checklist evidence is policy-invalid."
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": "job_budget_cost_ledger_contract_v1",
+  "uid": "PIS-20260406-183206Z-AC5E",
+  "contract_family": "job_budget_cost_ledger",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_job_budget_cost_ledger_schema_v1.md",
+  "storage_root_rel": "runtime/state/job_budget_cost_ledger",
+  "storage_layout": {
+    "job_partition_rel": "jobs/<job_uid>/",
+    "allocation_log_filename": "allocations.jsonl",
+    "cost_event_log_filename": "cost_events.jsonl",
+    "file_naming_rule": "job_uid must be a path-safe identifier and is the only path-derived variable in v1"
+  },
+  "append_only_policy": {
+    "allocation_records": "append-only JSON Lines; never rewrite earlier allocation entries in place",
+    "cost_event_records": "append-only JSON Lines; never rewrite earlier cost entries in place",
+    "mutable_scalar_forbidden": true
+  },
+  "replay_rules": {
+    "remaining_budget_formula": "sum(allocation.amount_minor_units) - sum(cost.amount_minor_units where direction=debit) + sum(cost.amount_minor_units where direction=credit)",
+    "deterministic_order": [
+      "recorded_at_utc",
+      "entry_uid",
+      "record_kind"
+    ],
+    "unit_policy": "all allocation and cost records for one job_uid must carry exactly one shared unit string",
+    "forbidden_derived_fields": [
+      "remaining_budget_minor_units",
+      "balance_after_event_minor_units",
+      "cached_remaining_budget_minor_units"
+    ]
+  },
+  "allocation_reason_codes": [
+    "initial_grant",
+    "top_up",
+    "manual_correction",
+    "recovery_correction"
+  ],
+  "cost_reason_codes": [
+    "reservation",
+    "usage",
+    "refund",
+    "manual_correction",
+    "recovery_correction"
+  ],
+  "cost_directions": [
+    "debit",
+    "credit"
+  ],
+  "allocation_record": {
+    "required_fields": [
+      "schema_version",
+      "allocation_uid",
+      "job_uid",
+      "recorded_at_utc",
+      "amount_minor_units",
+      "unit",
+      "allocation_reason_code"
+    ],
+    "field_definitions": {
+      "schema_version": "Must be job_budget_cost_ledger_record_v1.",
+      "allocation_uid": "Path-safe stable identifier for this allocation entry.",
+      "job_uid": "Path-safe stable identifier for the owning job.",
+      "recorded_at_utc": "RFC3339 UTC timestamp ending in Z.",
+      "amount_minor_units": "Positive integer amount in the declared unit.",
+      "unit": "Lowercase canonical unit slug such as usd_cents or token_milliunits.",
+      "allocation_reason_code": "One of the canonical allocation reason codes."
+    }
+  },
+  "cost_event_record": {
+    "required_fields": [
+      "schema_version",
+      "cost_event_uid",
+      "job_uid",
+      "recorded_at_utc",
+      "amount_minor_units",
+      "unit",
+      "direction",
+      "cost_reason_code"
+    ],
+    "field_definitions": {
+      "schema_version": "Must be job_budget_cost_ledger_record_v1.",
+      "cost_event_uid": "Path-safe stable identifier for this cost event entry.",
+      "job_uid": "Path-safe stable identifier for the owning job.",
+      "recorded_at_utc": "RFC3339 UTC timestamp ending in Z.",
+      "amount_minor_units": "Positive integer amount in the declared unit.",
+      "unit": "Lowercase canonical unit slug matching the job's allocation unit.",
+      "direction": "debit decreases remaining budget; credit increases remaining budget.",
+      "cost_reason_code": "One of the canonical cost reason codes."
+    }
+  },
+  "rejection_rules": [
+    "Reject any record missing its entry UID, job UID, recorded_at_utc, amount_minor_units, unit, or reason code.",
+    "Reject any record that stores remaining_budget_minor_units or any other mutable balance scalar; remaining budget is replay-derived only.",
+    "Reject replay for a job if allocation and cost records disagree on unit or if duplicate entry UIDs appear within the same record family."
+  ]
+}

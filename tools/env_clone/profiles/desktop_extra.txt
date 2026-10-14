@@ -1,0 +1,5 @@
+# Optional desktop-oriented additions.
+firefox
+gnome-tweaks
+wl-clipboard
+xclip

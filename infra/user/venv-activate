@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/venv-activate
+# Description: Print the command to activate the project virtualenv.
+# Example: bash infra/user/venv-activate
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash infra/bin/venv_activate "$@"

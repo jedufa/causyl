@@ -1,0 +1,144 @@
+version: 1
+phase: 0
+notes: Deterministic observability signal catalog. Terms are high-value evidence patterns that should bias retrieval toward files preserving auditability, health, latency, and failure context around mutation and recovery.
+signals:
+- id: logging_ops
+  terms:
+  - log_dispatch_decision_with_reason
+  - log_state_transition_with_lineage
+  - log_recovery_failure_family
+  - log_operator_override_context
+  - log_claim_conflict_with_generation
+- id: metric_instrumentation
+  terms:
+  - record_dispatch_latency_histogram
+  - increment_duplicate_suppression_counter
+  - observe_retry_backoff_duration
+  - gauge_active_claim_count
+  - record_validation_rejection_total
+- id: tracing_context
+  terms:
+  - attach_trace_id_to_run_record
+  - start_span_for_dispatch_attempt
+  - annotate_recovery_span_with_failure_family
+  - propagate_span_context_to_worker
+  - close_span_after_commit_receipt
+- id: telemetry_emission
+  terms:
+  - emit_structured_recovery_event
+  - publish_mutation_outcome_telemetry
+  - send_scheduler_tick_health_signal
+  - emit_manual_intervention_required_event
+  - report_claim_reclamation_result
+- id: audit_trail
+  terms:
+  - append_durable_audit_receipt
+  - record_operator_reason_in_ledger
+  - persist_who_changed_state
+  - store_authorization_decision_evidence
+  - write_repair_action_lineage
+- id: health_checks
+  terms:
+  - evaluate_worker_liveness_probe
+  - report_scheduler_readiness_status
+  - detect_dependency_health_regression
+  - expose_claim_store_health
+  - check_recovery_loop_heartbeat
+- id: performance_profiling
+  terms:
+  - measure_due_scan_duration
+  - profile_reconciliation_pass_time
+  - record_commit_latency_seconds
+  - track_queue_ack_elapsed_time
+  - capture_timeout_margin_ms
+- id: alerting_triggers
+  terms:
+  - alert_on_recovery_exhausted
+  - page_on_duplicate_active_run_detection
+  - notify_on_claim_conflict_rate_spike
+  - trigger_alarm_for_missing_heartbeat
+  - raise_alert_on_commit_gap
+- id: diagnostic_dump
+  terms:
+  - write_failure_diagnostic_bundle
+  - dump_stale_claim_debug_context
+  - capture_runtime_state_snapshot_for_incident
+  - emit_debug_manifest_on_repair_failure
+  - store_conflict_investigation_payload
+- id: event_instrumentation
+  terms:
+  - emit_state_transition_event
+  - record_dispatch_suppression_event
+  - publish_operator_action_event
+  - emit_reconciliation_delta_event
+  - write_timeout_recovery_event
+- id: context_propagation
+  terms:
+  - propagate_operator_identity_to_worker
+  - carry_request_lineage_through_retry
+  - attach_tenant_context_to_event
+  - preserve_correlation_id_in_compensation
+  - forward_deadline_context_to_subtask
+- id: usage_statistics
+  terms:
+  - count_manual_override_frequency
+  - track_backfill_volume_per_window
+  - measure_retry_policy_usage
+  - record_repair_playbook_invocations
+  - count_validation_failure_classes
+- id: dependency_tracking
+  terms:
+  - record_downstream_dependency_name
+  - annotate_failure_with_dependency_class
+  - capture_service_version_in_receipt
+  - track_dependency_outage_window
+  - measure_callback_dependency_latency
+- id: error_classification
+  terms:
+  - classify_exception_into_failure_family
+  - record_retriable_vs_terminal_ratio
+  - tag_conflict_error_as_concurrency
+  - emit_unknown_state_error_signal
+  - persist_validation_rejection_category
+- id: sampling_strategy
+  terms:
+  - sample_high_volume_success_events_only
+  - always_capture_terminal_failures
+  - retain_full_context_for_manual_overrides
+  - sample_duplicate_suppression_diagnostics
+  - downsample_heartbeat_noise
+- id: exporter_config
+  terms:
+  - configure_metrics_export_interval
+  - set_trace_export_endpoint
+  - enable_audit_stream_sink
+  - tune_log_flush_policy
+  - configure_incident_bundle_export
+- id: metadata_tagging
+  terms:
+  - tag_metrics_with_subsystem_key
+  - annotate_logs_with_lineage_id
+  - add_failure_family_attribute
+  - label_events_with_operator_action
+  - attach_schedule_identity_metadata
+- id: resource_monitoring
+  terms:
+  - monitor_queue_depth_for_retries
+  - track_lock_contention_duration
+  - measure_cache_staleness_window
+  - report_disk_usage_for_checkpoints
+  - observe_worker_memory_during_repair
+- id: log_aggregation
+  terms:
+  - ship_structured_logs_to_aggregator
+  - group_events_by_lineage_id
+  - index_audit_receipts_by_actor
+  - aggregate_recovery_logs_by_failure_family
+  - correlate_scheduler_and_worker_logs
+- id: dashboarding_hooks
+  terms:
+  - publish_duplicate_dispatch_dashboard_series
+  - expose_recovery_success_ratio_widget
+  - surface_validation_rejection_breakdown
+  - graph_active_claims_over_time
+  - show_manual_intervention_backlog

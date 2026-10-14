@@ -1,0 +1,19 @@
+# Files/directories that are expensive or useless to copy into a fresh dev host.
+# .git is intentionally kept so the remote target remains a working repo clone.
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+.pipeline_workspaces/
+.tooling/
+archives/
+runtime/
+node_modules/
+.idea/
+.vscode/
+.DS_Store
+*.tmp

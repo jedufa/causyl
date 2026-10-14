@@ -1,0 +1,81 @@
+{
+  "schema_version": "budget_adaptive_research_policy_reference_examples_v1",
+  "policy_uid": "PIS-20260411-081500Z-A4D1",
+  "fixtures": [
+    {
+      "fixture_id": "compliant_micro_brief_synthesis",
+      "selection_posture": "compliant",
+      "selected_mode": "micro",
+      "request_summary": "Provide one bounded synthesis answer for a small operator question and stop cleanly.",
+      "proposed_deliverables": [
+        "bounded answer",
+        "evidence-backed next-step plan",
+        "explicit stop condition"
+      ],
+      "literature_breadth": "targeted",
+      "hypothesis_count": 1,
+      "verification_strictness": "sanity_check",
+      "expected_validation_outcome": "accepted"
+    },
+    {
+      "fixture_id": "compliant_campaign_durable_artifacts",
+      "selection_posture": "compliant",
+      "selected_mode": "campaign",
+      "request_summary": "Produce a campaign-ready research packet with durable evidence and review outputs.",
+      "proposed_deliverables": [
+        "evidence pack draft",
+        "hypothesis registry draft",
+        "adversarial review summary",
+        "continuation packet recommendation"
+      ],
+      "literature_breadth": "portfolio",
+      "hypothesis_count": 4,
+      "verification_strictness": "adversarial_gate",
+      "expected_validation_outcome": "accepted"
+    },
+    {
+      "fixture_id": "under_scoped_micro_missing_floor",
+      "selection_posture": "under_scoped",
+      "selected_mode": "micro",
+      "request_summary": "Claim micro mode but omit the evidence-backed handoff and propose no real hypothesis.",
+      "proposed_deliverables": [
+        "bounded answer",
+        "explicit stop condition"
+      ],
+      "literature_breadth": "targeted",
+      "hypothesis_count": 0,
+      "verification_strictness": "sanity_check",
+      "expected_validation_outcome": "rejected"
+    },
+    {
+      "fixture_id": "missing_standard_deliverable_floors",
+      "selection_posture": "under_scoped",
+      "selected_mode": "standard",
+      "request_summary": "Pick standard mode but provide only a loose summary and no verification notes.",
+      "proposed_deliverables": [
+        "structured synthesis",
+        "explicit next-step recommendation"
+      ],
+      "literature_breadth": "scoped",
+      "hypothesis_count": 2,
+      "verification_strictness": "cross_source_check",
+      "expected_validation_outcome": "rejected"
+    },
+    {
+      "fixture_id": "over_broad_campaign_behaves_like_expedition",
+      "selection_posture": "over_scoped",
+      "selected_mode": "campaign",
+      "request_summary": "Label the work campaign mode but let it sprawl into expedition-scale breadth and verification overhead.",
+      "proposed_deliverables": [
+        "evidence pack draft",
+        "hypothesis registry draft",
+        "adversarial review summary",
+        "continuation packet recommendation"
+      ],
+      "literature_breadth": "program_wide",
+      "hypothesis_count": 7,
+      "verification_strictness": "multi_stage_adversarial",
+      "expected_validation_outcome": "rejected"
+    }
+  ]
+}

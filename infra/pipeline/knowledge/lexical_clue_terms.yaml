@@ -1,0 +1,231 @@
+version: 1
+phase: 0
+notes: Deterministic lexical clue catalog for coarse signal extraction. Includes explicit synonym-normalization clusters for truth/evidence, recovery/restore, UI surfaces, and scheduler/control-plane prompts.
+clues:
+- id: state_mutation
+  terms:
+  - persist_state_transition
+  - mark_terminal_after_commit
+  - write_execution_receipt
+  - update_claim_record
+  - commit_status_change
+  - append_state_event
+- id: validation
+  terms:
+  - validate_before_persist
+  - reject_invalid_transition
+  - schema_guard_before_mutation
+  - require_current_generation_match
+  - assert_precondition_before_dispatch
+  - normalize_and_validate_input
+- id: recovery
+  terms:
+  - retry_after_transient_failure
+  - reconcile_orphaned_execution
+  - rollback_uncommitted_mutation
+  - recover_stale_claim_owner
+  - requeue_after_safe_abort
+  - repair_drifted_state
+- id: concurrency
+  terms:
+  - acquire_exclusive_job_claim
+  - compare_generation_before_commit
+  - renew_lease_if_owner_matches
+  - single_flight_dispatch_guard
+  - release_lock_on_terminal_path
+  - fencing_token_validation
+- id: observability
+  terms:
+  - emit_dispatch_audit_event
+  - record_mutation_latency_metric
+  - attach_trace_context_to_run
+  - write_failure_classification_log
+  - append_operator_reason_evidence
+  - publish_recovery_outcome_metric
+- id: persistence
+  terms:
+  - load_persisted_execution_state
+  - save_authoritative_run_record
+  - append_only_event_ledger
+  - transactional_state_repository
+  - durable_claim_store
+  - checkpoint_state_snapshot
+- id: dispatch
+  terms:
+  - enqueue_due_work_item
+  - publish_execution_request
+  - dispatch_if_eligible_now
+  - ack_after_commit_only
+  - schedule_followup_attempt
+  - deliver_claimed_work_unit
+- id: idempotency
+  terms:
+  - idempotency_key_lookup
+  - dedupe_external_side_effect
+  - skip_if_request_fingerprint_seen
+  - replay_safe_mutation_guard
+  - already_committed_receipt_check
+  - suppress_duplicate_dispatch
+- id: audit
+  terms:
+  - append_audit_receipt
+  - record_operator_identity
+  - write_decision_reason
+  - emit_state_transition_evidence
+  - persist_change_lineage
+  - capture_manual_override_context
+- id: auth
+  terms:
+  - authorize_operator_override
+  - validate_principal_scope
+  - enforce_role_bound_mutation
+  - check_access_before_dispatch
+  - require_admin_approval_reason
+  - verify_tenant_ownership
+- id: timeout
+  terms:
+  - deadline_exceeded_before_commit
+  - cancel_after_lease_expiry
+  - timeout_guard_on_dispatch
+  - extend_heartbeat_before_timeout
+  - mark_timed_out_execution
+  - abort_stalled_operation
+- id: orchestration
+  terms:
+  - advance_workflow_stage
+  - coordinate_multi_step_repair
+  - gate_next_stage_on_receipt
+  - orchestrate_retry_then_reconcile
+  - fanout_followup_tasks
+  - join_subtask_outcomes
+- id: cleanup
+  terms:
+  - purge_expired_runtime_artifacts
+  - delete_stale_claim_after_verification
+  - cleanup_after_failed_dispatch
+  - release_resources_on_abort
+  - trim_retention_window_records
+  - remove_orphaned_temp_files
+- id: identity
+  terms:
+  - derive_logical_job_identity
+  - generate_run_lineage_token
+  - resolve_actor_identity_context
+  - stable_request_fingerprint
+  - canonical_resource_identifier
+  - ownership_identity_match
+- id: error_handling
+  terms:
+  - map_exception_to_failure_family
+  - fail_closed_on_unknown_state
+  - raise_retriable_dispatch_error
+  - convert_conflict_to_safe_abort
+  - propagate_validation_failure_reason
+  - classify_non_retriable_error
+- id: scheduling
+  terms:
+  - evaluate_due_window_eligibility
+  - skip_disabled_scheduled_job
+  - compute_next_fire_time
+  - suppress_misfire_duplicate_launch
+  - record_scheduler_tick_decision
+  - reschedule_after_safe_retry
+- id: reconciliation
+  terms:
+  - compare_runtime_vs_persisted_truth
+  - repair_missing_terminal_receipt
+  - reconcile_stale_owner_record
+  - detect_split_brain_claims
+  - resolve_duplicate_active_runs
+  - converge_retry_backlog_state
+- id: operator
+  terms:
+  - manual_pause_with_reason
+  - manual_resume_after_guard_check
+  - cancel_active_run_by_operator
+  - forced_retry_with_evidence
+  - admin_repair_endpoint
+  - operator_backfill_request
+- id: input
+  terms:
+  - parse_operator_request_payload
+  - sanitize_external_callback_body
+  - validate_cli_arguments_before_action
+  - normalize_schedule_definition_input
+  - reject_missing_required_field
+  - canonicalize_identifier_input
+- id: output
+  terms:
+  - write_committed_result_manifest
+  - publish_terminal_status_event
+  - render_operator_result_summary
+  - persist_external_response_receipt
+  - emit_completion_notification_after_commit
+  - serialize_recovery_report_evidence
+- id: truth_evidence_audit
+  terms:
+  - audit_proof_chain
+  - durable_evidence_record
+  - truth_arbitration_rule
+  - authoritative_truth_source
+  - evidence_before_projection
+  - identity_truth_reconciliation
+- id: repair_recovery_restore
+  terms:
+  - repair_and_reconcile_state
+  - restore_from_authoritative_snapshot
+  - recover_then_reconcile
+  - repair_after_partial_commit
+  - restore_canonical_truth
+  - safe_recovery_replay
+- id: ui_shell_page_mobile
+  terms:
+  - ui_shell_boundary
+  - page_view_handler
+  - mobile_surface_action
+  - screen_level_validation
+  - local_view_projection
+  - shell_to_backend_contract
+- id: scheduler_control_plane_watchdog
+  terms:
+  - scheduler_runtime_policy
+  - control_plane_watchdog
+  - watchdog_pause_resume
+  - scheduled_job_enablement
+  - runtime_policy_guard
+  - healer_control_surface
+- id: ingestion
+  terms:
+  - download_input_archive
+  - fetch_remote_dataset
+  - stage_downloaded_payload
+  - retry_source_download
+  - verify_source_exists
+- id: parsing
+  terms:
+  - parse_csv_rows
+  - decode_tsv_entry
+  - normalize_input_record
+  - map_columns_to_fields
+  - reject_malformed_row
+- id: transformation
+  terms:
+  - build_canonical_tree
+  - enrich_processed_record
+  - recompute_parent_relationships
+  - derive_display_names
+  - transform_raw_dataset
+- id: export_generation
+  terms:
+  - write_dictionary_output
+  - generate_stardict_bundle
+  - serialize_export_payload
+  - emit_artifact_index
+  - save_rendered_output
+- id: visualization
+  terms:
+  - render_interactive_tree
+  - reflow_layout_on_zoom
+  - update_selection_state
+  - bind_search_filter_to_view
+  - export_png_or_svg

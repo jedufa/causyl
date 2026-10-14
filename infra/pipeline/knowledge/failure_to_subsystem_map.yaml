@@ -1,0 +1,197 @@
+version: 1
+phase: 1
+notes: Deterministic mapping from failure modes to primary responsible subsystems. Mappings prefer authoritative logic owners
+  over generic adjacent context.
+mappings:
+- failure_mode: duplicate_dispatch
+  primary_subsystems:
+  - scheduler_core
+  - lease_claims
+  - state_persistence
+  secondary_subsystems:
+  - validation
+  - audit_receipts
+- failure_mode: stale_claim_reuse
+  primary_subsystems:
+  - lease_claims
+  - heartbeat_liveness
+  - state_persistence
+  secondary_subsystems:
+  - recovery_mechanisms
+  - distributed_coordination
+- failure_mode: illegal_state_transition
+  primary_subsystems:
+  - validation
+  - state_persistence
+  - workflow_orchestration
+  secondary_subsystems:
+  - operator_entrypoints
+  - recovery_mechanisms
+- failure_mode: completion_before_output_commit
+  primary_subsystems:
+  - worker_runtime
+  - state_persistence
+  - audit_receipts
+  secondary_subsystems:
+  - scheduler_core
+  - queue_dispatch
+- failure_mode: retry_budget_reset_on_restart
+  primary_subsystems:
+  - retry_backoff
+  - state_persistence
+  - recovery_mechanisms
+  secondary_subsystems:
+  - worker_runtime
+  - timeouts_deadlines
+- failure_mode: operator_override_without_audit
+  primary_subsystems:
+  - operator_entrypoints
+  - audit_receipts
+  - validation
+  secondary_subsystems:
+  - state_persistence
+  - api_control_plane
+- failure_mode: split_brain_ownership
+  primary_subsystems:
+  - distributed_coordination
+  - lease_claims
+  - concurrency_control
+  secondary_subsystems:
+  - heartbeat_liveness
+  - state_persistence
+- failure_mode: recovery_replays_committed_side_effect
+  primary_subsystems:
+  - recovery_mechanisms
+  - idempotency_store
+  - state_persistence
+  secondary_subsystems:
+  - audit_receipts
+  - checkpoint_resume
+- failure_mode: ack_before_processing_commit
+  primary_subsystems:
+  - queue_dispatch
+  - state_persistence
+  - worker_runtime
+  secondary_subsystems:
+  - audit_receipts
+  - retry_backoff
+- failure_mode: cleanup_removes_recoverable_state
+  primary_subsystems:
+  - cleanup_retention
+  - state_persistence
+  - audit_receipts
+  secondary_subsystems:
+  - recovery_mechanisms
+  - workflow_orchestration
+- failure_mode: missing_audit_receipt
+  primary_subsystems:
+  - audit_receipts
+  - observability
+  - state_persistence
+  secondary_subsystems:
+  - operator_entrypoints
+  - api_control_plane
+- failure_mode: deadline_from_stale_start
+  primary_subsystems:
+  - timeouts_deadlines
+  - state_persistence
+  - execution_tracking
+  secondary_subsystems:
+  - worker_runtime
+  - scheduler_core
+- failure_mode: configuration_drift_undetected
+  primary_subsystems:
+  - configuration_versioning
+  - state_persistence
+  - validation
+  secondary_subsystems:
+  - audit_receipts
+  - workflow_orchestration
+- failure_mode: heartbeat_write_not_durable
+  primary_subsystems:
+  - heartbeat_liveness
+  - state_persistence
+  - lease_claims
+  secondary_subsystems:
+  - recovery_mechanisms
+  - observability
+- failure_mode: dependency_gate_uses_stale_snapshot
+  primary_subsystems:
+  - dependency_gating
+  - validation
+  - state_persistence
+  secondary_subsystems:
+  - scheduler_core
+  - workflow_orchestration
+- failure_mode: late_event_overwrites_newer_state
+  primary_subsystems:
+  - state_persistence
+  - concurrency_control
+  - execution_tracking
+  secondary_subsystems:
+  - queue_dispatch
+  - observability
+- failure_mode: orphaned_run_without_terminal_resolution
+  primary_subsystems:
+  - recovery_mechanisms
+  - state_persistence
+  - execution_tracking
+  secondary_subsystems:
+  - scheduler_core
+  - heartbeat_liveness
+- failure_mode: resume_from_obsolete_checkpoint
+  primary_subsystems:
+  - checkpoint_resume
+  - state_persistence
+  - workflow_orchestration
+  secondary_subsystems:
+  - validation
+  - recovery_mechanisms
+- failure_mode: backfill_overlaps_live_schedule
+  primary_subsystems:
+  - manual_backfill
+  - scheduler_core
+  - state_persistence
+  secondary_subsystems:
+  - idempotency_store
+  - concurrency_control
+- failure_mode: schema_migration_mixes_versions
+  primary_subsystems:
+  - state_persistence
+  - configuration_versioning
+  - validation
+  secondary_subsystems:
+  - audit_receipts
+  - migration_tools
+- failure_mode: summary_outranks_canonical_evidence
+  primary_subsystems:
+  - knowledge_retrieval
+  - truth_ownership
+  - ledger_evidence
+  secondary_subsystems:
+  - writeback_projection
+  - task_register
+- failure_mode: memory_projection_overwrites_runtime_truth
+  primary_subsystems:
+  - truth_ownership
+  - writeback_projection
+  - task_register
+  secondary_subsystems:
+  - state_persistence
+  - execution_reconciliation
+- failure_mode: cross_project_reuse_without_provenance
+  primary_subsystems:
+  - knowledge_retrieval
+  - ledger_evidence
+  - turn_transcripts
+  secondary_subsystems:
+  - task_register
+  - truth_ownership
+- failure_mode: correction_history_lost_on_rewrite
+  primary_subsystems:
+  - execution_reconciliation
+  - ledger_evidence
+  - writeback_projection
+  secondary_subsystems:
+  - state_persistence
+  - truth_ownership

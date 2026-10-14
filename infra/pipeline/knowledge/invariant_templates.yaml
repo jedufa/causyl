@@ -1,0 +1,214 @@
+version: 1
+phase: 1
+notes: Deterministic invariant templates grouped by task family. Coverage is expected for all active families in canonical task_families.yaml; newer families have now been promoted to first-class invariant coverage.
+families:
+  generic:
+  - state-changing operations must validate current preconditions before any durable mutation
+  - every externally visible mutation must produce durable evidence before success is reported
+  - recovery entrypoints must be safe to execute repeatedly against the same lineage
+  - stale observations must not overwrite newer committed truth
+  - protected mutations must validate current ownership or equivalent authority before commit
+  scheduler_safety:
+  - at most one active execution may exist for a logical job instance at any time
+  - dispatch must require current eligibility, enabled state, and non-stale ownership truth
+  - terminal job instances must not be relaunched without an explicit reset transition
+  - due-time evaluation must read current committed schedule state rather than cached projections
+  - completion must not be recorded before durable outputs and final receipts are committed
+  operator_control:
+  - manual actions must emit actor identity, reason code, target identity, and resulting outcome
+  - manual override paths must enforce the same legality checks as automatic control paths
+  - pause, resume, cancel, restart, and force actions must validate current lifecycle state
+  - repeated manual commands against the same target must converge idempotently
+  - manual mutations must not bypass current ownership, authorization, or dependency checks
+  stateful_workflow:
+  - workflow transitions must follow the declared legal state graph with no skipped mandatory states
+  - resume must start from the latest committed checkpoint that is legal for the current lineage
+  - completed stages must not be re-entered unless an explicit reset or replay contract exists
+  - workflow lineage identifiers must remain stable across retries, resume, and repair
+  - stage completion requires committed side effects, persisted evidence, and valid predecessor truth
+  queue_dispatch:
+  - each work item may have at most one active consumer claim at a time
+  - acknowledgement must not occur before the durable processing outcome is committed
+  - redelivery must not repeat externally visible side effects without idempotency protection
+  - claim expiry must be revalidated against current durable ownership before reassignment
+  - delivery attempt lineage must remain reconstructable across retry, timeout, and replay
+  api_control_plane:
+  - mutating writes must validate current resource generation or equivalent version truth
+  - reconcile and handler paths must be replay-safe with respect to external side effects
+  - status must not report success until dependent state mutations are durably verified
+  - admission and request validation must reject illegal state mutations before they commit
+  - finalizer execution must preserve cleanup ordering, ownership checks, and evidence emission
+  retry_timeout_resilience:
+  - retry attempt counters must increase monotonically within a lineage and survive restart
+  - timeout handlers must reconcile live completion truth before mutating status or scheduling retry
+  - backoff windows, retry budgets, and breaker state must survive restart and recovery
+  - successful external side effects must not be repeated by retry logic
+  - timeout and retry decisions must read the same current attempt identity and deadline truth
+  reconciliation_recovery:
+  - repair and reconciliation must start from durable truth rather than stale projections
+  - recovery passes must be safe to rerun without creating duplicate active entities
+  - orphaned partial state must converge to a known safe, terminal, or explicitly recoverable state
+  - replay must distinguish committed work from incomplete work before side effects are retried
+  - corrective mutations must emit durable evidence linking the repair to the original failure lineage
+  distributed_coordination:
+  - protected writes require a valid current epoch, term, or fencing token
+  - at most one active coordinator may own a fenced responsibility at a time
+  - expired leases must not authorize new mutations or continued dispatch
+  - ownership transfer must fence, revoke, or supersede the prior owner before reassignment
+  - quorum loss or partition uncertainty must suppress unsafe ownership mutation
+  persistence_integrity:
+  - authoritative committed state must be reconstructable from durable records and receipts
+  - related durable mutations must preserve atomic truth across business and evidence records
+  - read models and projections must not silently replace authoritative committed data
+  - every persisted record set must expose an identifiable schema or revision version
+  - restored or migrated data must preserve lineage to the original committed source
+  execution_lifecycle:
+  - every active execution must have stable lineage and attempt identifiers
+  - an attempt may enter a terminal state at most once
+  - active execution markers must correspond to live, fenced, or explicitly recoverable ownership
+  - recorded completion cause must agree with the final persisted state
+  - restart must not create a second active attempt in the same lineage
+  dependency_gating:
+  - work may launch only when all required dependencies are durably satisfied
+  - blocked reasons must remain stable until dependency truth changes
+  - eligibility decisions must read current dependency state rather than stale cache state
+  - dependency overrides must emit durable evidence and explicit operator attribution
+  - downstream execution must preserve lineage to prerequisite completion truth
+  configuration_versioning:
+  - each execution must bind to a stable configuration revision or snapshot
+  - configuration drift must be detectable from persisted execution evidence
+  - retries and recovery must preserve original configuration identity unless explicitly reset
+  - semantic configuration changes must produce a new revision identity
+  - mixed-version configuration views must not drive protected mutations
+  audit_evidence:
+  - every externally visible mutation must produce durable evidence with stable correlation identity
+  - audit history must be append-only or otherwise reconstructably immutable
+  - repair, replay, and manual override actions require their own evidence trail
+  - evidence emission failure must not be silently swallowed by the mutating path
+  - investigation order for related actions must be reconstructable deterministically
+  manual_backfill:
+  - backfill runs must be explicitly distinguishable from ordinary scheduled runs
+  - historical intervals must not be processed twice without explicit override evidence
+  - backfill must preserve historical lineage and applicable configuration identity
+  - live scheduling state must not silently absorb synthetic backfill outcomes
+  - backfill replay must honor dependency, retention, and deduplication constraints
+  heartbeat_liveness:
+  - ownership decisions must use committed heartbeat truth or explicit expiry windows
+  - stale workers must not retain active ownership after reclamation
+  - healthy workers must emit liveness evidence within configured windows
+  - failover must fence the previous owner before reassignment
+  - clock assumptions used for liveness and expiry must be explicit and consistent
+  timeout_deadline_control:
+  - deadline truth must survive pause, resume, restart, and recovery
+  - timed-out work must not continue mutating state as if it were still active
+  - deadline extensions must be explicit, durable, reviewable, and lineage-scoped
+  - timeout handling must reconcile completion truth before rollback or retry
+  - remaining time calculations must use a single consistent clock source
+  cleanup_retention:
+  - cleanup must not remove active, recoverable, or still-referenced truth
+  - retention policy must preserve evidence required for audit, replay safety, and deduplication
+  - archival state must be distinguishable from current active state
+  - destructive cleanup operations must emit durable evidence and target identity
+  - cleanup rollback must not restore stale data as current truth
+  admission_and_validation:
+  - protected mutations must validate schema, version, and state legality before commit
+  - invalid requests must fail closed rather than mutate partial truth
+  - validation decisions must be explainable from durable or reproducible inputs
+  - resumed operations must not bypass validation required on the fresh path
+  - normalization must preserve safety-relevant request semantics
+  worker_runtime_safety:
+  - claimed work must not outlive the fencing or authority of its worker owner
+  - worker exit must emit terminal evidence or explicit recoverable-failure evidence
+  - runtime isolation, limits, and required environment must be established before side effects begin
+  - restarted workers must not blindly reuse stale payloads or stale ownership state
+  - quarantined workers must not re-enter active ownership without explicit clearance
+  lab_assistant_memory:
+  - Canonical task, runtime, and execution truth must remain separate from derived cross-project memory.
+  - Memory-backed answers must preserve provenance, freshness, confidence, and correction state.
+  - Cross-project retrieval may inform recommendations but must not become an unreviewable second planning authority.
+  - Corrections and contradiction history must remain reconstructable from durable evidence lineage.
+  - Derived summaries and projections must never outrank authoritative evidence without explicit truth-boundary rules.
+  pipeline_internal_modification:
+  - narrow task retrieval must not promote broad stage orchestration hubs over local logic owners
+  - stage outputs must preserve lineage, schema validity, and executable target boundaries
+  - non-editable reference context must not be promoted into implementation targets
+  - bundle narrowing must remain deterministic for exact path, symbol, or failing-test prompts
+  - owner-versus-hub scoring changes must remain explainable from durable stage evidence
+  knowledge_and_retrieval_policy:
+  - canonical knowledge assets must define runtime behavior rather than scattered constants
+  - policy additions must not silently shadow existing base rules without explicit merge intent
+  - retrieval-bias, subsystem, and role policies must remain mutually consistent
+  - loader-facing knowledge files must stay parseable, deterministic, and reviewable
+  - policy changes must preserve backwards-compatible stage contracts unless explicitly versioned
+  scheduler_or_control_plane:
+  - schedule and enablement changes must flow through explicit control surfaces
+  - watchdog and healer paths must preserve single active ownership
+  - manual pause, resume, and model-change operations must emit attributable evidence
+  - runtime policy changes must not silently bypass scheduler legality checks
+  - control-plane actions must reconcile current durable state before mutation
+  ui_local_changes:
+  - ui state must not become workflow truth
+  - visible actions must derive from persisted backend legality
+  - narrow ui changes must preserve backend-aligned validation semantics
+  - shell or mobile bridges must not duplicate authoritative business rules
+  - local presentation changes must not widen retrieval to unrelated global infrastructure
+  audit_and_integrity:
+  - every authoritative mutation must yield durable evidence with reconstructable lineage
+  - projection and summary layers must not overwrite canonical truth
+  - append-safe registries and state indexes must remain aligned
+  - unauthorized or tamper-sensitive mutations must be detectable from durable records
+  - forensic reconstruction must be possible from committed evidence without hidden state
+  operator_review_and_repair:
+  - review artifacts must derive from current stage outputs
+  - operator decisions must persist actor intent, target, and lineage
+  - repair and rerun flows must preserve explicit branch and retry lineage
+  - review writeback must not diverge from active job state truth
+  - repair-oriented reentry must remain idempotent against already-applied decisions
+  experiment_or_run_validation:
+  - validation outputs must point to executable or inspectable evidence
+  - run comparisons must use comparable scopes, artifacts, and baselines
+  - benchmark and report harnesses must remain secondary to implementation owners for code edits
+  - verification tooling must preserve provenance for measured conclusions
+  - proof-oriented validation must surface uncertainty rather than collapse it into summaries
+  assistant_truth_and_identity:
+  - one stable assistant_id survives fresh-turn reloads
+  - assistant-state schema is versioned and checked at boot
+  - blocked or recovery-required state is surfaced truthfully instead of optimistic load
+  - ledger remains authoritative for durable project work items and long-horizon artifacts
+  - runtime state remains authoritative for current assistant identity, mode/state, recovery markers, and arbitration metadata
+  - transcript cannot overwrite stronger runtime or ledger evidence
+  - every assistant-state write yields append-only audit evidence or replayable mutation trail
+  - one explicit arbitration rule governs assistant/runtime and task-register mutations across turns, scheduler jobs, and recovery passes
+  agent_orchestration_runtime:
+  - one authoritative orchestrator state owner governs runnable job lineage at a time
+  - orchestrator restart or recovery must reconstruct runnable state from durable evidence before issuing new work
+  - swarm or multi-agent coordination must not create duplicate side-effecting work for one logical job
+  - job lineage, runner state, and operator-visible status must reconcile to the same committed execution truth
+  - broad orchestration hubs must stay secondary to local runtime owners for narrow mutation tasks
+  governance_ledger_durability:
+  - every governance mutation must yield append-safe ledger evidence before it is treated as durable truth
+  - commit traceability must preserve actor, target, reason, and artifact linkage across retries and recovery
+  - status history and ledger storage must remain replayable without hidden side channels
+  - ledger repair must reconcile missing projections from authoritative history rather than inventing new truth
+  - artifact linkage must not drift from committed ledger records after recovery or backfill
+  host_execution_boundary:
+  - host verification contracts must distinguish authoritative host actions from UI-only projections
+  - native app, web UI, and mobile boundaries must share one explicit legality contract for side-effecting actions
+  - device-install or host-bound actions must fail closed when verification evidence is absent or stale
+  - boundary adapters must not duplicate or override authoritative backend validation rules
+  - verification runners and user-visible status must reconcile against the same committed boundary evidence
+  lab_assistant_delegation:
+  - typed delegation requests and results must preserve one explicit subsystem target and correlation record
+  - delegation status must reconcile host-bound execution evidence with assistant-visible task state
+  - routing policy must not silently widen from a local owner to a broad correlation or hub surface
+  - host-bound delegation must fail closed when delegation binding, authority, or boundary evidence is incomplete
+  - delegation recovery must be idempotent against already-completed or already-recorded downstream work
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: invariant_templates.yaml
+    payload:
+      canonical_runtime_source: invariant_templates.yaml
+      bundle_extract_status: noncanonical_duplicate
+      use_bundle_extract_for_runtime: false
+      reason: bundle_extract_creates_overlap_and_should_not_override_canonical_asset

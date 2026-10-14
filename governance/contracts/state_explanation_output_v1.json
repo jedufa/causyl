@@ -1,0 +1,21 @@
+{
+  "schema_version": "state_explanation_output_v1",
+  "required_fields": [
+    "contradiction_present",
+    "evidence_references",
+    "primary_reason",
+    "proof_state",
+    "recommendation_eligible",
+    "schema_version",
+    "stale_evidence_present",
+    "status_class",
+    "summary"
+  ],
+  "allowed_proof_states": [
+    "uncertain",
+    "pass",
+    "proof_gap",
+    "no_pass"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

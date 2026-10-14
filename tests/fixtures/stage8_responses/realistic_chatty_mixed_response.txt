@@ -1,0 +1,17 @@
+I considered two alternatives.
+
+Option A
+*** Begin Patch
+*** Update File: hello.txt
+@@
+-hello
++hello world
+*** End Patch
+
+Option B
+*** Begin Patch
+*** Update File: hello.txt
+@@
+-hello
++hello there
+*** End Patch

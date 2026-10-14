@@ -1,0 +1,592 @@
+version: 1
+phase: 0
+notes: Conceptual query templates for deterministic retrieval planning. Templates are reusable search intents that map user
+  problems to likely subsystems, failure classes, and evidence targets.
+templates:
+- key: duplicate_run_prevention
+  intent: find duplicate execution risks
+  query_template: Find code paths that can create, dispatch, or start the same logical job more than once.
+  target_subsystems:
+  - scheduler_core
+  - queue_dispatch
+  - lease_claims
+  - state_persistence
+  signals:
+  - duplicate dispatch
+  - double launch
+  - repeated start
+  - second active run
+- key: stale_claim_recovery
+  intent: find stale ownership handling
+  query_template: Find logic that detects, expires, reclaims, or reassigns stale job claims or leases.
+  target_subsystems:
+  - lease_claims
+  - recovery_mechanisms
+  - heartbeat_liveness
+  - state_persistence
+  signals:
+  - stale claim
+  - expired lease
+  - ownership recovery
+  - claim timeout
+- key: manual_vs_automatic_conflict
+  intent: find operator and scheduler overlap
+  query_template: Find places where manual control actions can race or conflict with automatic scheduler actions.
+  target_subsystems:
+  - operator_entrypoints
+  - scheduler_core
+  - validation
+  - state_persistence
+  signals:
+  - manual cancel
+  - manual restart
+  - operator override
+  - scheduler tick
+- key: invalid_state_transition
+  intent: find broken lifecycle transitions
+  query_template: Find state transition logic that may allow illegal source-to-target transitions or skip validation.
+  target_subsystems:
+  - state_persistence
+  - validation
+  - operator_entrypoints
+  - recovery_mechanisms
+  signals:
+  - invalid transition
+  - state machine
+  - status update
+  - checkpoint mismatch
+- key: missing_durable_receipt
+  intent: find completion without persistence
+  query_template: Find code paths that mark work complete before durable state, receipts, or output artifacts are committed.
+  target_subsystems:
+  - audit_receipts
+  - state_persistence
+  - worker_runtime
+  - observability
+  signals:
+  - mark complete
+  - receipt
+  - commit
+  - persist before completion
+- key: retry_budget_enforcement
+  intent: find retry control logic
+  query_template: Find logic that increments attempts, enforces retry budgets, and prevents unbounded retries.
+  target_subsystems:
+  - retry_backoff
+  - worker_runtime
+  - state_persistence
+  - validation
+  signals:
+  - retry count
+  - attempt
+  - backoff
+  - retry budget
+- key: deadline_timeout_handling
+  intent: find timeout and deadline enforcement
+  query_template: Find where deadlines or timeouts are computed, propagated, enforced, or ignored.
+  target_subsystems:
+  - timeouts_deadlines
+  - worker_runtime
+  - scheduler_core
+  - observability
+  signals:
+  - timeout
+  - deadline
+  - ttl
+  - execution window
+- key: dependency_gate_validation
+  intent: find launch precondition checks
+  query_template: Find dependency checks and launch gates that decide whether work is eligible to run.
+  target_subsystems:
+  - dependency_gating
+  - validation
+  - scheduler_core
+  - state_persistence
+  signals:
+  - prerequisite
+  - eligibility
+  - dependency status
+  - launch gate
+- key: schedule_window_misfire
+  intent: find due-time and misfire handling
+  query_template: Find code that computes due time, handles missed runs, and applies schedule windows or backfill rules.
+  target_subsystems:
+  - schedule_calculation
+  - scheduler_core
+  - manual_backfill
+  - state_persistence
+  signals:
+  - next run
+  - misfire
+  - due evaluation
+  - backfill window
+- key: heartbeat_liveness_decision
+  intent: find worker liveness logic
+  query_template: Find heartbeat updates and logic that decides whether a worker is live, stale, or recoverable.
+  target_subsystems:
+  - heartbeat_liveness
+  - worker_runtime
+  - recovery_mechanisms
+  - lease_claims
+  signals:
+  - heartbeat
+  - keepalive
+  - liveness
+  - stale worker
+- key: leader_coordination_safety
+  intent: find multi-scheduler ownership logic
+  query_template: Find leader election, fencing, or ownership checks that prevent multiple schedulers from dispatching simultaneously.
+  target_subsystems:
+  - leadership_coordination
+  - scheduler_core
+  - lease_claims
+  - observability
+  signals:
+  - leader
+  - fencing
+  - primary scheduler
+  - ownership epoch
+- key: checkpoint_resume_integrity
+  intent: find checkpoint and resume correctness
+  query_template: Find checkpoint creation, resume logic, and validation that recovery uses the latest committed state.
+  target_subsystems:
+  - checkpoint_resume
+  - recovery_mechanisms
+  - state_persistence
+  - worker_runtime
+  signals:
+  - checkpoint
+  - resume point
+  - saved state
+  - recovery point
+- key: configuration_drift_protection
+  intent: find config version consistency
+  query_template: Find where job configuration is versioned, snapshotted, compared, or incorrectly reused across runs.
+  target_subsystems:
+  - configuration_versioning
+  - state_persistence
+  - scheduler_core
+  - audit_receipts
+  signals:
+  - config version
+  - job spec version
+  - revision
+  - configuration snapshot
+- key: cleanup_vs_active_state
+  intent: find cleanup hazards
+  query_template: Find cleanup and retention paths that may delete active metadata, receipts, or recovery evidence too early.
+  target_subsystems:
+  - cleanup_retention
+  - audit_receipts
+  - state_persistence
+  - recovery_mechanisms
+  signals:
+  - cleanup
+  - retention
+  - garbage collection
+  - history pruning
+- key: auditability_of_manual_actions
+  intent: find operator audit coverage
+  query_template: Find whether manual actions are logged with actor, time, reason, and affected run identity.
+  target_subsystems:
+  - operator_entrypoints
+  - audit_receipts
+  - observability
+  - state_persistence
+  signals:
+  - audit trail
+  - manual action
+  - operator identity
+  - control command
+- key: event_ordering_corruption
+  intent: find out-of-order update risks
+  query_template: Find asynchronous event handlers where late or out-of-order messages can overwrite newer run state.
+  target_subsystems:
+  - observability
+  - state_persistence
+  - worker_runtime
+  - queue_dispatch
+  signals:
+  - late event
+  - out of order
+  - overwrite newer state
+  - event sequencing
+- key: api_reconcile_replay
+  intent: find replay-safe reconcile handlers
+  query_template: Find reconcile or controller loops that may reapply external side effects when replayed.
+  target_subsystems:
+  - operator_entrypoints
+  - state_persistence
+  - audit_receipts
+  - worker_runtime
+  signals:
+  - reconcile
+  - controller
+  - replay
+  - duplicate provisioning
+- key: queue_ack_before_commit
+  intent: find ack-before-commit paths
+  query_template: Find queue consumers that acknowledge work before durable downstream state or side effects are committed.
+  target_subsystems:
+  - queue_dispatch
+  - state_persistence
+  - audit_receipts
+  - worker_runtime
+  signals:
+  - ack before commit
+  - consumer ack
+  - downstream commit
+  - message loss
+- key: stale_snapshot_usage
+  intent: find stale snapshot reads
+  query_template: Find code that uses cached or snapshotted state for protected mutations without revalidating current truth.
+  target_subsystems:
+  - state_persistence
+  - validation
+  - checkpoint_resume
+  - configuration_versioning
+  signals:
+  - stale snapshot
+  - cached state
+  - version mismatch
+  - obsolete checkpoint
+- key: crash_consistency_handling
+  intent: find crash and restart durability gaps
+  query_template: Find restart, crash, or recovery paths that can observe partially committed state or lose durable progress markers.
+  target_subsystems:
+  - state_persistence
+  - recovery_mechanisms
+  - checkpoint_resume
+  - validation
+  signals:
+  - crash consistency
+  - restart
+  - partial commit
+  - recovery marker
+- key: durable_commit_guarantee
+  intent: find missing durable commit boundaries
+  query_template: Find write, checkpoint, or completion flows that report success before durable commit, receipt, or checkpoint persistence.
+  target_subsystems:
+  - state_persistence
+  - audit_receipts
+  - checkpoint_resume
+  - worker_runtime
+  signals:
+  - durable commit
+  - partial write
+  - commit boundary
+  - checkpoint persist
+- key: resource_exhaustion_protection
+  intent: find capacity and exhaustion protection
+  query_template: Find capacity, quota, memory, or worker-slot paths that fail open or skip recovery when resources are exhausted.
+  target_subsystems:
+  - worker_runtime
+  - scheduler_core
+  - recovery_mechanisms
+  - observability
+  signals:
+  - resource exhaustion
+  - capacity limit
+  - worker slot
+  - memory pressure
+- key: corruption_detection_and_repair
+  intent: find corruption detection and repair
+  query_template: Find integrity checks, checksum validation, or repair paths that detect corrupted persisted state before reuse on restart.
+  target_subsystems:
+  - state_persistence
+  - recovery_mechanisms
+  - validation
+  - audit_receipts
+  signals:
+  - corruption
+  - checksum
+  - integrity check
+  - repair path
+- key: ownership_fence_gap
+  intent: find unfenced ownership transfer
+  query_template: Find handoff paths where ownership changes without revoking or fencing the previous owner.
+  target_subsystems:
+  - lease_claims
+  - leadership_coordination
+  - heartbeat_liveness
+  - recovery_mechanisms
+  signals:
+  - ownership transfer
+  - unfenced handoff
+  - split brain
+  - stale owner
+- key: memory_evidence_ranking
+  intent: find evidence-vs-summary ranking logic
+  query_template: Find retrieval and ranking logic that decides whether canonical evidence, derived memory, and current-context
+    truth outrank each other.
+  target_subsystems:
+  - knowledge_retrieval
+  - ledger_evidence
+  - truth_ownership
+  - writeback_projection
+  signals:
+  - provenance
+  - freshness
+  - confidence
+  - memory summary
+  - canonical evidence
+- key: memory_correction_lineage
+  intent: find contradiction and correction handling
+  query_template: Find correction, contradiction, freshness, and expiry paths that update reusable memory without overwriting
+    canonical evidence lineage.
+  target_subsystems:
+  - execution_reconciliation
+  - ledger_evidence
+  - writeback_projection
+  - state_persistence
+  signals:
+  - correction history
+  - contradiction
+  - freshness
+  - expiry
+  - reconciliation
+- key: cross_project_memory_boundary
+  intent: find cross-project reuse boundaries
+  query_template: Find cross-project memory reuse and precedent lookup paths that require provenance, reviewability, and supporting
+    sources before recommendation.
+  target_subsystems:
+  - knowledge_retrieval
+  - task_register
+  - turn_transcripts
+  - ledger_evidence
+  signals:
+  - cross-project
+  - precedent lookup
+  - supporting sources
+  - prior projects
+- key: transcript_artifact_memory_ingest
+  intent: find transcript and artifact extraction ownership
+  query_template: Find code that ingests transcripts, reports, artifacts, or ledger records into durable memory while preserving
+    canonical source links.
+  target_subsystems:
+  - turn_transcripts
+  - ledger_evidence
+  - knowledge_retrieval
+  - task_register
+  signals:
+  - transcript
+  - artifact
+  - report
+  - ledger record
+  - source linkage
+- key: assistant_identity_reload_contract
+  intent: find durable assistant identity ownership
+  query_template: Find where assistant identity and runtime state are durably persisted, reloaded, and fail closed when schema or identity is invalid.
+  target_subsystems:
+  - assistant_runtime_state
+  - runtime_state
+  - serialization_replay
+  - recovery_markers
+  signals:
+  - assistant identity
+  - runtime state
+  - schema version
+  - blocked state
+  - recovery marker
+- key: truth_precedence_matrix
+  intent: find source-of-truth precedence rules
+  query_template: Find where ledger truth, runtime truth, and chat transcript precedence are defined, enforced, and surfaced when they disagree.
+  target_subsystems:
+  - truth_registry
+  - assistant_runtime_state
+  - operator_visible_state
+  - validation
+  signals:
+  - source of truth
+  - precedence
+  - transcript precedence
+  - authoritative
+  - disagreement
+- key: append_only_assistant_event_log
+  intent: find append-only assistant-state evidence
+  query_template: Find append-only assistant-state event logging, replayable mutation trails, and validation that accepted and rejected writes both produce durable evidence.
+  target_subsystems:
+  - audit_log
+  - assistant_runtime_state
+  - serialization_replay
+  - validation
+  signals:
+  - append-only event log
+  - audit event
+  - replayable mutation trail
+  - rejected writes
+  - durable evidence
+- key: runtime_write_arbitration_contract
+  intent: find runtime write arbitration logic
+  query_template: Find compare-and-swap, write-generation, or writer-arbitration logic that prevents stale runtime-state writes from overwriting newer truth.
+  target_subsystems:
+  - assistant_runtime_state
+  - truth_registry
+  - validation
+  - recovery_markers
+  signals:
+  - write arbitration
+  - write generation
+  - stale writer
+  - compare and swap
+  - expected generation
+- key: operator_truthful_state_projection
+  intent: find truthful blocked and interrupted state projection
+  query_template: Find where blocked, interrupted, or recovery-required assistant states are represented durably and surfaced without becoming a separate mutable truth store.
+  target_subsystems:
+  - operator_visible_state
+  - recovery_markers
+  - assistant_runtime_state
+  - truth_registry
+  signals:
+  - operator visible state
+  - blocked state
+  - interrupted_recovering
+  - recovery-required
+  - truthful state
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: conceptual_query_templates.yaml
+    payload:
+      conceptual_queries:
+      - query: stale claim recovery logic
+        context: operator_safety
+        clue_terms:
+        - cleanup
+        - reclaim
+        - timeout
+        - stale
+      - query: duplicate dispatch protection
+        context: idempotency
+        clue_terms:
+        - dedupe
+        - nonce
+        - unique_id
+        - idempotent
+      - query: operator-triggered state validation
+        context: validation_rigor
+        clue_terms:
+        - verify
+        - check
+        - assert
+        - manual_override
+      - query: retry suppression guard
+        context: recovery_integrity
+        clue_terms:
+        - backoff
+        - max_retries
+        - suppress
+        - halt
+      - query: persisted state reconciliation
+        context: state_consistency
+        clue_terms:
+        - sync
+        - reconcile
+        - drift
+        - latest
+      - query: concurrency lock acquisition
+        context: concurrency_control
+        clue_terms:
+        - mutex
+        - acquire
+        - semaphore
+        - distributed_lock
+      - query: atomic state transition
+        context: mutation_boundary
+        clue_terms:
+        - transaction
+        - commit
+        - rollback
+        - atomic
+      - query: observability event emission
+        context: observability
+        clue_terms:
+        - emit
+        - telemetry
+        - log
+        - metric
+      - query: fail-closed error handling
+        context: fail_closed_behavior
+        clue_terms:
+        - exception
+        - safety_stop
+        - abort
+        - secure_exit
+      - query: audit trail persistence
+        context: auditability
+        clue_terms:
+        - history
+        - journal
+        - audit_log
+        - record
+      - query: resource cleanup on failure
+        context: recovery_integrity
+        clue_terms:
+        - teardown
+        - finally
+        - dispose
+        - release
+      - query: input sanitization boundaries
+        context: input_sanitization
+        clue_terms:
+        - escape
+        - filter
+        - validate
+        - parse
+      - query: eligibility check logic
+        context: eligibility_correctness
+        clue_terms:
+        - allowed
+        - qualified
+        - pre_condition
+        - filter
+      - query: side effect isolation
+        context: side_effect_control
+        clue_terms:
+        - mock
+        - dry_run
+        - external_api
+        - wrapper
+      - query: timing window race condition
+        context: timing_correctness
+        clue_terms:
+        - sleep
+        - wait_for
+        - race
+        - overlap
+      - query: stale state detection
+        context: stale_state_handling
+        clue_terms:
+        - version
+        - timestamp
+        - etag
+        - outdated
+      - query: claim integrity verification
+        context: claim_integrity
+        clue_terms:
+        - owner
+        - heartbeat
+        - keep_alive
+        - expire
+      - query: rollback safety guarantees
+        context: rollback_safety
+        clue_terms:
+        - undo
+        - revert
+        - previous_state
+        - snapshot
+      - query: mutation boundary enforcement
+        context: mutation_boundary
+        clue_terms:
+        - read_only
+        - immutable
+        - guard
+        - protection
+      - query: ownership control handover
+        context: ownership_control
+        clue_terms:
+        - transfer
+        - delegate
+        - assign
+        - release_claim

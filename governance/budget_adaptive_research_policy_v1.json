@@ -1,0 +1,238 @@
+{
+  "schema_version": "budget_adaptive_research_policy_contract_v1",
+  "uid": "PIS-20260411-081500Z-A4D1",
+  "contract_family": "budget_adaptive_research_policy",
+  "policy_schema_version": "budget_adaptive_research_policy_v1",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_budget_adaptive_research_policy_v1.md",
+  "reference_fixtures_rel": "governance/budget_adaptive_research_policy_reference_examples_v1.json",
+  "top_level_required_fields": [
+    "schema_version",
+    "policy_id",
+    "policy_version",
+    "stable_identity",
+    "metadata",
+    "ownership_boundary",
+    "canonical_mode_order",
+    "modes",
+    "scaling_law"
+  ],
+  "stable_identity_required_fields": [
+    "canonicalization",
+    "content_hash_algorithm",
+    "schema_migration_policy"
+  ],
+  "metadata_required_fields": [
+    "title",
+    "created_at_utc",
+    "source_intent_uid",
+    "ledger_refs"
+  ],
+  "ownership_boundary_required_fields": [
+    "belongs_in_policy",
+    "outside_policy"
+  ],
+  "mode_required_fields": [
+    "mode_id",
+    "label",
+    "summary",
+    "minimum_deliverables",
+    "literature_breadth",
+    "depth_expectation",
+    "hypothesis_count_floor",
+    "hypothesis_count_ceiling",
+    "hypothesis_posture",
+    "verification_strictness_floor"
+  ],
+  "scaling_law_required_fields": [
+    "fixed_method_template_phase_ids",
+    "breadth_progression",
+    "depth_progression",
+    "hypothesis_progression",
+    "verification_progression",
+    "invariants"
+  ],
+  "canonical_mode_order": [
+    "micro",
+    "standard",
+    "overnight",
+    "campaign",
+    "expedition"
+  ],
+  "ownership_boundary": {
+    "belongs_in_policy": [
+      "one canonical meaning table for micro, standard, overnight, campaign, and expedition research modes",
+      "minimum deliverable floors for each research mode",
+      "budget-adaptive breadth, depth, hypothesis-count, and verification-floor expectations",
+      "reference fixtures that show compliant, under-scoped, and over-scoped mode allocations"
+    ],
+    "outside_policy": [
+      "runtime budget ledger mechanics or costing math",
+      "campaign planner and compiler implementation",
+      "scheduler gating or operator UI behavior",
+      "changes to the underlying scientific campaign method-template phase nouns"
+    ]
+  },
+  "forbidden_top_level_fields": {
+    "runtime_budget_ledger": "Runtime budget ledger mechanics remain owned by IS-04.",
+    "campaign_plan_compiler": "Intent-to-campaign compiler behavior remains downstream IS-15 work.",
+    "scheduler_gate": "Scheduler gating belongs to later enforcement work, not this policy contract.",
+    "operator_ui_override": "Operator UI behavior belongs to downstream control-surface work."
+  },
+  "policy_id": "budget-adaptive-research-policy",
+  "policy_version": "1.0.0",
+  "stable_identity": {
+    "canonicalization": "json_sort_keys_compact_utf8",
+    "content_hash_algorithm": "sha256",
+    "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+  },
+  "metadata": {
+    "title": "Budget-Adaptive Research Policy",
+    "created_at_utc": "2026-04-11T08:15:00Z",
+    "source_intent_uid": "IS-20260403-212914Z-AA86",
+    "ledger_refs": [
+      "PIS-20260411-081500Z-A4D1"
+    ]
+  },
+  "modes": [
+    {
+      "mode_id": "micro",
+      "label": "Micro",
+      "summary": "Bounded synthesis for a small budget where convergence matters more than exploration theater.",
+      "minimum_deliverables": [
+        "bounded answer",
+        "evidence-backed next-step plan",
+        "explicit stop condition"
+      ],
+      "literature_breadth": "targeted",
+      "depth_expectation": "single_pass",
+      "hypothesis_count_floor": 1,
+      "hypothesis_count_ceiling": 1,
+      "hypothesis_posture": "single_working_hypothesis",
+      "verification_strictness_floor": "sanity_check"
+    },
+    {
+      "mode_id": "standard",
+      "label": "Standard",
+      "summary": "Default bounded research with one narrow branch of comparison and explicit recommendation output.",
+      "minimum_deliverables": [
+        "structured synthesis",
+        "prioritized hypothesis list",
+        "verification notes",
+        "explicit next-step recommendation"
+      ],
+      "literature_breadth": "scoped",
+      "depth_expectation": "two_pass",
+      "hypothesis_count_floor": 1,
+      "hypothesis_count_ceiling": 3,
+      "hypothesis_posture": "ranked_shortlist",
+      "verification_strictness_floor": "cross_source_check"
+    },
+    {
+      "mode_id": "overnight",
+      "label": "Overnight",
+      "summary": "Broader synthesis with room for competing explanations, but still bounded enough to hand off cleanly the next morning.",
+      "minimum_deliverables": [
+        "annotated synthesis memo",
+        "competing hypothesis comparison",
+        "verification plan",
+        "continuation recommendation"
+      ],
+      "literature_breadth": "broad",
+      "depth_expectation": "multi_pass",
+      "hypothesis_count_floor": 2,
+      "hypothesis_count_ceiling": 4,
+      "hypothesis_posture": "competing_set_with_pruning",
+      "verification_strictness_floor": "targeted_adversarial_check"
+    },
+    {
+      "mode_id": "campaign",
+      "label": "Campaign",
+      "summary": "Stage-complete research with durable evidence and review artifacts, but still short of program-scale sprawl.",
+      "minimum_deliverables": [
+        "evidence pack draft",
+        "hypothesis registry draft",
+        "adversarial review summary",
+        "continuation packet recommendation"
+      ],
+      "literature_breadth": "portfolio",
+      "depth_expectation": "campaign_stage",
+      "hypothesis_count_floor": 3,
+      "hypothesis_count_ceiling": 6,
+      "hypothesis_posture": "multi_branch_portfolio",
+      "verification_strictness_floor": "adversarial_gate"
+    },
+    {
+      "mode_id": "expedition",
+      "label": "Expedition",
+      "summary": "Program-scale exploratory effort with durable branching and multi-stage verification obligations.",
+      "minimum_deliverables": [
+        "portfolio evidence compendium",
+        "branching hypothesis map",
+        "verification matrix",
+        "explicit continuation packet set"
+      ],
+      "literature_breadth": "program_wide",
+      "depth_expectation": "program_scale",
+      "hypothesis_count_floor": 4,
+      "hypothesis_count_ceiling": 8,
+      "hypothesis_posture": "branching_portfolio_with_continuations",
+      "verification_strictness_floor": "multi_stage_adversarial"
+    }
+  ],
+  "scaling_law": {
+    "fixed_method_template_phase_ids": [
+      "question_framing",
+      "prior_knowledge_consolidation",
+      "hypothesis_registry",
+      "experiment_design",
+      "analysis_plan",
+      "adversarial_review",
+      "outcome_documentation",
+      "continuation"
+    ],
+    "breadth_progression": {
+      "micro": "targeted",
+      "standard": "scoped",
+      "overnight": "broad",
+      "campaign": "portfolio",
+      "expedition": "program_wide"
+    },
+    "depth_progression": {
+      "micro": "single_pass",
+      "standard": "two_pass",
+      "overnight": "multi_pass",
+      "campaign": "campaign_stage",
+      "expedition": "program_scale"
+    },
+    "hypothesis_progression": {
+      "micro": "single_working_hypothesis",
+      "standard": "ranked_shortlist",
+      "overnight": "competing_set_with_pruning",
+      "campaign": "multi_branch_portfolio",
+      "expedition": "branching_portfolio_with_continuations"
+    },
+    "verification_progression": {
+      "micro": "sanity_check",
+      "standard": "cross_source_check",
+      "overnight": "targeted_adversarial_check",
+      "campaign": "adversarial_gate",
+      "expedition": "multi_stage_adversarial"
+    },
+    "invariants": [
+      "budget changes breadth and evidence depth but does not rename the scientific campaign method-template phase nouns",
+      "smaller budgets must converge into bounded deliverables instead of broad literature theater",
+      "larger budgets may deepen or broaden within their declared mode boundary but may not default to unbounded expansion"
+    ]
+  },
+  "fail_closed_rules": [
+    "all_first_class_modes_must_be_defined_exactly_once",
+    "deliverable_floors_must_be_present_for_every_mode",
+    "mode_scaling_law_must_not_change_method_template_phase_ids",
+    "fixture_examples_must_distinguish_under_scoped_and_over_scoped_allocations",
+    "budget_ledgers_compilers_scheduler_gates_and_ui_overrides_forbidden_inline"
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": "literature_compendium_v1",
+  "compendium_id": "lc-20260410-reference",
+  "compendium_version": "1.0.0",
+  "metadata": {
+    "title": "Reference literature compendium",
+    "created_at_utc": "2026-04-10T10:26:38Z",
+    "source_intent_uid": "IS-20260403-212914Z-5E8C",
+    "ledger_refs": [
+      "PIS-20260410-102638Z-23DF"
+    ]
+  },
+  "layout": {
+    "compendium_type": "merged",
+    "summary_layers": [
+      "operator_brief",
+      "sourced_synthesis",
+      "technical_detail",
+      "open_conflicts"
+    ],
+    "sections": [
+      "topic_compendium",
+      "merged_compendium",
+      "unresolved_conflicts",
+      "operator_commentary",
+      "raw_note_boundary"
+    ]
+  },
+  "evidence_pack_refs": [
+    {
+      "pack_id": "rep-20260410-reference",
+      "pack_schema_version": "research_evidence_pack_v1",
+      "pack_artifact_ref": "governance/research_evidence_pack_reference_v1.json",
+      "pack_fingerprint": "242bae0de4113a23933a78399d79e879c7d90bf7bd1d06df40840db494fbea87"
+    }
+  ],
+  "entries": [
+    {
+      "entry_id": "entry-topic-baseline",
+      "entry_type": "topic_summary",
+      "summary_layer": "sourced_synthesis",
+      "summary_text": "The baseline observation is reusable because it has a source-backed clean claim.",
+      "evidence_refs": [
+        {
+          "pack_id": "rep-20260410-reference",
+          "claim_ids": [
+            "claim-clean"
+          ],
+          "source_ids": [
+            "src-clean-paper"
+          ],
+          "contradiction_ids": []
+        }
+      ]
+    },
+    {
+      "entry_id": "entry-merged-alt-prep",
+      "entry_type": "merged_summary",
+      "summary_layer": "technical_detail",
+      "summary_text": "The alternate preparation summary remains merged but not resolved because the weak lab note conflicts with the preprint.",
+      "evidence_refs": [
+        {
+          "pack_id": "rep-20260410-reference",
+          "claim_ids": [
+            "claim-weak",
+            "claim-conflict"
+          ],
+          "source_ids": [
+            "src-weak-note",
+            "src-conflict-preprint"
+          ],
+          "contradiction_ids": [
+            "contradiction-alt-prep"
+          ]
+        }
+      ]
+    }
+  ],
+  "unresolved_conflicts": [
+    {
+      "conflict_id": "conflict-alt-prep-visible",
+      "summary_text": "The lab-note and preprint claims still disagree; the compendium must not promote either as consensus.",
+      "state": "unresolved",
+      "evidence_refs": [
+        {
+          "pack_id": "rep-20260410-reference",
+          "claim_ids": [
+            "claim-weak",
+            "claim-conflict"
+          ],
+          "source_ids": [
+            "src-weak-note",
+            "src-conflict-preprint"
+          ],
+          "contradiction_ids": [
+            "contradiction-alt-prep"
+          ]
+        }
+      ],
+      "next_resolution_step": "Compare preparation details before promoting either claim."
+    }
+  ],
+  "operator_commentary": [
+    {
+      "commentary_id": "commentary-review-needed",
+      "commentary_type": "review_note",
+      "commentary_text": "Do not use the alternate-preparation summary as reusable consensus until the unresolved conflict is reviewed.",
+      "related_entry_ids": [
+        "entry-merged-alt-prep"
+      ]
+    }
+  ],
+  "raw_note_refs": [
+    {
+      "raw_note_ref_id": "raw-note-weak-observation",
+      "locator": "governance/example-lab-note#section-observation",
+      "boundary_note": "Raw note remains an input locator; reusable compendium claims come through rep-20260410-reference.",
+      "mapped_pack_ids": [
+        "rep-20260410-reference"
+      ]
+    }
+  ]
+}

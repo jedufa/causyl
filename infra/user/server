@@ -1,0 +1,252 @@
+#!/usr/bin/env bash
+# infra/user/server
+# Description: Interactive launcher for server helpers living under infra/user/server-*.
+# Example: infra/user/server
+# Compatibility wrapper: this launcher is a convenience surface only.
+# Canonical operator truth lives in the lab assistant web plane surface.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
+echo "Compatibility wrapper only. Canonical operator state lives in /api/admin/lab_assistant/snapshot." >&2
+
+usage() {
+  cat <<'EOF'
+Usage:
+  infra/user/server
+  infra/user/server <helper> [helper args...]
+
+Examples:
+  infra/user/server status
+  infra/user/server restart --cooldown=0 --stop-arg=--yes
+  infra/user/server cloudflared off
+  infra/user/server cloudflared status
+EOF
+}
+
+on_interrupt() {
+  printf '\nCanceled.\n' >&2
+  exit 130
+}
+
+trap on_interrupt INT
+
+shopt -s nullglob
+helpers=(infra/user/server-*)
+shopt -u nullglob
+if [[ ${#helpers[@]} -eq 0 ]]; then
+  echo "No server helpers found under infra/user/server-*." >&2
+  exit 1
+fi
+
+resolve_helper() {
+  local choice="$1"
+  local i script short
+  for i in "${!helpers[@]}"; do
+    script="$(basename "${helpers[$i]}")"
+    short="${script#server-}"
+    if [[ "$choice" == "$script" || "$choice" == "$short" ]]; then
+      printf '%s\n' "${helpers[$i]}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+cloudflared_subcommand_prompt() {
+  local choices=(status on off start stop restart)
+  echo >&2
+  echo "Cloudflared actions:" >&2
+  local idx
+  for idx in "${!choices[@]}"; do
+    echo "  $((idx + 1)). ${choices[$idx]}" >&2
+  done
+  echo "  q. Cancel" >&2
+  while true; do
+    read -rp "Cloudflared> " choice
+    if [[ "$choice" =~ ^[Qq]$ ]]; then
+      return 1
+    fi
+    if [[ "$choice" =~ ^[0-9]+$ ]]; then
+      idx=$((choice - 1))
+      if ((idx >= 0 && idx < ${#choices[@]})); then
+        printf '%s\n' "${choices[$idx]}"
+        return 0
+      fi
+    else
+      for idx in "${!choices[@]}"; do
+        if [[ "$choice" == "${choices[$idx]}" ]]; then
+          printf '%s\n' "${choices[$idx]}"
+          return 0
+        fi
+      done
+    fi
+    echo "Enter a number, an action name, or q to cancel." >&2
+  done
+}
+
+toggle_subcommand_prompt() {
+  local title="$1"
+  local choices=(status on off)
+  echo >&2
+  echo "${title} actions:" >&2
+  local idx
+  for idx in "${!choices[@]}"; do
+    echo "  $((idx + 1)). ${choices[$idx]}" >&2
+  done
+  echo "  q. Cancel" >&2
+  while true; do
+    read -rp "${title}> " choice
+    if [[ "$choice" =~ ^[Qq]$ ]]; then
+      return 1
+    fi
+    if [[ "$choice" =~ ^[0-9]+$ ]]; then
+      idx=$((choice - 1))
+      if ((idx >= 0 && idx < ${#choices[@]})); then
+        printf '%s\n' "${choices[$idx]}"
+        return 0
+      fi
+    else
+      for idx in "${!choices[@]}"; do
+        if [[ "$choice" == "${choices[$idx]}" ]]; then
+          printf '%s\n' "${choices[$idx]}"
+          return 0
+        fi
+      done
+    fi
+    echo "Enter a number, an action name, or q to cancel." >&2
+  done
+}
+
+watchdog_subcommand_prompt() {
+  local choices=(status activate deactivate restart audit selfheal actions log activity)
+  echo >&2
+  echo "Watchdog actions:" >&2
+  local idx
+  for idx in "${!choices[@]}"; do
+    echo "  $((idx + 1)). ${choices[$idx]}" >&2
+  done
+  echo "  q. Cancel" >&2
+  while true; do
+    read -rp "Watchdog> " choice
+    if [[ "$choice" =~ ^[Qq]$ ]]; then
+      return 1
+    fi
+    if [[ "$choice" =~ ^[0-9]+$ ]]; then
+      idx=$((choice - 1))
+      if ((idx >= 0 && idx < ${#choices[@]})); then
+        printf '%s\n' "${choices[$idx]}"
+        return 0
+      fi
+    fi
+    echo "Select a numbered option or q to cancel." >&2
+  done
+}
+
+describe() {
+  local script="$1"
+  local line
+  line="$(grep -m1 '^# Description:' "$script" 2>/dev/null || true)"
+  if [[ -z "$line" ]]; then
+    echo "No description available"
+  else
+    echo "${line#*: }"
+  fi
+}
+
+if [[ $# -gt 0 ]]; then
+  case "$1" in
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+  esac
+  helper_choice="$1"
+  shift
+  if ! target="$(resolve_helper "$helper_choice")"; then
+    echo "Unknown server helper: ${helper_choice}" >&2
+    usage >&2
+    exit 2
+  fi
+  exec bash "$target" "$@"
+fi
+
+while true; do
+  echo
+  echo "Server helpers:"
+  for idx in "${!helpers[@]}"; do
+    script="${helpers[$idx]}"
+    name="$(basename "$script")"
+    echo "  $((idx + 1)). ${name} - $(describe "$script")"
+  done
+  echo "  q. Quit"
+  read -rp "Choice> " choice
+  if [[ "$choice" =~ ^[Qq]$ ]]; then
+    exit 0
+  fi
+  if [[ "$choice" =~ ^[0-9]+$ ]]; then
+    idx=$((choice - 1))
+    if ((idx < 0 || idx >= ${#helpers[@]})); then
+      echo "Select a number between 1 and ${#helpers[@]}."
+      continue
+    fi
+  else
+    if ! target="$(resolve_helper "$choice")"; then
+      echo "Enter a number, the helper name, or q to quit."
+      continue
+    fi
+    for i in "${!helpers[@]}"; do
+      if [[ "${helpers[$i]}" == "${target}" ]]; then
+        idx=$i
+        break
+      fi
+    done
+  fi
+  target="${helpers[$idx]}"
+  helper_args=()
+  case "$(basename "$target")" in
+    server-cloudflared)
+      if ! subcmd="$(cloudflared_subcommand_prompt)"; then
+        continue
+      fi
+      helper_args=("$subcmd")
+      ;;
+    server-web)
+      if ! subcmd="$(toggle_subcommand_prompt "Web")"; then
+        continue
+      fi
+      helper_args=("$subcmd")
+      ;;
+    server-assistant)
+      if ! subcmd="$(toggle_subcommand_prompt "Assistant")"; then
+        continue
+      fi
+      helper_args=("$subcmd")
+      ;;
+    server-watchdog)
+      if ! subcmd="$(watchdog_subcommand_prompt)"; then
+        continue
+      fi
+      helper_args=("$subcmd")
+      ;;
+  esac
+  echo
+  echo "Running $(basename "$target")..."
+  set +e
+  bash "$target" "${helper_args[@]}"
+  status=$?
+  set -e
+  if [[ "$status" == "130" ]]; then
+    printf '\nCanceled.\n' >&2
+    exit 130
+  fi
+  if [[ "$status" != "0" ]]; then
+    exit "$status"
+  fi
+  echo "Done $(basename "$target")."
+  read -rp "Press Enter to pick another helper or q to quit: " next
+  if [[ "$next" =~ ^[Qq]$ ]]; then
+    exit 0
+  fi
+done

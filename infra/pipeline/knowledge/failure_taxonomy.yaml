@@ -1,0 +1,931 @@
+version: 1
+phase: 1
+notes: Deterministic Stage 1 failure taxonomy grouped by task family with concrete
+  operator, system, concurrency, and recovery failure surfaces.
+families:
+  generic:
+    operator_failure_modes:
+    - manual mutation bypasses required precondition checks
+    - operator retry targets a stale logical work item identifier
+    - force action is issued without reconciling current ownership state
+    - manual correction rewrites durable state without audit reason
+    - operator reset clears lineage needed for safe recovery
+    system_failure_modes:
+    - state mutation commits without durable evidence of intent
+    - derived status diverges from the last committed source of truth
+    - externally visible side effect commits before durable state update
+    - validation rejection is logged but execution continues
+    - terminal outcome is recorded without verifying all required outputs
+    concurrency_failure_modes:
+    - two writers update the same logical record without version fencing
+    - late completion overwrites newer durable state
+    - background repair mutates the same record as foreground execution
+    - duplicate work is accepted after replay overlaps with fresh execution
+    - conflicting ownership claims succeed in parallel
+    recovery_failure_modes:
+    - recovery replays already committed external side effects
+    - repair flow reconstructs state from stale snapshots instead of durable truth
+    - restart resumes work without revalidating current ownership
+    - partial rollback leaves orphaned subordinate records
+    - corruption is suppressed instead of surfaced as explicit terminal failure
+  scheduler_safety:
+    operator_failure_modes:
+    - manual launch is requested while an active run already owns the job
+    - operator restart is issued without clearing or superseding prior claim
+    - cancel request targets a run that is already terminal
+    - manual retry is issued for a run already marked successful
+    - resume request targets a run that was never paused
+    system_failure_modes:
+    - due job is skipped during scheduler tick despite eligibility
+    - dispatch occurs outside allowed schedule window or cooldown
+    - disabled job flag is ignored during dispatch eligibility evaluation
+    - completion is recorded before outputs and receipts are durably committed
+    - next due time is advanced even though dispatch failed
+    concurrency_failure_modes:
+    - two schedulers claim the same logical job in the same interval
+    - scheduler tick and operator action issue conflicting transitions
+    - claim renewal races with reassignment after heartbeat expiry
+    - cleanup removes scheduler state for a run still in progress
+    - manual disable collides with dispatch commit on the same version
+    recovery_failure_modes:
+    - scheduler restart recreates an already active run record
+    - stale claim is treated as valid ownership after process restart
+    - pending due evaluation is lost after scheduler crash and restart
+    - replay reissues a side effect already committed by prior run
+    - recovery dispatch ignores disabled or paused job state
+  operator_control:
+    operator_failure_modes:
+    - operator override omits mandatory reason code or ticket reference
+    - operator targets an alias instead of the authoritative object identifier
+    - manual pause is issued without checkpoint or safe-stop evidence
+    - operator attempts destructive action against unknown current state
+    - manual unfreeze bypasses dependency or approval gates
+    system_failure_modes:
+    - operator entrypoint accepts malformed control payload
+    - authorization passes but action-specific policy check is skipped
+    - manual action mutates state without durable actor identity
+    - operator request succeeds even though target object version is stale
+    - control response reports success before mutation is committed
+    concurrency_failure_modes:
+    - simultaneous manual actions race on the same target
+    - operator action collides with automated recovery over identical state
+    - manual cancel arrives after completion commit but before response emission
+    - two operator sessions act on different stale views of the same object
+    - control-plane cache serves outdated eligibility during mutation
+    recovery_failure_modes:
+    - replayed manual action executes twice after transport retry
+    - failed operator transition is retried without revalidating policy
+    - audit receipt loss makes later reversal or reconstruction unsafe
+    - control-plane restart drops inflight operator intent but preserves partial mutation
+    - manual rollback restores stale state instead of latest durable truth
+  stateful_workflow:
+    operator_failure_modes:
+    - operator forces stage skip without satisfying entry criteria
+    - manual state edit bypasses transition guard evaluation
+    - workflow is rewound to a prior stage without compensating side effects
+    - operator closes workflow before all required children are terminal
+    - manual override erases blocking reason needed for later diagnosis
+    system_failure_modes:
+    - workflow stage advances without all gate conditions satisfied
+    - child task completion does not update aggregate workflow status
+    - workflow is marked terminal while active children still exist
+    - transition guard reads stale persisted state during decision
+    - partial child failure is collapsed into false success
+    concurrency_failure_modes:
+    - parallel child completions race to update aggregate workflow state
+    - workflow repair and normal progression both mutate parent status
+    - two orchestrators evaluate the same transition on different snapshots
+    - late child event reopens a workflow already closed by newer evidence
+    - operator rewind races with background completion propagation
+    recovery_failure_modes:
+    - workflow restart resumes from stale stage without reloading children
+    - recovery duplicates fan-out of already created downstream work
+    - repair flow reconciles parent state but ignores child lineage
+    - partial compensation leaves parent and child stages inconsistent
+    - orphaned workflow remains nonterminal without eligible recovery path
+  queue_dispatch:
+    operator_failure_modes:
+    - manual requeue is issued without preserving deduplication key
+    - operator acknowledges message that was never safely processed
+    - manual dead-letter replay targets the wrong consumer contract version
+    - operator forces queue drain while work items are still leased
+    - manual purge removes items needed for in-progress retries
+    system_failure_modes:
+    - message is acknowledged before durable processing outcome is recorded
+    - dispatch ignores visibility timeout or delivery attempt budget
+    - consumer emits external side effect before deduplication state is stored
+    - dead-letter routing drops original cause and delivery lineage
+    - batch dispatcher commits partial success without per-item outcome truth
+    concurrency_failure_modes:
+    - same message is consumed by two workers before lease fencing
+    - consumer retry overlaps with late first attempt completion
+    - queue redelivery races with manual replay of same work item
+    - batch ack collides with individual item retry update
+    - deduplication store update races with message visibility extension
+    recovery_failure_modes:
+    - consumer restart reprocesses work item already committed externally
+    - recovery promotes poison message back to ready queue without root cause change
+    - visibility extension loss causes duplicate processing during worker restart
+    - dead-letter replay omits original attempt counters and timestamps
+    - reconciliation marks message complete without verifying handler commit
+  api_control_plane:
+    operator_failure_modes:
+    - operator crafts direct control-plane call that bypasses intended workflow
+    - manual administrative API request omits concurrency token
+    - operator retries non-idempotent API mutation after timeout ambiguity
+    - manual bulk action targets stale selection criteria
+    - operator triggers side-effecting endpoint using read-only assumptions
+    system_failure_modes:
+    - API accepts invalid payload shape or missing required identifiers
+    - request authorization succeeds but object-level ownership check is skipped
+    - response returns success before durable mutation and receipt persistence
+    - API patch semantics overwrite unspecified fields with stale defaults
+    - transport timeout obscures whether mutation committed
+    concurrency_failure_modes:
+    - two API writers update the same resource without optimistic fencing
+    - control-plane cache serves stale resource version for write decision
+    - bulk API mutation overlaps with background reconciler on same rows
+    - read-modify-write cycle races with asynchronous callback update
+    - late webhook completion overwrites newer API state
+    recovery_failure_modes:
+    - client retry duplicates committed mutation because idempotency key was absent
+    - recovery replay omits object version precondition used by original request
+    - partial bulk mutation is resumed without per-item reconciliation
+    - API worker restart loses request lineage needed for audit and dedupe
+    - repair reconstructs state from cache instead of durable store
+  retry_timeout_resilience:
+    operator_failure_modes:
+    - operator increases retry budget without understanding terminal failure cause
+    - manual timeout override suppresses deadline semantics for active work
+    - operator retries permanent validation failure as if transient
+    - manual backoff change shortens cooldown below safe recovery window
+    - operator clears attempt counters while previous side effects remain visible
+    system_failure_modes:
+    - transient and terminal failures are not distinguished before retry decision
+    - attempt counter increments after relaunch instead of before relaunch
+    - timeout is detected but active ownership is not revoked safely
+    - backoff schedule ignores jitter or cooldown policy
+    - retry path preserves stale inputs that caused prior deterministic failure
+    concurrency_failure_modes:
+    - timeout monitor and worker completion race on the same attempt
+    - retry scheduler launches new attempt before old lease is fenced off
+    - manual retry overlaps with automatic retry queueing
+    - deadline extension collides with reclaim logic for same run
+    - attempt counter update races with failure receipt persistence
+    recovery_failure_modes:
+    - restart relaunches timed-out work without verifying final old-attempt outcome
+    - retry replay duplicates side effects committed before crash
+    - timeout recovery leaves orphaned lease or heartbeat entries
+    - backoff state is lost across restart causing hot-loop retries
+    - exhausted retry budget is ignored during repair
+  reconciliation_recovery:
+    operator_failure_modes:
+    - operator triggers repair against live object without quiescing normal writers
+    - manual reconcile trusts an out-of-date snapshot as source of truth
+    - operator clears discrepancy marker before evidence is preserved
+    - manual repair applies to wrong tenant or scope boundary
+    - operator selects destructive repair mode without previewing impact
+    system_failure_modes:
+    - reconciler resolves mismatch toward stale replica instead of primary truth
+    - repair marks discrepancy resolved without checking all affected records
+    - recovery path omits side-effect deduplication and lineage verification
+    - reconciler produces silent no-op when invariant is still violated
+    - repair process commits partial merge without atomic boundary
+    concurrency_failure_modes:
+    - reconciler races with active writer and reintroduces stale values
+    - two repair workers process overlapping discrepancy sets
+    - background reconcile collides with manual correction on same scope
+    - discrepancy scanner observes one snapshot while repair commits another
+    - late event recreates discrepancy immediately after repair closeout
+    recovery_failure_modes:
+    - repair replay reapplies already committed corrections
+    - recovery after crash loses which discrepancies were safely resolved
+    - partial repair leaves references pointing to deleted or superseded records
+    - reconciliation suppresses repeated failures instead of escalating
+    - terminal irreconcilable mismatch is never surfaced to operator
+  distributed_coordination:
+    operator_failure_modes:
+    - operator forces leadership transfer without draining current leader work
+    - manual cluster reset clears epoch or term lineage
+    - operator restarts participant without revoking held leases
+    - manual split-brain mitigation is applied to wrong membership view
+    - operator shortens lease duration below network latency envelope
+    system_failure_modes:
+    - leadership election accepts stale term or generation
+    - lease acquisition succeeds without quorum or fencing token
+    - participant acts as leader after losing heartbeat authority
+    - membership change commits without reconciling in-flight ownership
+    - coordination state update is not durably replicated before activation
+    concurrency_failure_modes:
+    - two nodes simultaneously believe they own the same leadership term
+    - lease renewal races with takeover from newer epoch
+    - membership rebalance collides with active claim assignment
+    - split-brain followers both accept work for same shard
+    - clock skew causes overlapping validity windows for ownership
+    recovery_failure_modes:
+    - node restart resumes leader duties using stale term
+    - coordination repair preserves duplicate active leases
+    - recovery ignores quorum loss and reactivates stale owner
+    - lease table replay reconstructs outdated epoch ordering
+    - fencing token loss permits old leader to commit after takeover
+  persistence_integrity:
+    operator_failure_modes:
+    - manual data fix bypasses schema or invariant validation
+    - operator edits one table without corresponding companion records
+    - manual import rewrites primary identifiers without migration mapping
+    - operator restores old backup over newer committed state
+    - manual cleanup deletes receipts needed to prove prior mutation
+    system_failure_modes:
+    - durable write reports success before fsync or transaction commit
+    - schema validation is skipped on one persistence path
+    - secondary index or cache is updated without source-of-truth commit
+    - partial transaction leaves referential links inconsistent
+    - read path fabricates state from stale cache over durable record
+    concurrency_failure_modes:
+    - concurrent writers commit conflicting versions without compare-and-set
+    - read-repair overwrites fresher data during background compaction
+    - checkpoint snapshot captures half-applied transaction
+    - cleanup deletes row while another transaction still references it
+    - two migrations mutate the same persistence surface in parallel
+    recovery_failure_modes:
+    - recovery restores from snapshot newer than WAL boundary permits
+    - crash recovery replays transaction already durably committed
+    - repair reconstructs missing state without provenance markers
+    - corruption handling drops damaged records silently
+    - rollback restores structure but loses business-level lineage
+  execution_lifecycle:
+    operator_failure_modes:
+    - operator forces completed run back to running without explicit reset
+    - manual cancel is accepted after terminal completion evidence exists
+    - operator clears failed state without preserving failure cause
+    - manual rerun reuses prior attempt identifier
+    - operator marks run successful without verifying required artifacts
+    system_failure_modes:
+    - run enters running state before ownership acquisition is durable
+    - terminal state is emitted without terminal cause or outcome evidence
+    - attempt transition skips retrying stage after failure
+    - run is left permanently nonterminal after worker exit
+    - lineage between attempts is not preserved across reruns
+    concurrency_failure_modes:
+    - completion and timeout race to write competing terminal outcomes
+    - cancel and retry transitions both commit for same attempt
+    - two workers emit heartbeats for the same logical run
+    - late event from old attempt overwrites new attempt state
+    - observer reads lifecycle from mixed-version records
+    recovery_failure_modes:
+    - restart resumes terminal run as active without explicit reset
+    - recovery duplicates attempt creation after ambiguous crash
+    - lifecycle repair forgets to reconnect child artifacts to surviving attempt
+    - stalled run is reclaimed without verifying worker liveness window
+    - orphaned attempt remains active after parent job termination
+  dependency_gating:
+    operator_failure_modes:
+    - operator bypasses prerequisite gate without recorded exception reason
+    - manual unblocks work using stale dependency snapshot
+    - operator marks dependency satisfied without evidence artifact
+    - manual override clears only one of several blocking conditions
+    - operator retries blocked work without re-evaluating dependencies
+    system_failure_modes:
+    - gating decision ignores one required dependency edge
+    - dependency completion is cached and not refreshed before launch
+    - failed prerequisite is treated as satisfied by aggregate logic
+    - gate opens before approval or capacity evidence is durable
+    - cyclic dependency is not detected before scheduling
+    concurrency_failure_modes:
+    - dependency completion and gate evaluation race on stale reads
+    - two coordinators open the same gate on different snapshots
+    - manual override collides with automatic reblocking
+    - dependency graph mutation races with in-flight gate decision
+    - capacity assignment and dependency satisfaction are evaluated independently
+    recovery_failure_modes:
+    - restart forgets blocked reason and relaunches ineligible work
+    - recovery marks dependency satisfied based on stale checkpoint
+    - repair flow clears gate without reconstructing full dependency evidence
+    - blocked work remains stranded after prerequisites become terminal
+    - gate reconciliation duplicates downstream fan-out after crash
+  configuration_versioning:
+    operator_failure_modes:
+    - operator applies config update without incrementing generation
+    - manual rollback activates stale config without compatibility check
+    - operator edits live config and snapshot out of sync
+    - manual pin uses unknown config revision identifier
+    - operator promotes draft config directly to active without validation
+    system_failure_modes:
+    - reader mixes fields from two config generations
+    - write path updates active pointer before candidate config is durable
+    - rollback restores value set without restoring associated version metadata
+    - compatibility validation is skipped for one rollout path
+    - config watcher applies update without verifying monotonic version progression
+    concurrency_failure_modes:
+    - two rollout coordinators publish competing active versions
+    - config reload races with persistence of the same generation
+    - rollback collides with forward rollout on overlapping scope
+    - cache invalidation lags behind active pointer update
+    - mixed-version workers concurrently act on same shard
+    recovery_failure_modes:
+    - restart reloads stale config snapshot after newer activation
+    - recovery cannot determine whether rollout completed or partially applied
+    - repair preserves orphaned active pointer to deleted revision
+    - rollback replay reverts config twice across crash boundary
+    - config reconciliation ignores worker compatibility evidence
+  audit_evidence:
+    operator_failure_modes:
+    - operator performs destructive action without durable reason evidence
+    - manual correction edits audit trail rather than appending a new record
+    - operator suppresses evidence emission for bulk administrative action
+    - manual export omits sensitive lineage fields needed for reconstruction
+    - operator acknowledges discrepancy without preserving investigative evidence
+    system_failure_modes:
+    - audit record is emitted after mutation failure with incorrect success status
+    - receipt omits actor, correlation, or target identifiers
+    - evidence store accepts non-monotonic timestamps or duplicate sequence numbers
+    - critical rejection path produces no durable audit record
+    - audit retention deletes evidence still needed for active investigations
+    concurrency_failure_modes:
+    - two writers append conflicting evidence for the same mutation
+    - audit sequence generation races and produces gaps or duplicates
+    - receipt persistence lags behind state mutation commit under concurrent load
+    - bulk action emits per-item evidence and summary evidence out of order
+    - evidence reconciliation overwrites newer forensic metadata
+    recovery_failure_modes:
+    - crash recovery re-emits audit receipt for mutation already recorded
+    - repair recreates evidence without marking it as reconstructed
+    - recovery loses correlation chain between original action and follow-up repair
+    - audit gap is detected but not escalated as integrity failure
+    - restored evidence cannot distinguish original timestamp from replay timestamp
+  manual_backfill:
+    operator_failure_modes:
+    - operator backfills already processed range without deduplication boundary
+    - manual replay targets wrong time window or partition
+    - operator uses current config for historical records requiring older semantics
+    - manual backfill bypasses admission checks applied to live traffic
+    - operator forgets to mark outputs as backfilled lineage
+    system_failure_modes:
+    - backfill path emits live side effects instead of historical-safe outputs
+    - range selection includes holes or overlaps without explicit accounting
+    - backfill writes conflict with current production ownership
+    - historical replay does not preserve original ordering or idempotency keys
+    - backfill completion is marked before reconciliation of all items
+    concurrency_failure_modes:
+    - backfill worker collides with live worker on same logical records
+    - two backfill requests process overlapping ranges
+    - manual replay races with automatic retry of same historical items
+    - range-progress checkpoint update conflicts with completion commit
+    - backfill throttling and live dispatch share uncoordinated capacity limits
+    recovery_failure_modes:
+    - restart replays already backfilled items because checkpoint was stale
+    - backfill repair resumes from wrong offset after partial crash
+    - historical duplicate suppression state is lost across restart
+    - partial backfill success is collapsed into all-or-nothing status
+    - recovery uses current schema without historical compatibility guard
+  heartbeat_liveness:
+    operator_failure_modes:
+    - operator manually reclaims worker ownership before grace window expires
+    - manual liveness disable hides missing heartbeats without investigation record
+    - operator changes heartbeat interval without adjusting expiry threshold
+    - manual force-complete ignores liveness ambiguity for active owner
+    - operator revokes node while it still holds acknowledged leases
+    system_failure_modes:
+    - heartbeat expiry calculation ignores monotonic clock source
+    - worker remains active after missing required heartbeat window
+    - liveness signal is accepted from stale worker generation
+    - reclaim path does not fence old owner before reassigning work
+    - heartbeat store update succeeds without durable timestamp ordering
+    concurrency_failure_modes:
+    - heartbeat renewal races with reclaim of the same ownership token
+    - two liveness monitors act on different clock snapshots
+    - worker completion and expiry reclaim commit competing outcomes
+    - stale node emits heartbeat after newer owner has taken over
+    - lease cleanup collides with late heartbeat persistence
+    recovery_failure_modes:
+    - monitor restart treats expired owners as healthy due to stale cache
+    - recovery recreates heartbeat row without restoring generation fence
+    - crash loses last heartbeat timestamp and delays needed reclaim
+    - repair reassigns work without verifying old owner termination evidence
+    - split recovery leaves duplicate active owners after monitor failover
+  timeout_deadline_control:
+    operator_failure_modes:
+    - operator extends deadline without preserving approval or reason evidence
+    - manual timeout clearing ignores active side effect ambiguity
+    - operator shortens timeout below minimum safe processing duration
+    - manual deadline change is applied to only one of linked tasks
+    - operator retries deadline-exceeded work before verifying old attempt termination
+    system_failure_modes:
+    - deadline is evaluated against wall-clock susceptible to clock jumps
+    - timeout handler marks attempt failed but leaves ownership active
+    - deadline extension is accepted after terminal timeout already committed
+    - timeout path skips persistence of cause and elapsed timing evidence
+    - soft timeout and hard timeout policies are conflated
+    concurrency_failure_modes:
+    - worker completion races with deadline-enforcement transition
+    - manual extension collides with automatic timeout firing
+    - retry scheduler launches new attempt before timeout cleanup completes
+    - deadline recalculation races with config rollout of timeout policy
+    - timeout audit receipt lags behind lifecycle mutation under load
+    recovery_failure_modes:
+    - restart re-evaluates timeout from stale start timestamp
+    - recovery duplicates timeout side effects after ambiguous crash
+    - deadline repair ignores prior extension history and causes premature failure
+    - timed-out work is resumed without explicit reset transition
+    - recovery loses whether hard stop signal reached worker
+  cleanup_retention:
+    operator_failure_modes:
+    - operator purges records still referenced by active workflows
+    - manual retention override deletes evidence needed for audit window
+    - operator cleanup targets wrong tenant or partition scope
+    - manual archive omits lineage required for future restore
+    - operator shortens retention below contractual minimum
+    system_failure_modes:
+    - cleanup job deletes primary records before derivative references are removed
+      or archived
+    - retention cutoff is computed from mutable business timestamp instead of stable
+      archival timestamp
+    - purge path treats active-but-stale records as safely disposable
+    - archive write reports success before source delete eligibility is verified
+    - cleanup summary reports completion without per-item durable outcomes
+    concurrency_failure_modes:
+    - cleanup races with live mutation on the same records
+    - retention scanner and audit export process overlapping evidence concurrently
+    - archive restore collides with purge of same object lineage
+    - two cleanup workers select the same purge candidates without fencing
+    - reference backfill recreates records while purge is finalizing
+    recovery_failure_modes:
+    - restart reruns purge for records already archived and deleted
+    - recovery reconstructs retention cursor from stale high-water mark
+    - partial archive leaves source deleted but restore metadata missing
+    - repair suppresses irrecoverable purge error instead of escalating
+    - rollback restores content without restoring original retention policy markers
+  admission_and_validation:
+    operator_failure_modes:
+    - operator bypasses validation error without approved exception path
+    - manual ingestion uses payload format not supported by validator version
+    - operator overrides one failing field while leaving dependent fields invalid
+    - manual approval is granted without required ownership or capacity checks
+    - operator retries rejected item without correcting root validation defect
+    system_failure_modes:
+    - schema validation and business-rule validation disagree on acceptance
+    - admission path mutates state before validation fully completes
+    - validator accepts missing required identifiers on one ingestion path
+    - validation result is cached beyond the lifetime of dependent state
+    - rejection response does not preserve machine-readable failure reason
+    concurrency_failure_modes:
+    - admission decision races with concurrent capacity or policy change
+    - two validators compute acceptance on different schema generations
+    - manual override collides with asynchronous rejection enforcement
+    - dedupe check and validation commit occur on different snapshots
+    - bulk validation summary hides per-item conflicting outcomes
+    recovery_failure_modes:
+    - restart re-admits item previously rejected as permanent invalid input
+    - repair loses original rejection reasons needed for operator correction
+    - recovery promotes quarantined payload back to ready state without revalidation
+    - partial validation crash leaves item in neither accepted nor rejected state
+    - validator rollback restores stale ruleset while keeping new acceptance outcomes
+  worker_runtime_safety:
+    operator_failure_modes:
+    - operator restarts worker without draining or fencing its active ownership
+    - manual kill signal is treated as safe termination without checkpoint evidence
+    - operator changes runtime concurrency without validating resource limits
+    - manual patch or hot-reload occurs during critical section execution
+    - operator marks worker healthy after bypassing startup checks
+    system_failure_modes:
+    - worker starts processing before initialization and dependency checks complete
+    - runtime reports success although child side effect failed after partial commit
+    - worker shutdown path does not persist final ownership and heartbeat outcome
+    - panic or crash leaves leased work without recoverable checkpoint
+    - runtime isolation breach allows one task to corrupt another task state
+    concurrency_failure_modes:
+    - worker processes same logical item concurrently across local threads
+    - shutdown and new work acceptance overlap on same worker instance
+    - heartbeat thread and main execution thread write conflicting runtime state
+    - crash-loop restart overlaps with reclaim assigning work elsewhere
+    - shared cache mutation races between workers without fencing
+    recovery_failure_modes:
+    - worker restart resumes old checkpoint on superseded input version
+    - runtime recovery replays side effects already committed before crash
+    - reclaim assigns orphaned work without validating worker death evidence
+    - restart loses attempt-local diagnostics needed for safe retry decision
+    - failed worker is auto-restarted despite unrecoverable initialization defect
+  lab_assistant_memory:
+    operator_failure_modes:
+    - operator accepts memory-backed recommendation without inspectable provenance
+    - manual correction overwrites newer evidence lineage or contradiction state
+    - cross-project reuse is approved without explicit review boundary or supporting
+      sources
+    system_failure_modes:
+    - retrieval ranks tidy memory summary above canonical evidence or current runtime
+      truth
+    - stale memory conclusion is presented as current truth without freshness or confidence
+      markers
+    - artifact, report, transcript, or ledger extraction loses source linkage during
+      memory ingestion
+    - memory projection becomes a second planning authority instead of derived supporting
+      context
+    - writeback path mutates runtime or task truth instead of derived memory records
+    concurrency_failure_modes:
+    - concurrent memory refresh publishes an older projection over newer corrected
+      evidence
+    - parallel correction writes race and hide the latest contradiction or expiry
+      decision
+    recovery_failure_modes:
+    - restart replays memory extraction and duplicates derived records or correction
+      receipts
+    - reconciliation cannot reconstruct memory lineage after partial artifact or transcript
+      ingest
+    - contradiction handling silently chooses a stale winner instead of preserving
+      reviewable conflict state
+    - expired memory remains eligible after freshness or expiry policy changes
+  lab_assistant_delegation:
+    operator_failure_modes:
+    - operator rebinds a task to the wrong subsystem without validating the typed
+      delegation contract
+    - manual delegation override bypasses durable request/result linkage
+    - host-bound delegation is approved without boundary or capability validation
+    system_failure_modes:
+    - delegation request and durable result binding diverge and correlation cannot
+      prove ownership
+    - routing policy selects a subsystem inconsistent with the delegation type or
+      task context
+    - task appears delegated successfully even though durable binding evidence is
+      missing
+    concurrency_failure_modes:
+    - concurrent delegation updates create conflicting bindings for the same task
+    - correlation record update races with delegation status mutation and leaves partial
+      ownership truth
+    recovery_failure_modes:
+    - restart reconstructs delegation state from stale projections and loses typed
+      request/result linkage
+    - recovery preserves task state but drops subsystem correlation evidence needed
+      to prove ownership
+  governance_ledger_durability:
+    operator_failure_modes:
+    - operator mutates ledger status without reason, artifact linkage, or append-safe
+      evidence
+    - manual correction rewrites governance history outside the ledger append path
+    system_failure_modes:
+    - ledger status, artifact linkage, and commit journal diverge after a mutation
+    - action reports success before durable ledger append or status update commits
+    - summary state is treated as authoritative truth over append-safe event history
+    concurrency_failure_modes:
+    - concurrent ledger mutations reorder or hide the authoritative event sequence
+    - artifact linkage update races with status transition and leaves partial governance
+      truth
+    recovery_failure_modes:
+    - restart duplicates governance events or drops commit-trace linkage
+    - recovery rebuilds state from summaries instead of append-safe ledger history
+  agent_orchestration_runtime:
+    operator_failure_modes:
+    - operator resumes or reroutes an agent job using stale flow or job state
+    - manual orchestration action bypasses runner-state preconditions
+    system_failure_modes:
+    - projflow state diverges from actual runner outcome
+    - orchestrator hub reports success while owner job state did not commit
+    - agent runtime selects the wrong path because routing metadata is stale
+    concurrency_failure_modes:
+    - parallel agent updates race on shared job state or run lineage
+    - swarm and orchestrator mutate the same run lineage without fencing
+    recovery_failure_modes:
+    - restart reconstructs runner state without preserving flow lineage
+    - failed orchestration recovers hub metadata but not owner job truth
+  host_execution_boundary:
+    operator_failure_modes:
+    - operator triggers a host action without required verification contract or boundary
+      approval
+    - manual mobile or native action bypasses environment validation
+    system_failure_modes:
+    - host verification passes against the wrong boundary or environment
+    - native or mobile execution mutates state inconsistent with the WebUI contract
+    concurrency_failure_modes:
+    - parallel host or device operations race on shared deployment or verification
+      state
+    recovery_failure_modes:
+    - restart loses verification evidence needed to safely resume host-bound execution
+  pipeline_internal_modification:
+    operator_failure_modes:
+    - operator updates bundle or ranking policy without validating current stage contract
+    - manual patch targeting selects broad orchestration surface instead of local
+      owner
+    - operator narrows retrieval using stale failing-test or path evidence
+    - manual policy tweak promotes non-editable reference file into executable bundle
+    - operator merges taxonomy changes without reconciling overlapping family activation
+    system_failure_modes:
+    - hub file outranks local owner on narrow modification task
+    - retrieval widens into unrelated infrastructure after exact path or symbol match
+    - stage output includes non-executable reference file as implementation target
+    - bundle validation accepts files that no writable stage can modify safely
+    - owner-versus-hub signals drift from actual runtime retrieval behavior
+    concurrency_failure_modes:
+    - simultaneous stage updates produce conflicting bundle or score truth
+    - policy reload races with retrieval scoring over partially updated knowledge
+      assets
+    - context ranker and bundle builder consume different candidate snapshots
+    - manual rerun observes stale planning artifact while applying new narrowing hints
+    - parallel patch-plan generation selects different owners for the same exact target
+    recovery_failure_modes:
+    - recovery rerun reuses stale candidate evidence after knowledge change
+    - repair flow reconstructs bundle from summary artifact rather than raw candidate
+      truth
+    - restart resumes stage routing with outdated owner-versus-hub policies
+    - partial rollback leaves patched knowledge assets inconsistent across files
+    - narrow-task suppression is lost after rerun and broad hubs reappear
+  knowledge_and_retrieval_policy:
+    operator_failure_modes:
+    - operator edits one knowledge asset without updating dependent rule files
+    - manual policy addition shadows existing family activation unexpectedly
+    - operator copies draft taxonomy into live assets without schema cleanup
+    - manual merge introduces repo-specific names into portable policy layer
+    - operator promotes design-only file into runtime-loaded knowledge set
+    system_failure_modes:
+    - runtime ignores canonical policy asset due to loader mismatch
+    - retrieval bias, role assignment, and subsystem map contradict each other
+    - knowledge asset parses but activates empty or unusable policy surface
+    - policy drift causes task family activation without compatible profile rules
+    - negative-target and responsibility catalogs demote actual owners inconsistently
+    concurrency_failure_modes:
+    - two policy edits land across different files without coordinated merge
+    - loader reads mixed old and new knowledge files during runtime initialization
+    - role rules and retrieval rules update on different revisions
+    - knowledge extraction rewrites canonical files while stages read prior versions
+    - parallel branch merges produce duplicate or conflicting family definitions
+    recovery_failure_modes:
+    - policy rollback restores stale taxonomy after newer runtime change
+    - recovery load falls back to partial defaults and suppresses missing asset error
+    - repair flow regenerates one policy file but leaves dependent maps stale
+    - restart continues with cached policy after live asset correction
+    - schema-cleanup replay removes required repo overlay signals
+  scheduler_or_control_plane:
+    operator_failure_modes:
+    - manual pause or resume targets stale run identity
+    - operator changes runtime policy without validating current scheduler legality
+    - manual model change bypasses watchdog or healer compatibility checks
+    - bulk enable or disable action omits evidence of affected scope
+    - operator restart or healer action runs against live ownership without fencing
+    system_failure_modes:
+    - watchdog or healer path mutates scheduler state without durable receipts
+    - control-plane command succeeds while runtime policy forbids the mutation
+    - scheduler control wrapper outranks direct mutation owner for narrow change
+    - paused or disabled truth is ignored during watchdog or replay decision
+    - model-change surface updates config without synchronizing active scheduler state
+    concurrency_failure_modes:
+    - watchdog and operator action race on the same active run
+    - bulk enablement collides with due evaluation on stale scheduler truth
+    - healer recovery overlaps with scheduler dispatch on same lineage
+    - runtime policy reload races with control-plane mutation
+    - manual pause collides with resume or restart from another operator session
+    recovery_failure_modes:
+    - healer replay repeats already-committed recovery action
+    - scheduler restart loses pause or disable intent while preserving partial mutation
+    - watchdog recovery fences wrong owner after stale liveness evidence
+    - control-plane repair restores stale runtime policy instead of latest committed
+      version
+    - orphan cleanup removes scheduler evidence needed for later audit
+  ui_local_changes:
+    operator_failure_modes:
+    - operator shell exposes action unsupported by current backend state
+    - manual ui tweak bypasses paired validation or route contract
+    - local page edit targets wrong surface because global app hub was selected
+    - operator changes mobile or shell state assuming it is authoritative workflow
+      truth
+    - manual ui rename hides action semantics required for safe operator use
+    system_failure_modes:
+    - local ui change widens retrieval to unrelated backend infrastructure
+    - frontend legality logic diverges from backend validation rules
+    - page or panel state is persisted as workflow truth incorrectly
+    - local view update breaks mapping to authoritative backend action
+    - ui bridge file is chosen as sole owner when backend mutation owner also requires
+      change
+    concurrency_failure_modes:
+    - ui action races with backend state refresh and shows stale legal actions
+    - mobile bridge and backend update conflicting local state snapshots
+    - two local ui edits change same action visibility logic inconsistently
+    - shell cache serves stale action menu during backend mutation
+    - simultaneous local and global ui surfaces diverge on allowed actions
+    recovery_failure_modes:
+    - ui restart restores stale local state as if current backend truth
+    - recovery path repeats ui-triggered side effect after ambiguous response
+    - shell reset drops evidence of pending operator action while backend mutation
+      remains
+    - repair flow fixes backend but leaves stale local legality view
+    - rerun selects broad app hub instead of original local page owner
+  audit_and_integrity:
+    operator_failure_modes:
+    - operator mutates ledger or registry record without preserving append-safe history
+    - manual correction overwrites canonical truth with projection-derived value
+    - operator closes audit discrepancy without durable evidence linkage
+    - manual unauthorized-create review ignores actor attribution or reason code
+    - operator repairs registry index using stale summary rather than committed records
+    system_failure_modes:
+    - authoritative mutation commits without durable evidence
+    - projection or summary writer overwrites canonical truth
+    - registry and state indexes drift without explicit discrepancy flag
+    - tamper-sensitive mutation is not reconstructable from committed history
+    - audit surface selects dashboard or report helper instead of evidence owner
+    concurrency_failure_modes:
+    - two writers append conflicting evidence for the same logical mutation
+    - registry update races with state commit and leaves broken linkage
+    - late projection write masks newer canonical truth
+    - forensic repair collides with active mutation on same record lineage
+    - append-safe history is rewritten by concurrent correction path
+    recovery_failure_modes:
+    - recovery replay duplicates evidence entry for already committed mutation
+    - repair rebuilds truth from stale projection instead of authoritative records
+    - restart loses discrepancy markers needed for later investigation
+    - partial rollback restores state without matching evidence repair
+    - terminal audit mismatch is suppressed instead of surfaced
+  operator_review_and_repair:
+    operator_failure_modes:
+    - operator decision is recorded without current review artifact
+    - manual rerun omits lineage to prior rejected or repaired attempt
+    - operator approves stale plan generated from earlier stage outputs
+    - manual repair request targets wrong branch or retry head
+    - operator closes review loop without writing durable decision outcome
+    system_failure_modes:
+    - review renderer presents artifact stale against active run state
+    - decision writeback succeeds without updating branch-aware job state
+    - repair flow fails to mirror operator action into durable lineage records
+    - review surfaces are treated as passive docs instead of writeback owners when
+      targeted
+    - rerun planning loses explicit connection to prior review decision
+    concurrency_failure_modes:
+    - two operator sessions submit conflicting decisions on same review head
+    - decision writeback races with new stage output generation
+    - repair rerun collides with active branch promotion
+    - review artifact regeneration overlaps with operator approval submission
+    - parallel repair requests fork lineage without explicit branch control
+    recovery_failure_modes:
+    - restart drops pending operator decision while keeping partial writeback
+    - repair replay applies already-committed review decision twice
+    - recovered review artifact points to stale stage outputs
+    - rollback clears retry lineage needed for safe rerun
+    - decision recovery restores wrong active head after branch change
+  experiment_or_run_validation:
+    operator_failure_modes:
+    - operator treats benchmark harness as edit owner for narrow code fix
+    - manual run comparison uses mismatched scopes or baselines
+    - operator accepts proof summary without inspectable evidence artifacts
+    - manual host verification targets wrong runtime boundary
+    - operator uses stale benchmark result to justify code selection
+    system_failure_modes:
+    - validation prompt retrieves benchmark or report surfaces instead of implementation
+      owners
+    - comparison result is produced from non-comparable artifacts
+    - verification tooling hides uncertainty behind summary output
+    - host verification evidence is emitted without preserving lineage to tested code
+    - divergence tool selects stale baseline or incomplete artifact set
+    concurrency_failure_modes:
+    - two validation runs write competing evidence for same comparison identity
+    - host verification overlaps with active code mutation and records mixed truth
+    - benchmark aggregation races with artifact finalization
+    - parallel comparison tools read different baseline revisions
+    - proof generation and cleanup race on the same evidence artifacts
+    recovery_failure_modes:
+    - validation replay repeats benchmark comparison without preserving prior identity
+    - restart loses which artifact set formed the accepted proof
+    - repair rebuilds comparison from partial or stale artifacts
+    - recovered validation summary points to missing evidence bundle
+    - benchmark rerun silently changes scope without explicit lineage
+  assistant_truth_and_identity:
+    operator_failure_modes:
+    - operator-visible assistant state is manually overridden without reconciling
+      runtime or ledger truth
+    - manual repair selects the wrong assistant identity after restore conflict
+    - operator retry rewrites task-register state without applying the declared arbitration
+      rule
+    - manual unblock action clears recovery-required state without durable evidence
+    - operator relies on transcript wording instead of canonical runtime or ledger
+      state
+    system_failure_modes:
+    - transcript or ui snapshot disagrees with runtime state and is treated as stronger
+      truth
+    - missing or incompatible assistant-state schema version is accepted during boot
+    - runtime cache becomes a second canonical mutable store for assistant state
+    - durable state write commits without append-only audit event or replayable mutation
+      trail
+    - stale operator-visible state masks blocked or interrupted assistant truth
+    concurrency_failure_modes:
+    - turn execution, scheduler pass, and recovery flow write assistant state without
+      explicit arbitration
+    - multiple candidate assistant identity records survive restore without deterministic
+      winner selection
+    - runtime-state write races task-register mutation on the same lineage
+    - recovery marker is cleared while another writer still requires blocked state
+      visibility
+    - snapshot and event log advance on different generations of assistant truth
+    recovery_failure_modes:
+    - restore path reloads assistant state without validating schema compatibility
+    - replay reconstructs assistant state from transcript text instead of runtime
+      or ledger evidence
+    - recovery pass revives stale assistant identity after deterministic conflict
+      resolution already happened
+    - snapshot replay omits required append-only event entries for recent assistant-state
+      writes
+    - recovery flow resolves blocked state optimistically instead of surfacing recovery-required
+      truth
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: failure_taxonomy.yaml
+    payload:
+      taxonomy:
+        operator_failure_modes:
+        - id: unauthorized_manual_override
+          trigger:
+          - force
+          - bypass
+          - manual
+        - id: incorrect_parameter_override
+          trigger:
+          - set
+          - config
+          - param
+        - id: emergency_stop_misconfiguration
+          trigger:
+          - kill
+          - halt
+          - shutdown
+        - id: audit_log_omission
+          trigger:
+          - silent
+          - no-log
+          - untracked
+        - id: stale_operator_context
+          trigger:
+          - old
+          - expired
+          - outdated_view
+        system_failure_modes:
+        - id: state_desync_on_partial_write
+          trigger:
+          - partial
+          - half
+          - broken_write
+        - id: unhandled_upstream_timeout
+          trigger:
+          - timeout
+          - deadline
+          - hang
+        - id: resource_exhaustion_deadlock
+          trigger:
+          - leak
+          - full
+          - no_space
+        - id: circular_dependency_initialization
+          trigger:
+          - init
+          - cycle
+          - loop
+        - id: silent_data_corruption
+          trigger:
+          - invalid_format
+          - bitrot
+          - corrupt
+        concurrency_failure_modes:
+        - id: distributed_lock_zombie_claim
+          trigger:
+          - zombie
+          - orphan
+          - stuck_lock
+        - id: race_on_shared_accumulator
+          trigger:
+          - count
+          - sum
+          - shared_state
+        - id: optimistic_concurrency_starvation
+          trigger:
+          - retry_loop
+          - collision
+          - version_mismatch
+        - id: priority_inversion_deadlock
+          trigger:
+          - priority
+          - queue
+          - blocked
+        - id: stale_read_after_write
+          trigger:
+          - eventual
+          - latency
+          - replica
+        recovery_failure_modes:
+        - id: infinite_retry_loop
+          trigger:
+          - forever
+          - no_limit
+          - cycle
+        - id: toxic_message_poison_pill
+          trigger:
+          - crash_on_retry
+          - poison
+          - malformed
+        - id: cleanup_failure_resource_leak
+          trigger:
+          - leak
+          - leftover
+          - residual
+        - id: rollback_to_invalid_snapshot
+          trigger:
+          - bad_backup
+          - incompatible
+          - schema_mismatch
+        - id: recovery_action_collision
+          trigger:
+          - double_recovery
+          - conflicting_fix

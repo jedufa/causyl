@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Causyl The Plane</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+
+      <div class="brand">
+        <div class="brand-title">Causyl</div>
+        <div class="brand-sub">The Plane</div>
+      </div>
+    </div>
+
+    <button id="btnMenu" class="btn btn-ghost menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="topbarMenu">☰</button>
+
+    <div id="topbarMenu" class="topbar-menu" aria-label="Primary">
+      <div class="drawer-head">
+        <div class="drawer-title">Menu</div>
+        <button id="btnMenuClose" class="btn btn-ghost drawer-close" aria-label="Close menu" type="button">✕</button>
+      </div>
+      <nav id="projectNavCausyl" class="tabs project-nav" aria-label="Causyl pages">
+        <button id="tab-backlog" type="button">Ledger</button>
+        <button id="tab-agents" type="button">Agents</button>
+        <button id="tab-mobile" type="button">Mobile Admin</button>
+        <button id="tab-schedules" type="button">Schedules</button>
+        <button id="tab-mobile-update" type="button">APK</button>
+        <a id="tab-docs" href="/docs/" target="_blank" rel="noopener">Docs</a>
+      </nav>
+
+      <div class="controls controls-menu">
+        <label class="control-inline">
+          Poll
+          <input id="pollMs" type="number" min="250" step="250" value="1500"/>
+          ms
+        </label>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="btnRefresh" class="btn">Refresh</button>
+      <span id="healthDot" class="health-dot" title="Server health"></span>
+    </div>
+  </header>
+
+  <div id="menuOverlay" class="menu-overlay hidden" aria-hidden="true"></div>
+
+  <div id="globalError" class="global-error hidden" role="alert" aria-live="polite">
+    <div class="ge-title" id="globalErrorTitle">Error</div>
+    <div class="ge-body" id="globalErrorBody"></div>
+  </div>
+
+  <main id="uiRoot" class="view-root">
+    <section id="view-overview" class="view"></section>
+    <section id="view-matrix" class="view hidden"></section>
+    <section id="view-changesets" class="view hidden"></section>
+    <section id="view-backlog" class="view hidden"></section>
+    <section id="view-agents" class="view hidden">
+      <iframe
+        id="agentsEmbedFrame"
+        title="Agents"
+        data-src="/agents?embedded=1"
+        style="width:100%;min-height:86vh;border:1px solid var(--line);border-radius:14px;background:#050505;"
+      ></iframe>
+    </section>
+    <section id="view-mobile" class="view hidden">
+      <iframe
+        id="mobileEmbedFrame"
+        title="Mobile Admin"
+        data-src="/mobile?embedded=1&pane=admin"
+        style="width:100%;min-height:86vh;border:1px solid var(--line);border-radius:14px;background:#050505;"
+      ></iframe>
+    </section>
+    <section id="view-schedules" class="view hidden">
+      <iframe
+        id="schedulesEmbedFrame"
+        title="Schedules"
+        data-src="/schedules?embedded=1"
+        style="width:100%;min-height:86vh;border:1px solid var(--line);border-radius:14px;background:#050505;"
+      ></iframe>
+    </section>
+    <section id="view-mobile-update" class="view hidden">
+      <iframe
+        id="mobileUpdateEmbedFrame"
+        title="Mobile Update"
+        data-src="/mobile/update?embedded=1&channel=debug"
+        style="width:100%;min-height:86vh;border:1px solid var(--line);border-radius:14px;background:#050505;"
+      ></iframe>
+    </section>
+    <section id="view-run" class="view hidden"></section>
+  </main>
+
+  <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div id="modal" class="modal">
+      <div class="modal-head">
+        <div id="modal-title" class="modal-title">Modal</div>
+        <button id="modal-close" class="btn btn-ghost" aria-label="Close">✕</button>
+      </div>
+      <div id="modal-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <div id="toastRoot" class="toast-root" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="/static/tooltip.js"></script>
+  <script src="/static/app_shared.js"></script>
+  <script src="/static/app_utils.js"></script>
+  <script src="/static/app_api.js"></script>
+  <script src="/static/app_runs.js"></script>
+  <script src="/static/app_core_part1.js?v=20260306_4"></script>
+  <script src="/static/app_core_part2.js?v=20260306_4"></script>
+  <script src="/static/app_core_part3.js?v=20260306_4"></script>
+  <script src="/static/app_core_part4.js?v=20260306_4"></script>
+  <script src="/static/app_core_part5.js?v=20260306_4"></script>
+  <script src="/static/app_core_part6.js?v=20260306_4"></script>
+  <script src="/static/app_core.js?v=20260306_4"></script>
+  <script src="/static/app.js"></script>
+  <script>
+    (function(){
+      function show(kind, msg){
+        try{
+          var box = document.getElementById('globalError');
+          var t = document.getElementById('globalErrorTitle');
+          var b = document.getElementById('globalErrorBody');
+          if(t) t.textContent = kind;
+          if(b) b.textContent = msg;
+          if(box) box.classList.remove('hidden');
+        }catch(_e){
+          try{ alert(kind + ": " + msg); }catch(_e2){}
+        }
+      }
+
+      window.addEventListener('error', function(ev){
+        try{
+          var where = (ev && ev.filename) ? (ev.filename + ':' + (ev.lineno||0) + ':' + (ev.colno||0)) : 'unknown';
+          var msg = (ev && ev.message) ? ev.message : String(ev);
+          show('UI execution error', msg + ' @ ' + where);
+        }catch(_e){}
+      });
+      window.addEventListener('unhandledrejection', function(ev){
+        try{
+          var r = ev && ev.reason;
+          show('UI promise rejection', String(r && (r.stack || r.message) || r));
+        }catch(_e){}
+      });
+
+      // 1) Load check (give it time on mobile)
+      setTimeout(function(){
+        if(!window.__EIEL_APP_SHARED_JS_LOADED__){
+          show('UI load error', 'Failed to load /static/app_shared.js. Verify /static/app_shared.js returns 200 and clear site data if cached.');
+          return;
+        }
+        if(!window.__EIEL_APP_UTILS_JS_LOADED__){
+          show('UI load error', 'Failed to load /static/app_utils.js. Verify /static/app_utils.js returns 200 and clear site data if cached.');
+          return;
+        }
+        if(!window.__EIEL_APP_API_JS_LOADED__){
+          show('UI load error', 'Failed to load /static/app_api.js. Verify /static/app_api.js returns 200 and clear site data if cached.');
+          return;
+        }
+        if(!window.__EIEL_APP_RUNS_JS_LOADED__){
+          show('UI load error', 'Failed to load /static/app_runs.js. Verify /static/app_runs.js returns 200 and clear site data if cached.');
+          return;
+        }
+        if(!window.__EIEL_APP_CORE_PART1_LOADED__ || !window.__EIEL_APP_CORE_PART2_LOADED__ || !window.__EIEL_APP_CORE_PART3_LOADED__ ||
+           !window.__EIEL_APP_CORE_PART4_LOADED__ || !window.__EIEL_APP_CORE_PART5_LOADED__ || !window.__EIEL_APP_CORE_PART6_LOADED__){
+          show('UI load error', 'Failed to load one or more /static/app_core_part*.js files.');
+          return;
+        }
+        if(!window.__EIEL_APP_CORE_JS_LOADED__){
+          show('UI load error', 'Failed to load /static/app_core.js. Verify /static/app_core.js returns 200 and clear site data if cached.');
+          return;
+        }
+        if(!window.__EIEL_APP_JS_LOADED__){
+          show('UI load error', 'Failed to load /static/app.js. Verify /static/app.js returns 200 and clear site data if cached.');
+        }
+      }, 1500);
+
+      // 2) Boot check: wait for DOMContentLoaded, then give init time
+      function bootCheck(){
+        var started = !!window.__EIEL_APP_JS_INIT_STARTED__;
+        var booted = !!window.__EIEL_APP_JS_BOOTED__;
+        var bootErr = window.__EIEL_APP_JS_BOOT_ERROR__;
+        if(booted) return;
+        if(bootErr){
+          show('UI boot error', String(bootErr));
+          return;
+        }
+        // If init never started, DOMContentLoaded handler may not have fired yet.
+        show('UI boot incomplete', started
+          ? 'app.js executed and init started, but UI did not finish initialization. Check console for errors.'
+          : 'app.js executed, but init has not started yet. This usually means DOMContentLoaded did not fire or a script error happened before init binding.');
+      }
+
+      if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', function(){
+          setTimeout(bootCheck, 2500);
+        });
+      }else{
+        setTimeout(bootCheck, 2500);
+      }
+
+      // Final backstop on very slow devices
+      setTimeout(bootCheck, 6000);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,449 @@
+version: 1
+phase: 2
+notes: Deterministic role assignment rules for classifying retrieved files into implementation,
+  reference, test, and passive roles during Stage 3 and Stage 4. Signals were tightened
+  to reduce role overlap and accidental promotion of display-only files.
+roles:
+  implementation_target:
+    description: Primary logic owner expected to require edits.
+    positive_signals:
+    - state_mutation_owner
+    - durable_write_path
+    - transition_guard
+    - dispatch_decision
+    - claim_management
+    - retry_policy
+    - recovery_entrypoint
+    - operator_handler
+    - validation_enforcer
+    - side_effect_owner
+    negative_signals:
+    - display_only
+    - generated_output
+    - docs_only
+    - read_only_projection
+    - report_only
+    - orchestration_hub
+    - planner_wrapper
+    - broad_stage_wrapper
+    - summary_only_runner
+  secondary_context:
+    description: Supporting logic needed for understanding, coordinated edits, or
+      safe validation.
+    positive_signals:
+    - shared_schema
+    - shared_config
+    - integration_boundary
+    - adjacent_subsystem
+    - shared_helper
+    - audit_helper
+    - test_helper
+    - dependency_owner
+    - compatibility_surface
+    - cross_cutting_guard
+    - hub_with_explicit_targeted_request
+    - routing_surface_for_target_owner
+    negative_signals:
+    - generated_output
+    - standalone_report
+    - pure_view
+  reference_context:
+    description: Useful for reasoning or contracts but not expected to require edits.
+    positive_signals:
+    - docs_reference
+    - published_contract
+    - example_flow
+    - interface_definition
+    - public_schema
+    - external_protocol
+    - readme_reference
+    - decision_record
+    - compliance_rule
+    - golden_reference
+    - architecture_reference
+    - mode_contract_reference
+    negative_signals:
+    - durable_write_path
+    - dispatch_decision
+    - recovery_entrypoint
+    - assistant_state_write
+    - truth_precedence_enforcement
+  test_target:
+    description: Test file directly validating expected behavior of the change.
+    positive_signals:
+    - regression_test
+    - failure_mode_test
+    - operator_flow_test
+    - retry_test
+    - timeout_test
+    - integration_scenario
+    - property_test
+    - invariant_assertion
+    - migration_test
+    - queue_test
+    negative_signals:
+    - snapshot_only
+    - fixture_data_only
+    - render_only
+  schema_owner:
+    description: Schema or contract file likely requiring aligned changes.
+    positive_signals:
+    - request_schema
+    - response_schema
+    - state_schema
+    - event_schema
+    - storage_schema
+    - migration_definition
+    - typed_record
+    - config_schema
+    - contract_definition
+    - validation_model
+    negative_signals:
+    - display_only
+    - report_only
+    - sample_payload_only
+  config_owner:
+    description: Configuration or policy file controlling runtime behavior of the
+      target logic.
+    positive_signals:
+    - feature_flag
+    - retry_defaults
+    - timeout_defaults
+    - scheduler_policy
+    - capacity_policy
+    - admission_policy
+    - threshold_policy
+    - routing_defaults
+    - backoff_policy
+    - retention_policy
+    negative_signals:
+    - docs_only
+    - generated_output
+    - example_config_only
+  operator_entrypoint:
+    description: Manual or administrative control surface that can trigger or alter
+      behavior.
+    positive_signals:
+    - operator_cli
+    - admin_endpoint
+    - manual_launch_handler
+    - manual_cancel_handler
+    - manual_resume_handler
+    - manual_retry_handler
+    - approval_flow
+    - control_plane_route
+    - override_endpoint
+    - operator_api
+    negative_signals:
+    - downstream_consumer_only
+    - view_only
+  state_owner:
+    description: File owning durable state transitions or persistence truth.
+    positive_signals:
+    - persist_state
+    - commit_transaction
+    - append_ledger
+    - write_receipt
+    - checkpoint_write
+    - claim_write
+    - lineage_write
+    - deadline_write
+    - state_update
+    - tombstone_write
+    - assistant_state_write
+    - task_register_write
+    - identity_record_write
+    negative_signals:
+    - read_model_only
+    - projection_only
+    - view_only
+  recovery_owner:
+    description: File owning repair, reconciliation, replay, or restart behavior.
+    positive_signals:
+    - repair_pass
+    - reconcile_state
+    - restart_worker
+    - claim_recovery
+    - timeout_recovery
+    - receipt_repair
+    - checkpoint_resume
+    - crash_recovery
+    - orphan_sweeper
+    - replay_decision
+    - recovery_marker_write
+    - restore_conflict_resolution
+    - snapshot_plus_eventlog_replay
+    negative_signals:
+    - steady_state_only
+    - formatting_only
+    - observer_only
+  validation_owner:
+    description: File enforcing admission, invariants, eligibility, or guard rules.
+    positive_signals:
+    - schema_validation
+    - precondition_guard
+    - eligibility_check
+    - constraint_check
+    - ownership_validation
+    - transition_validation
+    - duplicate_suppression_guard
+    - dependency_validation
+    - manual_action_validation
+    - fail_closed_guard
+    - truth_precedence_validation
+    - schema_version_boot_guard
+    - writer_arbitration_validation
+    negative_signals:
+    - observer_only
+    - display_only
+  dispatch_owner:
+    description: File owning scheduling, queueing, reservation, or launch decisions.
+    positive_signals:
+    - scheduler_tick
+    - dispatch_decision
+    - launch_gate
+    - due_evaluation
+    - worker_start
+    - queue_reservation
+    - dequeue_logic
+    - claim_acquire
+    - dispatch_suppression
+    - assignment_logic
+    negative_signals:
+    - post_facto_reporting
+    - notification_only
+  observability_owner:
+    description: File emitting authoritative evidence or operational signals.
+    positive_signals:
+    - audit_log_write
+    - receipt_emit
+    - event_append
+    - decision_log
+    - trace_context
+    - health_signal
+    - error_report
+    - metric_emit
+    - correlation_id
+    - suppression_reason
+    negative_signals:
+    - display_only_dashboard
+    - viewer_only
+  integration_boundary:
+    description: External interface or subsystem boundary requiring compatibility
+      review.
+    positive_signals:
+    - api_handler
+    - rpc_method
+    - message_contract
+    - queue_adapter
+    - storage_adapter
+    - client_wrapper
+    - integration_mapper
+    - external_event
+    - connector_logic
+    - webhook_contract
+    negative_signals:
+    - internal_helper_only
+    - pure_model_only
+  migration_owner:
+    description: Schema or storage migration affecting durable truth.
+    positive_signals:
+    - migration_step
+    - ddl_change
+    - index_change
+    - data_rewrite
+    - schema_upgrade
+    - state_migration
+    - compatibility_guard
+    - migration_validation
+    - version_bump
+    - backfill_migration
+    negative_signals:
+    - runtime_output_only
+    - report_only
+  workflow_owner:
+    description: File coordinating multi-step lifecycle progression.
+    positive_signals:
+    - workflow_advance
+    - stage_transition
+    - step_coordinator
+    - pipeline_stage
+    - resume_from_stage
+    - failure_branch
+    - completion_gate
+    - checkpoint_gate
+    - orchestrate_steps
+    - workflow_state
+    negative_signals:
+    - leaf_helper_only
+    - format_only
+  concurrency_owner:
+    description: File owning locks, leases, fencing, or generation checks.
+    positive_signals:
+    - lock_acquire
+    - lease_conflict
+    - fencing_token
+    - generation_check
+    - compare_and_swap
+    - single_flight
+    - semaphore_guard
+    - advisory_lock
+    - cross_process_guard
+    - leader_term_check
+    negative_signals:
+    - single_thread_utility
+    - observer_only
+  must_not_change_reference:
+    description: File that should remain stable while edits occur elsewhere.
+    positive_signals:
+    - public_contract
+    - wire_protocol
+    - published_schema
+    - stable_audit_format
+    - golden_fixture
+    - legacy_compat_surface
+    - compliance_boundary
+    - operator_contract
+    - storage_compat_rule
+    - externally_versioned_surface
+    negative_signals:
+    - active_logic_owner
+    - mutable_runtime_policy
+  semantic_rescue_candidate:
+    description: File relevant conceptually despite weak lexical evidence.
+    positive_signals:
+    - conceptual_similarity
+    - invariant_alignment
+    - failure_mode_alignment
+    - cross_cutting_alignment
+    - recovery_pattern_match
+    - validation_pattern_match
+    - dispatch_pattern_match
+    - bundle_gap_candidate
+    - low_lexical_high_concept
+    - shared_semantics
+    negative_signals:
+    - filename_only_match
+    - path_only_match
+  passive_reference:
+    description: File relevant only as downstream, reporting, or display context.
+    positive_signals:
+    - viewer_only
+    - renderer_only
+    - report_only
+    - export_only
+    - downstream_consumer
+    - read_projection
+    - status_formatter
+    - dashboard_output
+    - notification_formatter
+    - sample_output
+    negative_signals:
+    - durable_write_path
+    - dispatch_decision
+    - validation_enforcer
+  shared_helper_owner:
+    description: Shared helper with real behavioral ownership but not a primary workflow
+      root.
+    positive_signals:
+    - shared_validation_helper
+    - shared_retry_helper
+    - shared_state_helper
+    - shared_audit_helper
+    - shared_dispatch_helper
+    - shared_lock_helper
+    - shared_transition_helper
+    - shared_schema_helper
+    - shared_idempotency_helper
+    - cross_cutting_helper
+    negative_signals:
+    - display_only
+    - report_only
+    - generated_output
+  policy_owner:
+    description: Knowledge or policy asset directly controlling runtime classification,
+      retrieval, or role behavior.
+    positive_signals:
+    - task_family_policy
+    - retrieval_bias_policy
+    - role_assignment_policy
+    - subsystem_mapping_policy
+    - negative_target_policy
+    - responsibility_catalog
+    negative_signals:
+    - docs_only
+    - loader_only
+    - report_only
+  orchestration_hub:
+    description: Broad stage, routing, or runner surface that coordinates owner modules
+      and should be demoted unless explicitly targeted.
+    positive_signals:
+    - stage_wrapper
+    - pipeline_runner
+    - planner_surface
+    - orchestrator_surface
+    - delegating_cli_wrapper
+    - broad_sequence_logic
+    negative_signals:
+    - durable_write_path
+    - dispatch_decision
+    - recovery_entrypoint
+role_priority_order:
+- implementation_target
+- state_owner
+- dispatch_owner
+- recovery_owner
+- validation_owner
+- operator_entrypoint
+- workflow_owner
+- concurrency_owner
+- schema_owner
+- config_owner
+- shared_helper_owner
+- integration_boundary
+- observability_owner
+- migration_owner
+- secondary_context
+- test_target
+- must_not_change_reference
+- semantic_rescue_candidate
+- reference_context
+- passive_reference
+conflict_resolution:
+  implementation_target_overrides_reference_context: Prefer implementation_target
+    when durable mutation or dispatch ownership evidence exists.
+  state_owner_overrides_secondary_context: Prefer state_owner when authoritative durable
+    writes or transition records are present.
+  dispatch_owner_overrides_reference_context: Prefer dispatch_owner when the file
+    decides whether work launches or is suppressed.
+  recovery_owner_overrides_secondary_context: Prefer recovery_owner when the file
+    can restart, replay, repair, or reconcile state.
+  validation_owner_overrides_reference_context: Prefer validation_owner when the file
+    can reject illegal mutations.
+  operator_entrypoint_kept_for_manual_flow_changes: Retain operator_entrypoint whenever
+    manual actions are in scope.
+  schema_owner_kept_with_state_owner: Keep schema_owner when durable truth shape or
+    event shape may change.
+  config_owner_demoted_without_runtime_effect: Demote config_owner if it only documents
+    settings and is not read by active logic.
+  test_target_kept_with_implementation_target: Retain tests alongside implementation
+    targets when they cover the same failure family.
+  must_not_change_reference_preserved_as_guardrail: Preserve must_not_change_reference
+    as context without promoting it to edit target.
+  passive_reference_demoted_when_no_coverage_gain: Demote passive_reference when it
+    adds no invariant, contract, or failure coverage.
+  semantic_rescue_candidate_requires_supporting_evidence: Promote semantic_rescue_candidate
+    only when another signal supports the same hypothesis.
+  secondary_context_promoted_to_close_bundle_gap: Promote secondary_context only if
+    it closes a validated subsystem or role gap.
+  low_confidence_defaults_to_conservative_role: When evidence conflicts, choose the
+    less aggressive role rather than over-promote.
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: role_assignment_rules.yaml
+    payload:
+      canonical_runtime_source: role_assignment_rules.yaml
+      bundle_extract_status: noncanonical_duplicate
+      use_bundle_extract_for_runtime: false
+      reason: bundle_extract_creates_overlap_and_should_not_override_canonical_asset

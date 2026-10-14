@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-disable-all
+# Description: Disable all scheduled jobs (does not kill in-flight runs).
+# Example: bash infra/user/scheduler-disable-all --dry-run
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash infra/bin/disable_all_scheduled_jobs.sh "$@"

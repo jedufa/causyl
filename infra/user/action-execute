@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# infra/user/action-execute
+# Description: Validate and route a phase-2 action request payload.
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+python3 infra/bin/action_execute.py "$@"

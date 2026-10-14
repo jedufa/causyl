@@ -1,0 +1,113 @@
+{
+  "mode": "isolated_real_ui_synthetic_responses",
+  "operator_service_started": false,
+  "network_requests_sent": 0,
+  "provider_or_agent_calls": 0,
+  "captured_utc": "2026-10-13T18:28:36.795Z",
+  "browser_version": "148.0.7778.96",
+  "playwright_version": "1.60.0",
+  "capture_script": "tools/release/capture_ui.cjs",
+  "capture_script_sha256": "974cec08f5fb1ffa86a03ce74c055af1f519765928aa64d8426412fd4cfb65bb",
+  "screenshots": [
+    {
+      "path": "docs/screenshots/change-ledger.png",
+      "sha256": "e512409afa2e87abaaca3b4544db6ccbfea22e3843b4f5d7f759c0e2a5cced34",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "docs/screenshots/agent-surface.png",
+      "sha256": "6d5db4de357772ed3f0a27a7607fe9fb71f9c7760abc816645384608e1e4ccc5",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "path": "docs/screenshots/operator-mobile.png",
+      "sha256": "94cf14cc9c67538c8c6af766b41fad7b4b3e39c47462607f28d0c5e738be540f",
+      "width": 390,
+      "height": 1000
+    }
+  ],
+  "source_assets": [
+    {
+      "path": "infra/webui/static/index.html",
+      "sha256": "0380995893d7f6677202343aa6554f71b0f8cfb66aa3e5a47953eaeed1e380fb"
+    },
+    {
+      "path": "infra/webui/static/style.css",
+      "sha256": "a1ec52cdfda5a0cdb73a5384fa12c4d0bdd8b5658b197f35a9484e3c4401072e"
+    },
+    {
+      "path": "infra/webui/static/tooltip.js",
+      "sha256": "130861b07097ed1231888fd6ee7ee75e5b5c58ff0a1f0cecf0ba5752b058869f"
+    },
+    {
+      "path": "infra/webui/static/app_shared.js",
+      "sha256": "120341164096bb79299d98fd1b12e4cbb98cac1cc0d3584e40b1cfa66458fefd"
+    },
+    {
+      "path": "infra/webui/static/app_utils.js",
+      "sha256": "ee33144a3e741c5bcbf67bda882c27bb46de2d4cb94f8015a0780c7bbbc3341a"
+    },
+    {
+      "path": "infra/webui/static/app_api.js",
+      "sha256": "609519a15779bd015c3738836a68da054e49811f36cc23e942a8fe9d64f32e66"
+    },
+    {
+      "path": "infra/webui/static/app_runs.js",
+      "sha256": "139129a67e01052d4963b4dbe5587e5b8ade955a8e789aaca927e5433c7e9b0b"
+    },
+    {
+      "path": "infra/webui/static/app_core_part1.js",
+      "sha256": "a43813ba324599ec3eeaf7397c3fa2dd418c7fe46ec35bd292ba22cce0592413"
+    },
+    {
+      "path": "infra/webui/static/app_core_part2.js",
+      "sha256": "6d4a11d19d3f9b32b4e2c99228be394328348e7c57189e4c988a182f73fe2579"
+    },
+    {
+      "path": "infra/webui/static/app_core_part3.js",
+      "sha256": "92e6f4d7cb641f4427d4cc9b1e97d51e5fd30f671523cd05033fe6fab2b75391"
+    },
+    {
+      "path": "infra/webui/static/app_core_part4.js",
+      "sha256": "d57d91607e4588a6f69de6a6f669b7b030357ca30ed270578f910d9fe72714d2"
+    },
+    {
+      "path": "infra/webui/static/app_core_part5.js",
+      "sha256": "ccc0b5fd7d8f0466ffa14438e9f611689e1402f3c2fc7498d23ddff15af64363"
+    },
+    {
+      "path": "infra/webui/static/app_core_part6.js",
+      "sha256": "0a2b6b56eecda5ae01448d079a9c8dc1423287284a52ac95cd1bfaf49206f8ec"
+    },
+    {
+      "path": "infra/webui/static/app_core.js",
+      "sha256": "4270dd55e3f4a9a1642877ef3f4583ea413cc61bafecf65bec66f08f0894279c"
+    },
+    {
+      "path": "infra/webui/static/app.js",
+      "sha256": "ff41e89504c55d60124bfac2b0f543ebb7eb87114c365eab224042b400c7c4ee"
+    },
+    {
+      "path": "infra/webui/static/agents.html",
+      "sha256": "d6a84743bda405429026ab74244f9f47975a136c26875aa878ecc9aafa7f0e43"
+    },
+    {
+      "path": "infra/webui/static/agents.js",
+      "sha256": "3b6a2a50ea153638d6d947657fe7155493b3b5ac110976c0366d73a75631dd6a"
+    },
+    {
+      "path": "infra/webui/static/mobile_backlog.html",
+      "sha256": "085481a9aab2be89ce244579d0e7215b6a1e4207abd70560315d8fc3d9e377e5"
+    },
+    {
+      "path": "infra/webui/static/mobile_backlog.js",
+      "sha256": "01e78d36809a3f710575bdafc56763cd254af7fe7d36bb60129d8ae9c5764edb"
+    }
+  ],
+  "request_count": 41,
+  "blocked_mutation_attempts": 0,
+  "script_errors": [],
+  "interpretation": "Rendered source interfaces with fictional data; no operator workflow or agent execution is demonstrated."
+}

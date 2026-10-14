@@ -1,0 +1,6 @@
+diff --git a/readme.md b/readme.md
+--- a/readme.md
++++ b/readme.md
+@@ -1 +1 @@
+-old
++new

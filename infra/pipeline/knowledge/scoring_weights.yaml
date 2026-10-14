@@ -1,0 +1,142 @@
+version: 1
+phase: 3
+notes: Deterministic scoring weights for Stage 3 retrieval ranking and bundle coverage evaluation. Retrieval weights use a normalized additive range where strong evidence falls between -0.18 and +0.20. Coverage points use a bounded 0-12 scale so bundle scores remain interpretable and calibratable.
+base_score: 0.5
+retrieval_scoring:
+  exact_subsystem_match:
+    weight: 0.2
+    rationale: Reward when path or owned symbol contains the canonical active subsystem key. Highest precision routing signal.
+    effect: strong_positive
+  partial_subsystem_match:
+    weight: 0.08
+    rationale: Reward only when an approved bounded alias matches and the canonical key is absent.
+    effect: weak_positive
+  family_trigger_term_in_path:
+    weight: 0.06
+    rationale: Reward when a path or dominant symbol carries a high-precision family trigger, not a generic lexical hint.
+    effect: weak_positive
+  cross_cutting_flag_match:
+    weight: 0.07
+    rationale: Reward when exact active concerns such as idempotency, ownership, audit, or validation are evidenced.
+    effect: weak_positive
+  test_file_bonus:
+    weight: 0.05
+    rationale: Reward only when test retrieval is enabled and the test targets an already-matched subsystem or invariant.
+    effect: weak_positive
+  passive_pattern_penalty:
+    weight: -0.1
+    rationale: Penalize files that match bounded passive relevance patterns without implementation signals.
+    effect: negative
+  negative_target_penalty:
+    weight: -0.16
+    rationale: Penalize authoritative exclusion paths such as generated, build, vendor, cache, or runtime artifact targets.
+    effect: strong_negative
+  generated_file_penalty:
+    weight: -0.18
+    rationale: Penalize explicit generated-file markers unless a stronger implementation override exists.
+    effect: strong_negative
+  docs_only_penalty:
+    weight: -0.08
+    rationale: Penalize documentation-only files when no mutation, validation, or ownership evidence is present.
+    effect: negative
+  stale_snapshot_penalty:
+    weight: -0.12
+    rationale: Penalize snapshot, fixture, or recorded output artifacts that mirror state but do not own it.
+    effect: negative
+  invariant_signal_bonus:
+    weight: 0.09
+    rationale: Reward files that enforce or verify active invariants before mutation.
+    effect: positive
+  audit_signal_bonus:
+    weight: 0.06
+    rationale: Reward durable evidence emission around dispatch, operator action, or terminal mutation.
+    effect: weak_positive
+  ownership_signal_bonus:
+    weight: 0.11
+    rationale: Reward claim, lease, generation, or fencing signals because they are decisive for active execution ownership.
+    effect: positive
+  recovery_signal_bonus:
+    weight: 0.08
+    rationale: Reward bounded retry, reconciliation, or stale-state recovery signals that co-occur with authoritative mutation paths.
+    effect: weak_positive
+  validation_signal_bonus:
+    weight: 0.09
+    rationale: Reward explicit validation-before-mutation signals, especially transition, ownership, and schema guards.
+    effect: positive
+  path_role_alignment:
+    weight: 0.07
+    rationale: Reward when file path, symbol names, and responsibility terms point to the same owner role.
+    effect: weak_positive
+  subsystem_alias_match:
+    weight: 0.05
+    rationale: Reward bounded alias normalization only when at least one supporting responsibility or signal file match also exists.
+    effect: weak_positive
+  responsibility_term_match:
+    weight: 0.06
+    rationale: Reward concrete responsibility clues when they align with active family and subsystem hypotheses.
+    effect: weak_positive
+  validation_signal_match:
+    weight: 0.08
+    rationale: Reward precise validation signal matches. Higher weight than family path hints because signal terms are narrower.
+    effect: positive
+  recovery_signal_match:
+    weight: 0.08
+    rationale: Reward precise recovery signal matches only when they imply safe replay, convergence, or stale-owner handling.
+    effect: positive
+  mutation_signal_match:
+    weight: 0.1
+    rationale: Reward authoritative mutation signals because they are decisive implementation-owner evidence.
+    effect: positive
+coverage_scoring:
+  failure_taxonomy_coverage: 12
+  invariant_coverage: 12
+  required_subsystem_coverage: 12
+  optional_subsystem_bonus: 4
+  role_diversity: 6
+  implementation_target_presence: 12
+  test_file_presence: 6
+  operator_flow_coverage: 7
+  recovery_path_coverage: 8
+  validation_path_coverage: 8
+  state_truth_coverage: 10
+  dispatch_path_coverage: 7
+  observability_evidence_coverage: 6
+  concurrency_guard_coverage: 8
+  bundle_not_all_passive: 10
+  multi_query_support: 5
+  semantic_rescue_bonus: 3
+  filename_only_penalty: -6
+  passive_relevance_penalty: -8
+  excluded_path_penalty: -12
+confidence_thresholds:
+  very_low: 0.2
+  low: 0.35
+  guarded: 0.5
+  moderate: 0.65
+  strong: 0.78
+  very_strong: 0.9
+  family_activation_min: 0.44
+  subsystem_hypothesis_min: 0.46
+  retrieval_bundle_min: 0.58
+  role_assignment_min: 0.6
+  patch_contract_min: 0.68
+  semantic_gate_open: 0.45
+  widening_trigger: 0.48
+  gap_warning_trigger: 0.58
+  target_promotion_min: 0.74
+  reference_demote_max: 0.34
+  test_required_trigger: 0.6
+  must_not_change_guard: 0.56
+  coverage_complete_min: 0.78
+  conservative_bundle_release: 0.72
+supplemental:
+  calibration_guidance:
+    retrieval_weight_range:
+    - -0.18
+    - 0.2
+    coverage_point_range:
+    - -12
+    - 12
+    design_rule: prefer fewer decisive signals over many weak additive hints
+    penalty_rule: missing required evidence and conflicting evidence should outweigh cosmetic positive matches
+    validation_goal: weights should be rechecked against benchmark traces rather than expanded further

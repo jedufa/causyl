@@ -1,0 +1,118 @@
+{
+  "schema_version": "rng_budget_contract_v1",
+  "contract_version": "phase_e_e2_budget_v1",
+  "boundaries": {
+    "spawn.population.init_drives.birth_noise": {
+      "description": "Population spawn/init drives birth-noise draw budget.",
+      "expected_delta": {
+        "mutation.np": "ctx.birth_noise_draws"
+      }
+    },
+    "mutation.reproduction.crossover_policy": {
+      "description": "MLP parameter crossover torch draw budget.",
+      "expected_delta": {
+        "mutation.torch_cpu": "ctx.torch_numel"
+      }
+    },
+    "core_tick.generation.shock_active": {
+      "description": "Generation-level shock scheduler fixed Python RNG draw block.",
+      "expected_delta": {
+        "policy.py": 8
+      }
+    },
+    "env.update.spatial_droughts_step": {
+      "description": "Spatial drought environment update is RNG-free in runtime.",
+      "expected_delta": {
+        "policy.np": 0
+      }
+    },
+    "chemistry.tick.update": {
+      "description": "Per-tick chemistry update fixed draw budget (2 policy.np draws per alive agent).",
+      "expected_delta": {
+        "policy.np": "ctx.chemistry_draws"
+      }
+    },
+    "maintenance.tick.schedule": {
+      "description": "Maintenance schedule path is deterministic and RNG-free.",
+      "expected_delta": {
+        "policy.np": 0
+      }
+    },
+    "maintenance.tick.apply_delayed": {
+      "description": "Delayed maintenance application path is deterministic and RNG-free.",
+      "expected_delta": {
+        "policy.np": 0
+      }
+    },
+    "mutation.c1.schedule_mix": {
+      "description": "Per-offspring C1 operator mix scheduler draw budget.",
+      "expected_delta": {
+        "mutation.py": "ctx.schedule_draws"
+      }
+    },
+    "mutation.c1.operator.duplicate_with_decay": {
+      "description": "C1 operator duplicate_with_decay fixed draw budget.",
+      "expected_delta": {
+        "mutation.py": 3
+      }
+    },
+    "mutation.c1.operator.gate_drift": {
+      "description": "C1 operator gate_drift fixed draw budget.",
+      "expected_delta": {
+        "mutation.py": 2
+      }
+    },
+    "mutation.c1.operator.bounded_rewire": {
+      "description": "C1 operator bounded_rewire fixed draw budget.",
+      "expected_delta": {
+        "mutation.py": 3
+      }
+    },
+    "mutation.c1.operator.edge_split_insertion": {
+      "description": "C1 operator edge_split_insertion fixed draw budget.",
+      "expected_delta": {
+        "mutation.py": 3
+      }
+    },
+    "mutation.c1.operator.motif_duplication": {
+      "description": "C1 operator motif_duplication fixed draw budget.",
+      "expected_delta": {
+        "mutation.py": 3
+      }
+    },
+    "mutation.c1.operator.promoter_expression_mutation": {
+      "description": "C1 operator promoter_expression_mutation fixed draw budget.",
+      "expected_delta": {
+        "mutation.py": 2
+      }
+    },
+    "mutation.c1.operator.fusion_merge_compression": {
+      "description": "C1 operator fusion_merge_compression fixed draw budget.",
+      "expected_delta": {
+        "mutation.py": 2
+      }
+    },
+    "mutation.c2.recombination_lineage": {
+      "description": "C2 lineage-aware recombination draw budget (matched modules + matched connections).",
+      "expected_delta": {
+        "mutation.py": "ctx.recomb_draws"
+      }
+    },
+    "metrics.phase_e.e1.compute": {
+      "description": "Phase E1 deterministic metrics pipeline must not consume RNG.",
+      "expected_delta": {
+        "metrics.py": 0,
+        "metrics.np": 0,
+        "metrics.torch_cpu": 0
+      }
+    },
+    "metrics.phase_e.e2.compute": {
+      "description": "Phase E2 deterministic taxonomy pipeline must not consume RNG.",
+      "expected_delta": {
+        "metrics.py": 0,
+        "metrics.np": 0,
+        "metrics.torch_cpu": 0
+      }
+    }
+  }
+}

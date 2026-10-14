@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# tools/user/intent-sheet-next
+# Description: Show the next best Intent Sheets to work on.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
+PYTHONPATH=. python tools/bin/intent_sheet_next.py "$@"

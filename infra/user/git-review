@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/git-review
+# Description: Run the git review helper for preparing commit reviews.
+# Example: bash infra/user/git-review --help
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash tools/git/git-review.sh "$@"

@@ -1,0 +1,144 @@
+version: 1
+phase: 0
+notes: Deterministic validation signal catalog. Terms are specific validation patterns that should bias retrieval toward code enforcing input, transition, ownership, and persisted-truth guards before mutation.
+signals:
+- id: schema_check
+  terms:
+  - load_and_validate_request_schema
+  - validate_state_document_version
+  - reject_payload_missing_schema_fields
+  - schema_guard_before_persist
+  - strict_model_validation_before_mutation
+- id: type_enforcement
+  terms:
+  - reject_non_string_identifier
+  - require_boolean_control_flag
+  - enforce_integer_retry_count
+  - validate_typed_operator_payload
+  - fail_on_unexpected_value_type
+- id: range_constraint
+  terms:
+  - reject_retry_count_out_of_range
+  - validate_timeout_within_bounds
+  - guard_schedule_interval_limits
+  - fail_on_negative_retention_days
+  - enforce_max_parallelism_limit
+- id: null_protection
+  terms:
+  - reject_missing_required_operator_reason
+  - fail_if_current_state_absent
+  - require_non_null_lineage_token
+  - guard_against_null_claim_owner
+  - reject_empty_target_identifier
+- id: regex_matching
+  terms:
+  - validate_cron_expression_format
+  - enforce_uuid_like_identifier_pattern
+  - reject_malformed_queue_name
+  - match_operator_email_format
+  - validate_resource_slug_pattern
+- id: enum_validation
+  terms:
+  - reject_unknown_lifecycle_state
+  - validate_allowed_operator_action
+  - enforce_supported_dispatch_mode
+  - guard_known_failure_family_value
+  - require_valid_retention_policy_name
+- id: business_rule_guard
+  terms:
+  - reject_dispatch_when_job_disabled
+  - block_resume_for_terminal_run
+  - prevent_manual_retry_after_success
+  - guard_restart_without_reset
+  - require_backfill_window_authorization
+- id: consistency_check
+  terms:
+  - verify_runtime_matches_persisted_generation
+  - compare_claim_owner_before_commit
+  - fail_when_receipt_and_state_disagree
+  - require_consistent_lineage_chain
+  - guard_against_split_brain_state
+- id: uniqueness_constraint
+  terms:
+  - enforce_single_active_run_per_logical_job
+  - reject_duplicate_idempotency_key
+  - guard_unique_schedule_name
+  - fail_on_duplicate_claim_token
+  - require_unique_receipt_identifier
+- id: dependency_existence
+  terms:
+  - require_target_resource_exists_before_mutation
+  - reject_missing_dependency_record
+  - guard_schedule_references_known_job
+  - fail_when_required_secret_absent
+  - validate_parent_workflow_exists
+- id: format_validation
+  terms:
+  - validate_timestamp_string_before_parse
+  - enforce_iso8601_deadline_format
+  - reject_invalid_duration_literal
+  - validate_structured_audit_payload
+  - guard_wire_format_before_decode
+- id: length_validation
+  terms:
+  - reject_empty_reason_message
+  - enforce_max_audit_note_length
+  - guard_identifier_length_bounds
+  - limit_batch_request_size
+  - fail_on_oversized_payload_blob
+- id: authorization_check
+  terms:
+  - validate_operator_scope_before_override
+  - require_admin_role_for_force_action
+  - enforce_tenant_access_on_mutation
+  - check_permission_before_backfill
+  - reject_untrusted_callback_actor
+- id: state_eligibility
+  terms:
+  - require_paused_state_before_resume
+  - require_running_state_before_cancel
+  - validate_due_job_is_eligible_now
+  - reject_transition_from_terminal_state
+  - guard_cleanup_only_for_inactive_runs
+- id: rate_limit_check
+  terms:
+  - reject_operator_retry_burst
+  - enforce_backfill_request_rate_limit
+  - guard_api_mutation_quota
+  - throttle_reconciliation_rescan_frequency
+  - limit_notification_retry_frequency
+- id: checksum_verification
+  terms:
+  - verify_manifest_digest_before_accept
+  - reject_corrupted_snapshot_payload
+  - validate_export_checksum_on_import
+  - guard_receipt_hash_match
+  - confirm_checkpoint_blob_integrity
+- id: sanitization_action
+  terms:
+  - sanitize_operator_note_before_persist
+  - normalize_external_identifier_input
+  - strip_control_chars_from_payload
+  - escape_untrusted_rendered_output
+  - canonicalize_path_like_argument
+- id: cross_field_validation
+  terms:
+  - require_deadline_after_start_time
+  - validate_schedule_window_start_end_pair
+  - guard_retry_policy_with_backoff_limits
+  - fail_if_pause_reason_missing_for_manual_pause
+  - enforce_claim_token_matches_owner
+- id: custom_validator
+  terms:
+  - domain_specific_transition_validator
+  - job_policy_guard_before_dispatch
+  - custom_backfill_window_validator
+  - operator_override_reason_validator
+  - resource_specific_mutation_guard
+- id: fail_fast_abort
+  terms:
+  - abort_on_first_validation_failure
+  - return_explicit_rejection_reason
+  - stop_mutation_when_precondition_fails
+  - fail_closed_on_unknown_enum_value
+  - short_circuit_before_side_effect

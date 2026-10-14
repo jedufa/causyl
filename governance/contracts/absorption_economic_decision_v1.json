@@ -1,0 +1,23 @@
+{
+  "schema_version": "absorption_economic_decision_v1",
+  "required_fields": [
+    "candidate_id",
+    "confidence_bucket",
+    "decision",
+    "expected_value_score",
+    "reason_class",
+    "required_additional_evidence",
+    "schema_version"
+  ],
+  "allowed_decisions": [
+    "rejected",
+    "deferred",
+    "approved"
+  ],
+  "allowed_confidence_buckets": [
+    "high",
+    "medium",
+    "low"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

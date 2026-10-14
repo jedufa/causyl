@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-batch-from-parent
+# Description: Batch create or update child implementation jobs from a parent PIS.
+# Example: infra/user/scheduler-batch-from-parent PIS-20260326-203500Z-R7K2 --start-in 10m
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/scheduler_batch_from_parent.py "$@"

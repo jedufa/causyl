@@ -1,0 +1,73 @@
+{
+  "name": "full_stack_unsafe_recurring_fallback",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_phase4_repeated_patch_fallback_to_upgrade_proposal_v1",
+  "git_repo": false,
+  "payload": {
+    "fallback_events": [
+      {
+        "action_family": "patch_apply",
+        "intent": "apply incoming patch",
+        "failure_class": "semantic_conflict",
+        "deterministic_steps_attempted": [
+          "patch_ingest_repair_v1",
+          "validation_subset_v1"
+        ],
+        "fallback_reason": "semantic_merge_required",
+        "pre_escalation_checklist": {
+          "evidence_gathered": true,
+          "failure_class_recorded": true,
+          "deterministic_recovery_exhausted_or_inapplicable": true,
+          "downstream_validation_contract_prepared": true
+        },
+        "post_fallback_outcome": "success_after_codex_fallback",
+        "solution_path_signature": "semantic_merge_then_validate",
+        "bounded_authority_safe": false,
+        "validator_path_clear": true,
+        "expected_future_codex_cost": 25.0,
+        "operator_friction_cost": 1.0,
+        "estimated_build_cost": 5.0,
+        "estimated_maintenance_cost": 1.0
+      },
+      {
+        "action_family": "patch_apply",
+        "intent": "apply incoming patch",
+        "failure_class": "semantic_conflict",
+        "deterministic_steps_attempted": [
+          "patch_ingest_repair_v1",
+          "validation_subset_v1"
+        ],
+        "fallback_reason": "semantic_merge_required",
+        "pre_escalation_checklist": {
+          "evidence_gathered": true,
+          "failure_class_recorded": true,
+          "deterministic_recovery_exhausted_or_inapplicable": true,
+          "downstream_validation_contract_prepared": true
+        },
+        "post_fallback_outcome": "success_after_codex_fallback",
+        "solution_path_signature": "semantic_merge_then_validate",
+        "bounded_authority_safe": false,
+        "validator_path_clear": true,
+        "expected_future_codex_cost": 24.0,
+        "operator_friction_cost": 1.0,
+        "estimated_build_cost": 5.0,
+        "estimated_maintenance_cost": 1.0
+      }
+    ]
+  },
+  "expected_terminal_status": "ok",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "operator_state": "rejected",
+    "phase4_decision": "rejected",
+    "proposal_created": false
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

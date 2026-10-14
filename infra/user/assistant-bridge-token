@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# infra/user/assistant-bridge-token
+# Description: Manage local assistant bridge tokens.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/assistant_bridge_tokens.py "$@"

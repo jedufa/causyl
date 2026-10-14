@@ -1,0 +1,8 @@
+{
+  "expected_primary_stage8_behavior": "extract_single_patch_candidate_then_normalize_and_succeed",
+  "fixture_name": "full_pipeline_app_success.txt",
+  "format_family": "chatty_unified_diff",
+  "notes": "Fixture-backed full pipeline golden path patch for app.py greeting update.",
+  "provenance_type": "synthetic_repo_diff",
+  "source_reference": null
+}

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# infra/user/git-commit-tag
+# Description: Launch the git commit/tag helper that applies the journal workflow.
+# Example: bash infra/user/git-commit-tag --help
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
+FORWARD_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      cat <<'EOF_HELP'
+Usage:
+  infra/user/git-commit-tag [--debug|--weekly] [--config <path>] [message words...]
+
+Behavior:
+  - Runs:
+      bash tools/git/git-commit-tag.sh [args...]
+  - Archive flags are handled by git-commit-tag.sh after commit + tag so the
+    snapshot captures the new baseline tag.
+EOF_HELP
+      exit 0
+      ;;
+    *)
+      FORWARD_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+
+bash tools/git/git-commit-tag.sh "${FORWARD_ARGS[@]}"

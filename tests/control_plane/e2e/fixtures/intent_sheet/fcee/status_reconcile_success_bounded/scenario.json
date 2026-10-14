@@ -1,0 +1,37 @@
+{
+  "name": "status_reconcile_success_bounded",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_status_reconcile_v1",
+  "git_repo": false,
+  "payload": {
+    "request": {
+      "task_id": "fcee_status_reconcile_success_bounded",
+      "action_family": "status_reconcile",
+      "execution_mode": "deterministic_then_codex",
+      "context_bundle_id": "lab_core_v1",
+      "requested_by": "operator",
+      "source_event": "snapshot_drift",
+      "authority_scope": "ledger_status_only",
+      "target_uid": "PIS-EXAMPLE",
+      "current_status": "running",
+      "expected_status": "blocked",
+      "validation_commands": [
+        "python -c \"print('status')\""
+      ],
+      "verifier_verdict": "PASS"
+    }
+  },
+  "expected_terminal_status": "ok",
+  "expected_receipt": {
+    "proof_gap": false
+  },
+  "expected_snapshot": {
+    "final_chain_outcome": "completed_with_pass"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

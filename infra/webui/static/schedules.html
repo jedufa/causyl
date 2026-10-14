@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Causyl Schedules</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <style>
+    .sched-root{max-width:1200px;margin:0 auto;padding:18px;display:grid;gap:14px;}
+    .sched-grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:14px;}
+    .sched-card{border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,0.10);padding:12px;display:grid;gap:10px;}
+    .sched-list{display:grid;gap:8px;max-height:68vh;overflow:auto;}
+    .sched-row{display:grid;gap:6px;padding:10px;border:1px solid rgba(130,140,155,0.28);border-radius:12px;background:rgba(255,255,255,0.03);cursor:pointer;}
+    .sched-row.active{border-color:rgba(102,163,255,0.72);background:rgba(102,163,255,0.10);}
+    .sched-meta{font-size:12px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;}
+    .sched-head{display:flex;justify-content:space-between;gap:10px;align-items:center;}
+    .sched-title{font-weight:700;}
+    .sched-status{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;border:1px solid rgba(130,140,155,0.30);font-size:11px;}
+    .sched-status.ok{border-color:rgba(123,241,168,0.5);background:rgba(123,241,168,0.10);}
+    .sched-status.error{border-color:rgba(255,92,122,0.5);background:rgba(255,92,122,0.10);}
+    .sched-status.running{border-color:rgba(102,163,255,0.6);background:rgba(102,163,255,0.10);}
+    .sched-status.idle{border-color:rgba(130,140,155,0.30);}
+    .sched-form{display:grid;gap:10px;}
+    .sched-two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .sched-three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .sched-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .sched-log{max-height:26vh;overflow:auto;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;}
+    @media (max-width: 900px){.sched-grid,.sched-two,.sched-three{grid-template-columns:1fr;}.sched-root{padding:12px;}}
+    body.embedded-shell .topbar{display:none;}
+    body.embedded-shell .sched-root{max-width:none;padding:10px;}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-title">Scheduled Jobs</div>
+      <div class="brand-sub">CLI-authored, file-backed plane schedules</div>
+    </div>
+    <div class="topbar-actions">
+      <a class="btn" href="/">Main UI</a>
+      <a class="btn" href="/agents">Agents</a>
+      <button id="btnRefresh" class="btn">Refresh</button>
+      <button id="btnTick" class="btn ok">Tick Due Jobs</button>
+    </div>
+  </header>
+
+  <main class="sched-root">
+    <div class="sched-grid">
+      <section class="sched-card">
+        <div class="row" style="justify-content:space-between;align-items:center;">
+          <div class="card-title">Jobs</div>
+          <button id="btnNew" class="btn small">New</button>
+        </div>
+        <div id="jobList" class="sched-list">Loading jobs...</div>
+      </section>
+
+      <section class="sched-card">
+        <div class="card-title">Job Editor</div>
+        <form id="jobForm" class="sched-form">
+          <div class="sched-two">
+            <div><div class="label">Job ID</div><input id="jobId" class="input mono" required/></div>
+            <div><div class="label">Role</div><select id="role" class="input"><option>generalist</option><option>orchestrator</option><option>builder</option><option>verifier</option><option>assurer</option></select></div>
+          </div>
+          <div class="sched-two">
+            <div><div class="label">Binding Type</div><select id="bindingType" class="input"><option>task_id</option><option>ledger_uid</option></select></div>
+            <div><div class="label">Binding ID</div><input id="bindingId" class="input mono" required/></div>
+          </div>
+          <div class="sched-three">
+            <div><div class="label">Mode</div><select id="mode" class="input"><option>once</option><option>daily</option><option>interval</option></select></div>
+            <div><div class="label">Timezone</div><input id="timezone" class="input" value="UTC"/></div>
+            <div><div class="label">Enabled</div><select id="enabled" class="input"><option value="true">true</option><option value="false">false</option></select></div>
+          </div>
+          <div class="sched-two">
+            <div id="runAtWrap"><div class="label">Run At UTC</div><input id="runAt" class="input mono" placeholder="2026-03-10T03:30:00Z"/></div>
+            <div id="timeOfDayWrap" style="display:none;"><div class="label">Time Of Day</div><input id="timeOfDay" class="input mono" placeholder="03:30"/></div>
+            <div><div class="label">Max Runtime Seconds</div><input id="maxRuntime" class="input mono" value="1800"/></div>
+          </div>
+          <div id="intervalWrap" class="sched-two" style="display:none;">
+            <div><div class="label">Every Minutes</div><input id="everyMinutes" class="input mono" value="30" placeholder="30"/></div>
+            <div><div class="label">Start At UTC (optional)</div><input id="startAtUtc" class="input mono" placeholder="2026-03-10T03:30:00Z"/></div>
+          </div>
+          <div><div class="label">Prompt</div><textarea id="prompt" class="input" rows="8"></textarea></div>
+          <div class="sched-two">
+            <div><div class="label">Context Refs (comma separated)</div><input id="contextRefs" class="input"/></div>
+            <div class="sched-two">
+              <div><div class="label">Output Kind</div><input id="outKind" class="input" value="report"/></div>
+              <div><div class="label">Output Format</div><input id="outFormat" class="input" value="markdown"/></div>
+            </div>
+          </div>
+          <div class="sched-three">
+            <div><div class="label">Required Context Bundle</div><input id="requiredContextBundle" class="input" placeholder="lab_core_v1"/></div>
+            <div><div class="label">Additional Context Refs</div><input id="additionalContextRefs" class="input" placeholder="comma separated"/></div>
+            <div><div class="label">Forbidden Context Refs</div><input id="forbiddenContextRefs" class="input" placeholder="comma separated"/></div>
+          </div>
+          <div class="sched-three">
+            <div><div class="label">Agent Tech</div><input id="runtimeAgentTech" class="input" placeholder="gemini|ollama|claude|xai|codex|openai"/></div>
+            <div><div class="label">Model</div><input id="runtimeModel" class="input" placeholder="gpt-5.4"/></div>
+            <div><div class="label">Reasoning Effort</div><input id="runtimeReasoningEffort" class="input" placeholder="none|minimal|low|medium|high|xhigh"/></div>
+          </div>
+          <div class="sched-two">
+            <div><div class="label">Fallback Models</div><input id="runtimeFallbackModels" class="input" placeholder="comma separated"/></div>            <div><div class="label">Fallback Agent Techs</div><input id="runtimeFallbackAgentTechs" class="input" placeholder="comma separated"/></div>
+          </div>
+          <div class="sched-actions">
+            <button class="btn ok" type="submit">Save Job</button>
+            <button class="btn" id="btnRunNow" type="button">Run Now</button>
+            <button class="btn" id="btnToggle" type="button">Enable/Disable</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <section class="sched-card">
+      <div class="card-title">Scheduler Service</div>
+      <div class="sched-meta"><span>scheduler</span><span>watchdog</span><span>healer</span></div>
+      <div id="schedulerStatus" class="sched-log">Loading scheduler status...</div>
+    </section>
+
+    <section class="sched-card">
+      <div class="card-title">Execution Log</div>
+      <div id="eventLog" class="sched-log">No execution events yet.</div>
+    </section>
+  </main>
+
+  <script src="/static/schedules.js"></script>
+  <script>
+    (function(){
+      try{
+        var params = new URLSearchParams(window.location.search || "");
+        if(params.get("embedded") === "1"){
+          document.body.classList.add("embedded-shell");
+        }
+      }catch(_e){}
+    })();
+  </script>
+</body>
+</html>

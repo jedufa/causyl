@@ -1,0 +1,178 @@
+{
+  "schema_version": "research_evidence_pack_contract_v1",
+  "uid": "PIS-20260410-102637Z-DCFE",
+  "contract_family": "research_evidence_pack",
+  "pack_schema_version": "research_evidence_pack_v1",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_research_evidence_pack_v1.md",
+  "reference_pack_rel": "governance/research_evidence_pack_reference_v1.json",
+  "top_level_required_fields": [
+    "schema_version",
+    "pack_id",
+    "pack_version",
+    "stable_identity",
+    "metadata",
+    "pack_scope",
+    "sources",
+    "source_quality_notes",
+    "claims",
+    "claim_source_links",
+    "contradictions",
+    "unresolved_conflict_notes",
+    "summary_layers"
+  ],
+  "stable_identity_required_fields": [
+    "canonicalization",
+    "content_hash_algorithm",
+    "schema_migration_policy"
+  ],
+  "metadata_required_fields": [
+    "title",
+    "created_at_utc",
+    "source_intent_uid",
+    "ledger_refs"
+  ],
+  "pack_scope_required_fields": [
+    "belongs_in_evidence_pack",
+    "outside_evidence_pack"
+  ],
+  "source_required_fields": [
+    "source_id",
+    "source_type",
+    "title",
+    "locator",
+    "captured_at_utc"
+  ],
+  "source_quality_note_required_fields": [
+    "source_id",
+    "quality_level",
+    "note"
+  ],
+  "claim_required_fields": [
+    "claim_id",
+    "statement",
+    "claim_type",
+    "status"
+  ],
+  "claim_source_link_required_fields": [
+    "link_id",
+    "claim_id",
+    "source_id",
+    "support_type",
+    "evidence_locator"
+  ],
+  "contradiction_required_fields": [
+    "contradiction_id",
+    "source_claim_id",
+    "target_claim_id",
+    "conflict_type",
+    "severity",
+    "status",
+    "evidence_link_ids"
+  ],
+  "unresolved_note_required_fields": [
+    "note_id",
+    "contradiction_id",
+    "note",
+    "next_resolution_step"
+  ],
+  "summary_layer_required_fields": [
+    "layer_id",
+    "summary_type",
+    "summary_text",
+    "claim_ids",
+    "contradiction_ids"
+  ],
+  "canonical_enums": {
+    "source_types": [
+      "paper",
+      "preprint",
+      "dataset",
+      "lab_note",
+      "web",
+      "book",
+      "other"
+    ],
+    "quality_levels": [
+      "strong",
+      "moderate",
+      "weak",
+      "unknown"
+    ],
+    "claim_types": [
+      "finding",
+      "method",
+      "assumption",
+      "limitation",
+      "interpretation",
+      "note"
+    ],
+    "claim_statuses": [
+      "clean",
+      "weak_evidence",
+      "contested",
+      "superseded"
+    ],
+    "support_types": [
+      "supports",
+      "weakly_supports",
+      "contradicts",
+      "context_only"
+    ],
+    "conflict_types": [
+      "direct_conflict",
+      "scope_mismatch",
+      "measurement_mismatch",
+      "interpretation_conflict"
+    ],
+    "contradiction_severities": [
+      "low",
+      "medium",
+      "high"
+    ],
+    "contradiction_statuses": [
+      "unresolved",
+      "resolved",
+      "deferred"
+    ],
+    "summary_types": [
+      "operator_summary",
+      "technical_summary",
+      "open_questions"
+    ]
+  },
+  "ownership_boundary": {
+    "belongs_in_evidence_pack": [
+      "stable pack identity and versioning",
+      "source records and source quality notes",
+      "claims and explicit claim-source links",
+      "contradiction records and unresolved conflict notes",
+      "summary layers that cite claim and contradiction identifiers"
+    ],
+    "outside_evidence_pack": [
+      "continuation packet payloads",
+      "hypothesis registry payloads",
+      "experiment runtime artifact bodies",
+      "chat summaries as canonical evidence"
+    ]
+  },
+  "forbidden_pack_fields": {
+    "continuation_packet": "Evidence packs may link continuation packets but may not embed their payloads.",
+    "continuation_packet_body": "Evidence packs may link continuation packets but may not embed their payloads.",
+    "hypothesis_registry": "Hypothesis registries remain adjacent durable artifacts, not evidence-pack fields.",
+    "experiment_runtime_artifacts": "Runtime artifact bodies remain in experiment artifact storage.",
+    "runtime_artifact_payloads": "Runtime artifact bodies remain in experiment artifact storage.",
+    "chat_summary": "Chat summaries may explain context but never replace explicit source records and claim links."
+  },
+  "fail_closed_rules": [
+    "claims_without_explicit_source_links_rejected",
+    "claim_links_without_source_locator_rejected",
+    "contradictions_must_name_both_claims",
+    "unresolved_contradictions_require_unresolved_notes",
+    "summary_layers_cannot_replace_claim_source_links",
+    "continuation_packet_or_runtime_artifact_payloads_forbidden_inline"
+  ]
+}

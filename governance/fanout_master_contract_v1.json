@@ -1,0 +1,96 @@
+{
+  "schema_version": "fanout_master_contract_v1",
+  "uid": "PIS-20260409-082100Z-A1F1",
+  "contract_family": "fanout_master_ownership",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_fanout_master_ownership_v1.md",
+  "master_owner": "fanout_master_release_one",
+  "scheduler_terminal_stage": "terminal_reporting",
+  "lifecycle_stages": {
+    "launch_planning": {
+      "description": "The master defines scope, child roster, success criteria, and allowed child job shapes before any child launches.",
+      "master_responsibilities": [
+        "define objective and child boundaries",
+        "choose legal child job shapes",
+        "write the initial canonical durable record"
+      ]
+    },
+    "child_execution": {
+      "description": "Children execute bounded slices and return evidence packets, but they do not integrate or redefine fanout truth.",
+      "master_responsibilities": [
+        "launch children under one parent-owned run",
+        "track child status from durable records",
+        "enforce that child output stays evidence-only"
+      ]
+    },
+    "collection": {
+      "description": "The master collects child outputs, decides whether more repair/finishing is needed, and keeps the authoritative roster and status view.",
+      "master_responsibilities": [
+        "collect child artifacts and summaries",
+        "decide whether partial child output needs tightening",
+        "preserve the canonical child roster and status map"
+      ]
+    },
+    "integration": {
+      "description": "The master alone integrates candidate outputs into one parent decision surface and records the integration disposition.",
+      "master_responsibilities": [
+        "select or reject child patches",
+        "record integration disposition",
+        "preserve fail-closed handling for nonclean child results"
+      ]
+    },
+    "final_verification": {
+      "description": "The master evaluates the integrated result and chooses the parent verdict without delegating that authority to children.",
+      "master_responsibilities": [
+        "evaluate combined result quality",
+        "assign the parent verdict",
+        "reject unsupported success claims"
+      ]
+    },
+    "terminal_reporting": {
+      "description": "The scheduler or reporting surface publishes the master-owned terminal summary without replacing the underlying durable record.",
+      "master_responsibilities": [
+        "render the operator-visible summary from durable parent truth",
+        "preserve the final verdict and stage in receipts",
+        "keep prompts and summaries explanatory only"
+      ]
+    }
+  },
+  "durable_truth_fields": [
+    "fanout_stage",
+    "child_roster",
+    "child_statuses",
+    "integration_disposition",
+    "final_verdict",
+    "operator_summary_state"
+  ],
+  "runtime_phase_mappings": {
+    "queued": "launch_planning",
+    "planning": "launch_planning",
+    "makers": "child_execution",
+    "finishers": "collection",
+    "integration": "integration",
+    "completed": "final_verification",
+    "failed": "final_verification",
+    "cancelled": "final_verification",
+    "timed_out": "final_verification",
+    "interrupted": "final_verification"
+  },
+  "forbidden_child_claims": {
+    "integrator_owner": "Children may not claim integrator ownership; the master remains the sole integrator.",
+    "integration_disposition": "Children may not publish the parent integration disposition.",
+    "final_verdict": "Children may not assign the fanout verdict.",
+    "operator_summary_state": "Children may not publish the operator-facing terminal summary state.",
+    "child_roster": "Children may not redefine the roster or status truth of sibling children.",
+    "fanout_stage": "Children may not redefine the canonical parent lifecycle stage."
+  },
+  "anti_patterns": [
+    "peer_coordinated_swarm_truth",
+    "child_defined_parent_verdict",
+    "transcript_only_fanout_state",
+    "multiple_operator_truth_surfaces"
+  ]
+}

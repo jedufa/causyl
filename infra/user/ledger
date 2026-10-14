@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+# infra/user/ledger
+# Description: Interactive launcher for ledger helpers covering PIS items and Intent Sheets.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
+echo "Compatibility wrapper only. Canonical operator state lives in the plane." >&2
+
+default_import_dir="/mnt/c/home/user/Downloads"
+ledger_import_dir="${PIS_IMPORT_DIR:-$default_import_dir}"
+pis_only=0
+
+if [[ "${1:-}" == "--pis-only" ]]; then
+  pis_only=1
+  shift
+fi
+
+on_interrupt() {
+  printf '\nCanceled.\n' >&2
+  exit 130
+}
+
+trap on_interrupt INT
+
+load_import_files() {
+  import_files=()
+  if [[ ! -d "$ledger_import_dir" ]]; then
+    return 0
+  fi
+  while IFS= read -r path; do
+    import_files+=("$path")
+  done < <(find "$ledger_import_dir" -maxdepth 1 -type f \( -iname '*.md' -o -iname '*.MD' \) | sort)
+}
+
+select_import_file() {
+  load_import_files
+  if [[ ! -d "$ledger_import_dir" ]]; then
+    echo "Import folder not found: $ledger_import_dir" >&2
+    return 200
+  fi
+  if [[ ${#import_files[@]} -eq 0 ]]; then
+    echo "No .md files found in $ledger_import_dir" >&2
+    return 200
+  fi
+  while true; do
+    echo
+    echo "Import markdown into the ledger:"
+    for idx in "${!import_files[@]}"; do
+      path="${import_files[$idx]}"
+      echo "  $((idx + 1)). $(basename "$path")"
+    done
+    echo "  b. Back"
+    read -rp "File> " file_choice
+    if [[ "$file_choice" =~ ^[Bb]$ ]]; then
+      return 200
+    fi
+    if [[ "$file_choice" =~ ^[0-9]+$ ]]; then
+      idx=$((file_choice - 1))
+      if ((idx < 0 || idx >= ${#import_files[@]})); then
+        echo "Select a number between 1 and ${#import_files[@]}."
+        continue
+      fi
+      chosen_file="${import_files[$idx]}"
+      echo
+      echo "Importing $(basename "$chosen_file") as a draft PIS..."
+      set +e
+      bash infra/user/pis-create-from-text --text-file "$chosen_file"
+      status=$?
+      set -e
+      return "$status"
+    fi
+    echo "Enter a number or b to go back."
+  done
+}
+
+run_create_pis() {
+  set +e
+  bash infra/user/pis-create-from-text "$@"
+  status=$?
+  set -e
+  return "$status"
+}
+
+run_create_intent_sheet() {
+  set +e
+  bash infra/user/intent-sheet-create-from-text "$@"
+  status=$?
+  set -e
+  return "$status"
+}
+
+show_menu() {
+  echo
+  echo "Ledger helpers:"
+  echo "  1. import-pis-from-downloads - Import a markdown file from $ledger_import_dir into a draft PIS"
+  echo "  2. create-pis-from-text     - Create a draft PIS ledger item"
+  if ((pis_only == 0)); then
+    echo "  3. create-intent-sheet      - Create a draft Intent Sheet ledger object"
+  fi
+  echo "  q. Quit"
+}
+
+direct_choice="${1:-}"
+if [[ -n "$direct_choice" ]]; then
+  case "$direct_choice" in
+    import|import-pis|import-pis-from-downloads)
+      shift
+      select_import_file
+      exit $?
+      ;;
+    create-pis|pis|pis-create-from-text)
+      shift
+      run_create_pis "$@"
+      exit $?
+      ;;
+    create-intent-sheet|intent|intent-sheet|intent-sheet-create-from-text)
+      if ((pis_only == 1)); then
+        echo "Intent Sheets are not available in --pis-only mode." >&2
+        exit 2
+      fi
+      shift
+      run_create_intent_sheet "$@"
+      exit $?
+      ;;
+  esac
+fi
+
+while true; do
+  show_menu
+  read -rp "Choice> " choice
+  if [[ "$choice" =~ ^[Qq]$ ]]; then
+    exit 0
+  fi
+  case "$choice" in
+    1|import|import-pis|import-pis-from-downloads)
+      set +e
+      select_import_file
+      status=$?
+      set -e
+      ;;
+    2|create-pis|pis|pis-create-from-text)
+      set +e
+      run_create_pis
+      status=$?
+      set -e
+      ;;
+    3|create-intent-sheet|intent|intent-sheet|intent-sheet-create-from-text)
+      if ((pis_only == 1)); then
+        echo "Enter 1, 2, or q."
+        continue
+      fi
+      set +e
+      run_create_intent_sheet
+      status=$?
+      set -e
+      ;;
+    *)
+      if ((pis_only == 1)); then
+        echo "Enter 1, 2, or q."
+      else
+        echo "Enter 1, 2, 3, or q."
+      fi
+      continue
+      ;;
+  esac
+  if [[ "$status" == "130" ]]; then
+    printf '\nCanceled.\n' >&2
+    exit 130
+  fi
+  if [[ "$status" == "200" ]]; then
+    continue
+  fi
+  if [[ "$status" != "0" ]]; then
+    exit "$status"
+  fi
+  echo "Done."
+  read -rp "Press Enter to continue or q to quit: " next
+  if [[ "$next" =~ ^[Qq]$ ]]; then
+    exit 0
+  fi
+done

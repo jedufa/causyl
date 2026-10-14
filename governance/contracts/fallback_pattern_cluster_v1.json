@@ -1,0 +1,30 @@
+{
+  "schema_version": "fallback_pattern_cluster_v1",
+  "required_fields": [
+    "clusters",
+    "schema_version",
+    "skipped_events"
+  ],
+  "allowed_stability_classes": [
+    "one_off",
+    "mixed_outcome",
+    "stable"
+  ],
+  "required_cluster_fields": [
+    "cluster_id",
+    "action_family",
+    "failure_class",
+    "solution_path_signature",
+    "recurrence_count",
+    "stability_class",
+    "representative_event_references",
+    "candidate_ready",
+    "expected_future_codex_cost_total",
+    "operator_friction_cost_total",
+    "estimated_build_cost_max",
+    "estimated_maintenance_cost_max",
+    "bounded_authority_safe",
+    "validator_path_clear"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

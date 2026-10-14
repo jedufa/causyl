@@ -1,0 +1,123 @@
+{
+  "schema_version": "campaign_plan_contract_v1",
+  "uid": "PIS-20260411-113558Z-0B60",
+  "contract_family": "intent_to_campaign_plan",
+  "plan_schema_version": "campaign_plan_v1",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_campaign_plan_v1.md",
+  "reference_examples_rel": "governance/campaign_plan_reference_examples_v1.json",
+  "top_level_required_fields": [
+    "schema_version",
+    "plan_id",
+    "plan_version",
+    "stable_identity",
+    "metadata",
+    "vocabulary_boundary",
+    "ambiguity_policy",
+    "provenance",
+    "phases"
+  ],
+  "optional_top_level_fields": [
+    "policy_enrichment"
+  ],
+  "stable_identity_required_fields": [
+    "canonicalization",
+    "content_hash_algorithm",
+    "schema_migration_policy"
+  ],
+  "metadata_required_fields": [
+    "title",
+    "created_at_utc",
+    "source_intent_uid",
+    "ledger_refs"
+  ],
+  "vocabulary_boundary_keys": [
+    "intent_sheet",
+    "campaign_plan",
+    "pis",
+    "job"
+  ],
+  "ambiguity_policy_required_fields": [
+    "allowed_in_campaign_plan",
+    "must_resolve_before_pis",
+    "named_contract_violation"
+  ],
+  "provenance_required_fields": [
+    "source_intent_uid",
+    "upstream_contract_refs",
+    "supporting_artifact_refs",
+    "lineage_hash"
+  ],
+  "phase_required_fields": [
+    "phase_id",
+    "label",
+    "goal",
+    "deliverables",
+    "method_template_phase_ids",
+    "budget_mode",
+    "allowed_ambiguities",
+    "must_resolve_before_pis",
+    "pis_readiness"
+  ],
+  "pis_readiness_states": [
+    "advisory_only",
+    "ready_for_pis_generation",
+    "blocked"
+  ],
+  "forbidden_top_level_fields": {
+    "file_edit_plan": "Campaign plans may not inline file-level implementation recipes.",
+    "patch_plan": "Campaign plans may not collapse into patch choreography.",
+    "validation_commands": "Campaign plans may not inline executable validation selectors or command lists.",
+    "shell_commands": "Campaign plans may not embed shell-run books as plan truth.",
+    "endpoint_diffs": "Campaign plans may not smuggle endpoint-level diffs into the planning layer.",
+    "commit_message": "Campaign plans are pre-PIS durable planning records, not commit-prep notes.",
+    "job_payloads": "Jobs remain distinct durable objects and may not be embedded inline."
+  },
+  "forbidden_phase_fields": {
+    "file_paths": "Phase rows may name outputs but may not list code-edit file paths as execution truth.",
+    "code_changes": "Phase rows may not inline code-change recipes.",
+    "shell_commands": "Phase rows may not embed command lists.",
+    "validation_commands": "Phase rows may not embed validation selectors.",
+    "endpoint_patch": "Phase rows may not collapse into endpoint-patch instructions.",
+    "commit_message": "Phase rows may not pre-author a downstream commit.",
+    "job_payload": "Phase rows may not embed executable job payloads."
+  },
+  "ownership_boundary": {
+    "intent_sheet": [
+      "operator goal framing and why the mission matters",
+      "non-goals and boundary posture before phased planning exists",
+      "broad success shape and acceptable ambiguity at intent time"
+    ],
+    "campaign_plan": [
+      "phased goal structure with policy-linked constraints",
+      "named allowed ambiguities and named pre-PIS resolution requirements",
+      "durable provenance hooks and plan-level handoff posture"
+    ],
+    "pis": [
+      "one bounded implementation or validation slice with concrete proof target",
+      "explicit patch/test scope and acceptance surface",
+      "child-specific execution order only after campaign-plan compilation"
+    ],
+    "job": [
+      "router-specific executable payload and runtime lifecycle state",
+      "native receipt, run, and retry behavior",
+      "worker-specific evidence and completion reporting"
+    ]
+  },
+  "fail_closed_rules": [
+    "intent_sheet_campaign_plan_pis_and_job_vocabularies_must_stay_distinct",
+    "campaign_plan_requires_phases_constraints_and_named_ambiguity_policy",
+    "phase_budget_modes_and_method_template_phase_refs_must_use_upstream_vocabularies",
+    "pseudo_pis_file_edit_and_validation_detail_forbidden_inline",
+    "under_specified_non_plans_rejected"
+  ],
+  "anti_patterns": [
+    "campaign_plan_as_renamed_giant_pis",
+    "broad_intent_without_named_resolution_boundary",
+    "campaign_plan_as_shadow_job_payload",
+    "transcript_summary_as_plan_truth"
+  ]
+}

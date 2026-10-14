@@ -1,0 +1,44 @@
+version: 1
+phase: 1
+notes: "Deterministic scheduler safety rule catalog extracted from many_files_to_split."
+rules:
+  - id: no_orphaned_claims
+    check: "Compare active claims in DB vs worker heartbeats."
+  - id: idempotent_job_creation
+    check: "Job ID must be deterministic based on parameters."
+  - id: strict_concurrency_limits
+    check: "Count active runs before launching new run."
+  - id: at_least_once_delivery_safety
+    check: "Message acknowledged only after persistence."
+  - id: exponential_backoff_on_retry
+    check: "Retry interval must increase by factor of 2."
+  - id: max_retry_limit_enforced
+    check: "Job marked as failed after N attempts."
+  - id: operator_kill_signal_priority
+    check: "Worker must check for abort signal frequently."
+  - id: audit_log_on_state_change
+    check: "All transitions written to history table."
+  - id: idempotent_cleanup_on_cancel
+    check: "Cancel action safe to run multiple times."
+  - id: stale_lock_timeout
+    check: "Locks expire after 5 minutes of inactivity."
+  - id: pre_launch_validation
+    check: "Validate job config before claiming resources."
+  - id: no_re_entry_on_locked_resource
+    check: "Fail immediately if lock is already held."
+  - id: dead_letter_on_parse_error
+    check: "Malformed payloads go to DLQ immediately."
+  - id: circuit_breaker_on_downstream_fail
+    check: "Stop dispatch if failure rate > 50%."
+  - id: idempotent_result_persistence
+    check: "Writing results twice doesn't double-count."
+  - id: resource_quota_check
+    check: "Verify CPU/Memory limits before launch."
+  - id: atomic_claim_and_start
+    check: "Use 'SELECT FOR UPDATE' for worker assignment."
+  - id: worker_zombie_cleanup
+    check: "Periodic task to reclaim lost worker tasks."
+  - id: operator_override_audit
+    check: "Manual 'force run' must link to admin ID."
+  - id: no_duplicate_queue_entries
+    check: "Unique constraint on task_id in queue table."

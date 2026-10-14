@@ -1,0 +1,18 @@
+{
+  "schema_version": "action_plane_alignment_map_v1",
+  "required_fields": [
+    "aligned_verified_families",
+    "coverage_map",
+    "historical_non_authoritative_intents",
+    "open_design_gap_family",
+    "schema_version",
+    "umbrella_intent_uid"
+  ],
+  "required_family_fields": [
+    "family_name",
+    "parent_uid",
+    "status",
+    "alignment_class"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

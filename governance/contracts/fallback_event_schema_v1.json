@@ -1,0 +1,16 @@
+{
+  "schema_version": "fallback_event_schema_v1",
+  "required_fields": [
+    "action_family",
+    "intent",
+    "failure_class",
+    "deterministic_steps_attempted",
+    "fallback_reason",
+    "pre_escalation_checklist",
+    "post_fallback_outcome"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md",
+  "optional_fields": [
+    "codex_action_summary"
+  ]
+}

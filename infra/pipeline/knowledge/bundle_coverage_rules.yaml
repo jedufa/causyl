@@ -1,0 +1,360 @@
+version: 1
+phase: 3
+notes: Deterministic bundle coverage rules for Stage 3 and Stage 5 validation. Coverage
+  requirements emphasize authoritative logic owners and prevent passive-only bundles
+  from satisfying family requirements.
+required_coverage:
+  scheduler_safety:
+    min_files: 4
+    required_subsystem_coverage:
+    - scheduler_core
+    - state_persistence
+    - validation
+    optional_subsystem_coverage:
+    - lease_claims
+    - audit_receipts
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Scheduler safety bundles need scheduling logic, authoritative state writes,
+      and launch legality checks.
+  operator_control:
+    min_files: 3
+    required_subsystem_coverage:
+    - operator_entrypoints
+    - state_persistence
+    optional_subsystem_coverage:
+    - validation
+    - audit_receipts
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Operator control bundles must cover the manual surface and the durable
+      state it mutates.
+  queue_dispatch:
+    min_files: 4
+    required_subsystem_coverage:
+    - queue_dispatch
+    - state_persistence
+    optional_subsystem_coverage:
+    - worker_runtime
+    - lease_claims
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Queue dispatch bundles must cover reservation or dequeue logic plus the
+      authoritative processing outcome path.
+  distributed_coordination:
+    min_files: 4
+    required_subsystem_coverage:
+    - distributed_coordination
+    - lease_claims
+    optional_subsystem_coverage:
+    - heartbeat_liveness
+    - concurrency_control
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Coordination bundles need ownership authority plus the lease or fencing
+      path that enforces it.
+  reconciliation_recovery:
+    min_files: 4
+    required_subsystem_coverage:
+    - recovery_mechanisms
+    - state_persistence
+    optional_subsystem_coverage:
+    - audit_receipts
+    - checkpoint_resume
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Recovery bundles must include the repair path and the authoritative state
+      owner it repairs.
+  persistence_integrity:
+    min_files: 4
+    required_subsystem_coverage:
+    - state_persistence
+    - audit_receipts
+    optional_subsystem_coverage:
+    - configuration_versioning
+    - validation
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Persistence integrity bundles must cover authoritative writes and the evidence
+      proving those writes.
+  worker_runtime_safety:
+    min_files: 4
+    required_subsystem_coverage:
+    - worker_runtime
+    - heartbeat_liveness
+    optional_subsystem_coverage:
+    - state_persistence
+    - audit_receipts
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Worker safety bundles must cover runtime ownership and liveness or fencing
+      behavior.
+  heartbeat_liveness:
+    min_files: 3
+    required_subsystem_coverage:
+    - heartbeat_liveness
+    - lease_claims
+    optional_subsystem_coverage:
+    - recovery_mechanisms
+    - tests
+    - state_persistence
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Liveness bundles need heartbeat truth and the lease path that consumes
+      it.
+  dependency_gating:
+    min_files: 3
+    required_subsystem_coverage:
+    - dependency_gating
+    - validation
+    optional_subsystem_coverage:
+    - state_persistence
+    - scheduler_core
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Dependency gating bundles must include the actual eligibility computation
+      and a guard owner.
+  retry_timeout_resilience:
+    min_files: 3
+    required_subsystem_coverage:
+    - retry_backoff
+    - timeouts_deadlines
+    optional_subsystem_coverage:
+    - state_persistence
+    - recovery_mechanisms
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Retry and timeout bundles need both budget logic and deadline or timeout
+      enforcement.
+  admission_and_validation:
+    min_files: 3
+    required_subsystem_coverage:
+    - validation
+    - operator_entrypoints
+    optional_subsystem_coverage:
+    - admission_control
+    - state_persistence
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Admission bundles must cover validation logic and the surface that accepts
+      the mutation.
+  configuration_versioning:
+    min_files: 3
+    required_subsystem_coverage:
+    - configuration_versioning
+    - state_persistence
+    optional_subsystem_coverage:
+    - audit_receipts
+    - validation
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: false
+    notes: Config versioning bundles need config identity logic and the execution
+      or state records that bind to it.
+  stateful_workflow:
+    min_files: 4
+    required_subsystem_coverage:
+    - workflow_orchestration
+    - state_persistence
+    optional_subsystem_coverage:
+    - checkpoint_resume
+    - validation
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Workflow bundles must cover lifecycle coordination and durable stage truth.
+  generic:
+    min_files: 2
+    required_subsystem_coverage:
+    - state_persistence
+    optional_subsystem_coverage:
+    - validation
+    - observability
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: false
+    notes: Generic bundles still need at least one active logic owner and must not
+      be satisfied by passive files only.
+  admission_control:
+    min_files: 3
+    required_subsystem_coverage:
+    - admission_control
+    - validation
+    optional_subsystem_coverage:
+    - operator_entrypoints
+    - tests
+    - observability
+    must_not_be_all_passive: true
+    test_files_required: false
+    notes: Admission control bundles need both policy evaluation and request legality
+      enforcement.
+  lease_claim_integrity:
+    min_files: 4
+    required_subsystem_coverage:
+    - lease_claims
+    - state_persistence
+    optional_subsystem_coverage:
+    - concurrency_control
+    - heartbeat_liveness
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Lease integrity bundles must include the claim write path and the logic
+      that validates or expires claims.
+  operator_override_safety:
+    min_files: 4
+    required_subsystem_coverage:
+    - operator_entrypoints
+    - validation
+    optional_subsystem_coverage:
+    - audit_receipts
+    - state_persistence
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Operator override bundles must include the override surface, the guard
+      path, and evidence emission.
+  auditability_evidence:
+    min_files: 3
+    required_subsystem_coverage:
+    - audit_receipts
+    - observability
+    optional_subsystem_coverage:
+    - state_persistence
+    - operator_entrypoints
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: false
+    notes: Audit bundles need authoritative evidence emission, not just dashboards
+      or summary renderers.
+  concurrency_control:
+    min_files: 4
+    required_subsystem_coverage:
+    - concurrency_control
+    - lease_claims
+    optional_subsystem_coverage:
+    - scheduler_core
+    - state_persistence
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Concurrency bundles need an actual lock, lease, or fencing owner plus the
+      state it protects.
+  checkpoint_resume:
+    min_files: 4
+    required_subsystem_coverage:
+    - checkpoint_resume
+    - state_persistence
+    optional_subsystem_coverage:
+    - recovery_mechanisms
+    - worker_runtime
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Checkpoint bundles need resume logic and the authoritative checkpoint or
+      lineage state it consumes.
+  observability_health:
+    min_files: 3
+    required_subsystem_coverage:
+    - observability
+    - heartbeat_liveness
+    optional_subsystem_coverage:
+    - worker_runtime
+    - audit_receipts
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: false
+    notes: Health bundles need signal emitters and the runtime or liveness truth behind
+      them.
+  pipeline_orchestration:
+    min_files: 4
+    required_subsystem_coverage:
+    - workflow_orchestration
+    - validation
+    optional_subsystem_coverage:
+    - state_persistence
+    - observability
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Orchestration bundles must cover coordinating logic, legality checks, and
+      durable progression state.
+  api_control_plane:
+    min_files: 3
+    required_subsystem_coverage:
+    - api_control_plane
+    - validation
+    optional_subsystem_coverage:
+    - state_persistence
+    - operator_entrypoints
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: true
+    notes: Control-plane bundles need the request or reconcile surface plus the mutation
+      guard or state owner.
+  semantic_retrieval_gating:
+    min_files: 3
+    required_subsystem_coverage:
+    - retrieval_planning
+    - semantic_retrieval
+    optional_subsystem_coverage:
+    - scoring_engine
+    - tests
+    - observability
+    must_not_be_all_passive: true
+    test_files_required: false
+    notes: Semantic gating bundles need both the planner deciding to use semantics
+      and the lane implementing it.
+  bundle_validation:
+    min_files: 3
+    required_subsystem_coverage:
+    - bundle_validation
+    - scoring_engine
+    optional_subsystem_coverage:
+    - responsibility_mapping
+    - observability
+    - tests
+    must_not_be_all_passive: true
+    test_files_required: false
+    notes: Bundle validation bundles need the validator and the scoring surface it
+      depends on.
+coverage_failure_actions:
+  missing_required_subsystem: expand_retrieval_for_missing_subsystem
+  all_passive_bundle: reject_bundle_and_require_active_logic_owner
+  below_min_files: widen_query_and_retry
+  no_test_files_when_required: add_test_subsystem_query
+  missing_validation_owner: force_validation_bias
+  missing_state_owner: force_state_persistence_bias
+  missing_recovery_owner: force_recovery_bias
+  missing_operator_entrypoint: force_operator_surface_bias
+  missing_observability_evidence: force_audit_and_observability_bias
+  low_role_diversity: add_secondary_context_candidates
+  low_subsystem_diversity: activate_additional_subsystem_queries
+  weak_failure_coverage: expand_failure_taxonomy_queries
+  weak_invariant_coverage: expand_invariant_queries
+  missing_must_not_change_guard: add_contract_reference_files
+  semantic_retrieval_unused_when_needed: open_semantic_rescue_lane
+  semantic_retrieval_overused: tighten_semantic_gate
+  excluded_paths_dominate: relax_negative_targets_carefully
+  filename_only_matches_dominate: require_symbol_or_path_evidence
+  bundle_confidence_below_threshold: emit_bundle_gap_warning
+  unresolved_gaps_after_retry: lower_stage7_execution_confidence
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: bundle_coverage_rules.yaml
+    payload:
+      canonical_runtime_source: bundle_coverage_rules.yaml
+      bundle_extract_status: noncanonical_duplicate
+      use_bundle_extract_for_runtime: false
+      reason: bundle_extract_creates_overlap_and_should_not_override_canonical_asset

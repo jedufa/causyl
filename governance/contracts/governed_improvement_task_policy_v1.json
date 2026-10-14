@@ -1,0 +1,31 @@
+{
+  "schema_version": "governed_improvement_task_policy_v1",
+  "required_fields": [
+    "creation_decision",
+    "guardrails",
+    "priority_dimensions",
+    "priority_score",
+    "queue_recommendation",
+    "required_evidence",
+    "schema_version",
+    "task_id"
+  ],
+  "priority_dimensions": [
+    "pain",
+    "frequency",
+    "recurrence",
+    "codex_cost",
+    "operator_friction",
+    "safety_value",
+    "feasibility"
+  ],
+  "guardrails": [
+    "no_silent_self_rewrite",
+    "recurrence_evidence_required",
+    "bounded_authority_required",
+    "validator_path_required",
+    "economic_benefit_required",
+    "suppress_duplicate_tasks"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

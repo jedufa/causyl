@@ -1,0 +1,46 @@
+{
+  "name": "blocked_explain_next_action",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": false,
+  "verbose_human_output": true,
+  "prompt_variants": [
+    "why is this blocked",
+    "what should I do now",
+    "explain this blocked state"
+  ],
+  "artifact_inputs": {
+    "report_file": "artifacts/report.json",
+    "fallback_events_file": "artifacts/fallback_events.json"
+  },
+  "payload": {
+    "cli_args": [
+      "--report-file",
+      "{report_file}",
+      "--fallback-events-file",
+      "{fallback_events_file}"
+    ]
+  },
+  "expected_terminal_status": "proof_gap",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "action_id": "blocked_chain_explain_and_recommend_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "blocked_chain_explain_and_recommend_v1",
+    "authority_class": "read_only"
+  },
+  "expected_surface": {
+    "primary_action_id": "patch_apply_chain_v1"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

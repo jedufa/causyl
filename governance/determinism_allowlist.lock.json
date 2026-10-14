@@ -1,0 +1,13 @@
+{
+  "schema_version": "determinism_allowlist_lock_v1",
+  "allowlist_sha256": "4ada9327b35ab32291981a6a0900b2c90117321541322277a6cc8ea43a587e6b",
+  "by_entry": {
+    "ALW_BOOTSTRAP_SEED_MAIN_TEMP": 2,
+    "ALW_CHECKPOINT_OS_URANDOM_TEMP": 1,
+    "ALW_CONTROLPLANE_UUID4_TEMP": 3,
+    "ALW_EXPERIMENTS_RANDOM_CHOICE_TEMP": 1,
+    "ALW_RNG_GUARD_GETATTR_TEMP": 1,
+    "ALW_TOOLS_UUID4_TEMP": 19
+  },
+  "total_allowlisted_hits": 27
+}

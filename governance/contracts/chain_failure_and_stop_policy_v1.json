@@ -1,0 +1,18 @@
+{
+  "schema_version": "chain_failure_and_stop_policy_v1",
+  "required_pre_escalation_checklist": [
+    "evidence_gathered",
+    "failure_class_recorded",
+    "deterministic_recovery_exhausted_or_inapplicable",
+    "downstream_validation_contract_prepared"
+  ],
+  "proof_gap_continuation_requires_explicit_resolver": true,
+  "economic_stop": {
+    "min_confidence_delta": 0.05,
+    "stall_iterations": 2,
+    "min_expected_gain": 0.01,
+    "max_cost_per_iteration": 10.0,
+    "max_retries": 2
+  },
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

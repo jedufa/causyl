@@ -1,0 +1,54 @@
+{
+  "name": "patch_apply_chain_pass",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": true,
+  "seed_target_pis": {
+    "title": "lab cli patch apply chain pass",
+    "slug": "lab-cli-patch-apply-chain-pass",
+    "pis_markdown": "# acceptance\n\n- prove patch chain\n"
+  },
+  "prompt_variants": [
+    "repair this patch and verify it"
+  ],
+  "artifact_inputs": {
+    "patch_file": "artifacts/hello.patch"
+  },
+  "payload": {
+    "cli_args": [
+      "--patch",
+      "{patch_file}",
+      "--target-pis-uid",
+      "{seed_target_pis_uid}",
+      "--validation-command",
+      "python -c \"from pathlib import Path; import sys; sys.exit(0 if Path('hello.txt').read_text() == 'hello world\\n' else 1)\"",
+      "--verifier-verdict",
+      "PASS",
+      "--allow-recovery"
+    ]
+  },
+  "expected_terminal_status": "ok",
+  "allowed_mutation_prefixes": [
+    "governance/ledger/patch_instruction_sheets/",
+    "hello.txt"
+  ],
+  "expected_receipt": {
+    "proof_gap": false
+  },
+  "expected_snapshot": {
+    "action_id": "patch_apply_chain_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "patch_apply_chain_v1",
+    "authority_class": "repo_mutation",
+    "patch_supplied": true
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

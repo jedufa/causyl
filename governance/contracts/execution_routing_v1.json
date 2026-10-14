@@ -1,0 +1,52 @@
+{
+  "schema_version": "execution_routing_v1",
+  "verification_owner": "scheduler_verifier",
+  "family_policies": {
+    "build_verify": {
+      "default_executor": "pipeline",
+      "deterministic_executor": "pipeline",
+      "allowed_override_executors": [
+        "pipeline",
+        "controller_only"
+      ],
+      "fallback_policy": {
+        "allowed": true,
+        "requires_pre_escalation_checklist": true,
+        "bounded": true,
+        "verification_owner": "scheduler_verifier",
+        "pipeline_fail_to_codex": true
+      }
+    },
+    "status_reconcile": {
+      "default_executor": "pipeline",
+      "deterministic_executor": "pipeline",
+      "allowed_override_executors": [
+        "pipeline",
+        "controller_only"
+      ],
+      "fallback_policy": {
+        "allowed": true,
+        "requires_pre_escalation_checklist": true,
+        "bounded": true,
+        "verification_owner": "scheduler_verifier",
+        "pipeline_fail_to_codex": true
+      }
+    },
+    "patch_apply": {
+      "default_executor": "pipeline",
+      "deterministic_executor": "pipeline",
+      "allowed_override_executors": [
+        "pipeline",
+        "controller_only"
+      ],
+      "fallback_policy": {
+        "allowed": true,
+        "requires_pre_escalation_checklist": true,
+        "bounded": true,
+        "verification_owner": "scheduler_verifier",
+        "pipeline_fail_to_codex": true
+      }
+    }
+  },
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

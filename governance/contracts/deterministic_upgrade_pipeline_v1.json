@@ -1,0 +1,31 @@
+{
+  "schema_version": "deterministic_upgrade_pipeline_v1",
+  "required_fields": [
+    "candidate_id",
+    "decision",
+    "proposal",
+    "proposal_created",
+    "schema_version"
+  ],
+  "required_proposal_fields": [
+    "proposal_id",
+    "candidate_id",
+    "target_action_family",
+    "target_playbook_id",
+    "proposed_upgrade_type",
+    "implementation_path_class",
+    "required_regression_gates",
+    "governance_item_payload",
+    "evidence_references",
+    "proposal_state",
+    "approval_reason_class"
+  ],
+  "allowed_implementation_path_classes": [
+    "classifier_logic_change",
+    "recovery_rule_change",
+    "wrapper_helper_addition",
+    "playbook_logic_change",
+    "reporting_logic_change"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

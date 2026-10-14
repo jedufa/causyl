@@ -1,0 +1,443 @@
+version: 1
+phase: 0
+notes: Deterministic responsibility catalog for mapping files to likely ownership roles. Expanded synonym normalization reduces drift across audit/proof/evidence/truth, recovery/repair/restore, UI surface, and scheduler/control-plane wording.
+responsibilities:
+- term: validation
+  clues:
+  - validate_before_persist
+  - reject_invalid_transition
+  - guard_schema_before_commit
+  - require_generation_match
+  - fail_closed_on_bad_input
+- term: state_transition
+  clues:
+  - apply_state_transition_with_reason
+  - mark_terminal_after_commit
+  - transition_from_paused_to_running
+  - persist_transition_receipt
+  - reject_illegal_terminal_restart
+- term: dispatch
+  clues:
+  - dispatch_if_due_and_enabled
+  - enqueue_after_validation
+  - publish_execution_request
+  - ack_after_authoritative_commit
+  - schedule_next_attempt
+- term: recovery
+  clues:
+  - retry_after_retriable_failure
+  - reconcile_runtime_and_persisted_truth
+  - recover_stale_claim_owner
+  - rollback_partial_mutation
+  - queue_manual_repair_after_exhaustion
+- term: operator_entrypoint
+  clues:
+  - manual_pause_with_reason
+  - manual_resume_after_guard_check
+  - cancel_active_run_by_operator
+  - forced_retry_endpoint
+  - operator_backfill_request
+- term: persistence
+  clues:
+  - load_authoritative_state_record
+  - save_run_record_transactionally
+  - append_event_ledger_entry
+  - write_idempotency_receipt
+  - checkpoint_state_snapshot
+- term: observability
+  clues:
+  - emit_dispatch_audit_event
+  - record_mutation_latency_metric
+  - append_operator_reason_evidence
+  - classify_failure_for_logs
+  - publish_recovery_outcome_metric
+- term: concurrency_guard
+  clues:
+  - acquire_exclusive_job_claim
+  - compare_generation_before_commit
+  - lease_owner_validation
+  - single_flight_duplicate_guard
+  - fencing_token_check
+- term: auth_control
+  clues:
+  - authorize_operator_override
+  - validate_principal_scope
+  - enforce_role_bound_mutation
+  - check_tenant_access_before_action
+  - require_admin_approval_path
+- term: input_parsing
+  clues:
+  - parse_operator_request_payload
+  - canonicalize_identifier_input
+  - sanitize_external_callback_body
+  - decode_structured_control_message
+  - normalize_schedule_definition_input
+- term: transformation
+  clues:
+  - map_external_payload_to_domain_model
+  - normalize_reconciliation_delta
+  - build_response_projection_only
+  - convert_wire_event_to_command
+  - derive_mutation_patch_from_request
+  - normalize_record_fields
+  - enrich_canonical_entity
+  - build_parent_child_index
+  - derive_display_label
+  - compute_relationship_graph
+- term: scheduling
+  clues:
+  - evaluate_due_window_eligibility
+  - compute_next_fire_time
+  - suppress_misfire_duplicate_launch
+  - skip_disabled_job_on_tick
+  - record_scheduler_tick_decision
+- term: orchestration
+  clues:
+  - advance_workflow_stage
+  - coordinate_retry_then_reconcile
+  - fanout_followup_tasks
+  - join_subtask_outcomes
+  - gate_next_stage_on_receipt
+- term: reconciliation
+  clues:
+  - compare_runtime_vs_persisted_truth
+  - repair_missing_terminal_receipt
+  - detect_split_brain_claims
+  - resolve_duplicate_active_runs
+  - converge_retry_backlog_state
+- term: resource_management
+  clues:
+  - reserve_execution_slot
+  - allocate_backfill_budget
+  - release_claim_after_terminal_commit
+  - deallocate_resources_on_abort
+  - track_retention_cleanup_window
+- term: integrity_check
+  clues:
+  - verify_manifest_digest_before_accept
+  - confirm_checkpoint_blob_integrity
+  - validate_receipt_hash_match
+  - detect_commit_gap_after_side_effect
+  - guard_against_state_hash_drift
+- term: configuration
+  clues:
+  - update_runtime_flag_revision
+  - patch_retry_policy_override
+  - write_control_plane_setting
+  - bump_schema_version_marker
+  - load_feature_gate_config
+- term: reporting
+  clues:
+  - build_run_summary_for_operator
+  - export_audit_report_bundle
+  - render_health_status_output
+  - compose_incident_diagnostic_report
+  - publish_metrics_snapshot_view
+- term: communication
+  clues:
+  - post_committed_status_callback
+  - send_webhook_after_local_commit
+  - relay_notification_payload
+  - emit_followup_event
+  - ack_remote_control_request
+- term: error_handling
+  clues:
+  - map_exception_to_failure_family
+  - convert_conflict_to_safe_abort
+  - raise_validation_failure_reason
+  - preserve_original_error_context
+  - classify_transient_vs_terminal_error
+- term: truth_ownership
+  clues:
+  - select_canonical_truth_owner
+  - reject_writeback_into_runtime_truth
+  - guard_truth_boundary_before_write
+  - authoritative_truth_domain_for_record
+  - resolve_truth_owner_for_memory
+- term: ledger_evidence
+  clues:
+  - append_evidence_ledger_entry
+  - write_memory_provenance_record
+  - load_supporting_source_records
+  - record_memory_correction_event
+  - preserve_source_artifact_linkage
+- term: task_register
+  clues:
+  - load_lab_assistant_task_register
+  - resolve_task_register_entry
+  - persist_task_register_receipt
+  - write_task_register_projection
+  - task_register_lookup
+- term: turn_transcripts
+  clues:
+  - attach_turn_transcript
+  - load_turn_transcript_window
+  - persist_transcript_evidence_link
+  - replay_transcript_into_memory
+  - resolve_turn_source_reference
+- term: memory_retrieval
+  clues:
+  - rank_memory_against_evidence
+  - lookup_cross_project_memory
+  - resolve_memory_confidence_and_freshness
+  - filter_stale_memory_candidate
+  - hydrate_memory_supporting_sources
+- term: writeback_projection
+  clues:
+  - project_memory_summary_view
+  - refresh_memory_projection
+  - rebuild_memory_projection_from_ledger
+  - writeback_memory_answer_projection
+  - invalidate_stale_memory_projection
+- term: delegation_policy
+  clues:
+  - validate_typed_delegation_request
+  - validate_typed_delegation_result
+  - enforce_delegation_policy_before_bind
+  - reject_invalid_subsystem_target
+  - require_typed_delegation_contract
+- term: delegation_binding
+  clues:
+  - record_delegation_binding
+  - persist_delegation_request_result_linkage
+  - load_latest_delegation_status
+  - rebuild_binding_from_durable_records
+  - preserve_delegation_request_id
+- term: correlation_record
+  clues:
+  - record_subsystem_correlation
+  - rebuild_correlation_index
+  - resolve_task_to_subsystem_correlation
+  - persist_correlation_snapshot
+  - load_correlation_record
+- term: execution_proof
+  clues:
+  - persist_execution_proof_before_completion
+  - reject_completion_without_proof
+  - load_proof_record_for_task
+  - attach_completion_evidence
+  - verify_durable_completion_proof
+- term: ledger_action
+  clues:
+  - append_governance_event
+  - update_ledger_status_with_reason
+  - attach_artifact_linkage_to_ledger
+  - load_ledger_item_for_mutation
+  - persist_ledger_action_receipt
+- term: commit_journal
+  clues:
+  - append_commit_journal_entry
+  - load_commit_trace_for_ledger_item
+  - reconcile_commit_journal_with_status
+  - persist_commit_linkage
+  - recover_commit_journal_state
+- term: route_registration
+  clues:
+  - register_routes_for_blueprint
+  - wire_endpoint_handlers
+  - compose_server_route_surface
+  - add_url_rule_for_handler
+  - expose_operator_endpoint_surface
+- term: host_verification
+  clues:
+  - run_host_verification_contract
+  - validate_host_capability_before_action
+  - reject_host_action_without_boundary_check
+  - load_verification_contract
+  - persist_host_verification_result
+- term: patch_application
+  clues:
+  - apply_unified_diff_safely
+  - validate_patch_hunks_before_write
+  - reject_patch_outside_repo_boundary
+  - persist_patch_application_receipt
+  - verify_post_patch_manifest
+- term: knowledge_policy
+  clues:
+  - load_runtime_task_family_policy
+  - apply_retrieval_bias_rule
+  - classify_prompt_from_family_policy
+  - merge_subsystem_alias_map
+  - resolve_negative_target_policy
+- term: retrieval_ranking
+  clues:
+  - score_retrieval_candidate
+  - rank_evidence_by_freshness
+  - choose_evidence_first_source
+  - suppress_stale_memory_over_direct_evidence
+  - enforce_applicability_boundary_in_answer
+- term: query_shaping
+  clues:
+  - build_retrieval_search_plan
+  - expand_query_coverage_map
+  - map_query_to_subsystem_hypothesis
+  - narrow_retrieval_query_scope
+  - emit_search_plan_anchors
+- term: answer_assembly
+  clues:
+  - assemble_evidence_first_answer
+  - emit_missing_evidence_reason
+  - attach_answer_provenance_and_freshness
+  - preserve_supporting_source_precedence
+  - reject_answer_without_applicable_evidence
+  - resolve_role_assignment_policy
+- term: bundle_selection
+  clues:
+  - demote_hub_when_owner_present
+  - score_candidate_for_bundle
+  - filter_non_executable_reference_file
+  - promote_exact_path_owner_match
+  - assemble_owner_first_context_bundle
+- term: review_writeback
+  clues:
+  - persist_operator_decision_with_lineage
+  - render_current_review_artifact
+  - mirror_review_outcome_into_job_state
+  - request_repair_rerun_with_reason
+  - load_active_review_head_for_branch
+- term: truth_registry
+  clues:
+  - append_authoritative_evidence_record
+  - link_artifact_to_committed_mutation
+  - rebuild_registry_index_from_truth
+  - reject_projection_write_over_truth
+  - load_canonical_history_for_investigation
+- term: ui_bridge
+  clues:
+  - derive_allowed_actions_from_backend_state
+  - render_local_shell_from_persisted_truth
+  - map_ui_action_to_backend_owner
+  - reject_local_state_as_workflow_truth
+  - refresh_mobile_view_after_mutation
+- term: validation_harness
+  clues:
+  - compare_run_artifacts_for_divergence
+  - verify_host_boundary_contract
+  - collect_bundle_metrics_for_run
+  - load_baseline_for_proof_check
+  - reject_benchmark_as_edit_owner
+- term: assistant_identity
+  clues:
+  - persist_stable_assistant_id
+  - resolve_restore_identity_conflict
+  - bind_assistant_identity_to_runtime_state
+  - reject_ambiguous_identity_restore
+  - carry_assistant_id_across_fresh_turn_reload
+- term: truth_precedence
+  clues:
+  - prefer_runtime_or_ledger_over_transcript
+  - enforce_transcript_as_non_canonical_record
+  - apply_truth_precedence_matrix
+  - reject_projection_as_canonical_truth
+  - derive_operator_state_from_authoritative_surfaces
+- term: runtime_state
+  clues:
+  - load_versioned_assistant_state
+  - persist_assistant_state_snapshot
+  - record_blocked_or_recovery_required_state
+  - store_runtime_arbitration_metadata
+  - surface_current_assistant_mode_from_runtime_truth
+- term: append_only_event_log
+  clues:
+  - append_assistant_state_event
+  - emit_replayable_mutation_trail
+  - write_state_change_audit_event
+  - replay_snapshot_plus_event_log
+  - reject_state_write_without_event
+- term: write_arbitration
+  clues:
+  - arbitrate_turn_scheduler_recovery_writers
+  - enforce_single_writer_rule_for_task_register
+  - reject_conflicting_runtime_state_mutation
+  - stamp_arbitration_generation_before_commit
+  - persist_writer_decision_reason
+- term: serialization_replay
+  clues:
+  - validate_state_schema_version_on_boot
+  - replay_assistant_state_from_snapshot_and_events
+  - block_restore_on_incompatible_schema
+  - reconstruct_current_truth_deterministically
+  - detect_missing_event_during_replay
+- term: durable_state
+  clues:
+  - write_authoritative_state_before_emit
+  - append_registry_entry_for_mutation
+  - persist_lineage_before_completion
+- term: audit_trail
+  clues:
+  - append_audit_entry_per_authoritative_mutation
+  - record_decision_provenance_with_actor
+  - emit_verification_receipt_after_check
+- term: recovery_markers
+  clues:
+  - mark_recovery_boundary_before_retry
+  - persist_replay_checkpoint_with_generation
+  - clear_recovery_marker_after_verified_repair
+- term: local_validation
+  clues:
+  - reject_ui_action_without_backend_guard
+  - validate_page_local_change_against_truth
+  - enforce_local_input_guard_before_submit
+- term: truth_evidence
+  clues:
+  - record_authoritative_truth_source
+  - append_durable_evidence_before_projection
+  - arbitrate_truth_between_runtime_and_ledger
+  - reject_weaker_evidence_overwrite
+  - preserve_identity_truth_lineage
+- term: recovery_restore
+  clues:
+  - reconcile_and_restore_authoritative_state
+  - repair_after_partial_commit
+  - restore_from_replayable_history
+  - recover_then_revalidate
+  - safe_repair_of_drifted_truth
+- term: ui_surface_boundary
+  clues:
+  - bind_page_action_to_backend_legality
+  - validate_mobile_surface_before_mutation
+  - keep_ui_shell_non_authoritative
+  - derive_view_state_from_persisted_truth
+  - bridge_shell_action_to_host_verification
+- term: runtime_policy_control
+  clues:
+  - apply_scheduler_runtime_policy
+  - watchdog_control_plane_decision
+  - pause_or_resume_scheduled_jobs
+  - enforce_healer_policy_guard
+  - route_manual_override_through_control_surface
+- term: data_ingestion
+  clues:
+  - download_remote_source
+  - fetch_input_archive
+  - resume_partial_download
+  - verify_source_availability
+  - stage_input_payload
+- term: archive_handling
+  clues:
+  - extract_archive_members
+  - read_zip_entry_stream
+  - enumerate_bundle_contents
+  - load_compressed_input
+  - reject_corrupt_archive
+- term: parsing
+  clues:
+  - parse_csv_row
+  - decode_tabular_record
+  - normalize_input_schema
+  - map_source_fields
+  - reject_unparseable_record
+- term: export_generation
+  clues:
+  - write_output_dictionary
+  - serialize_export_format
+  - emit_index_files
+  - generate_portable_artifact
+  - flush_final_output
+- term: visualization_ui
+  clues:
+  - render_tree_view
+  - update_visible_selection
+  - recompute_layout_after_zoom
+  - bind_search_to_view
+  - export_rendered_image

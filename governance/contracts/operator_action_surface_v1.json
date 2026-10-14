@@ -1,0 +1,41 @@
+{
+  "schema_version": "operator_action_surface_v1",
+  "required_fields": [
+    "artifact_references",
+    "codex_transparency",
+    "evidence_refs",
+    "executive_surface",
+    "explanation",
+    "manual_review_required",
+    "primary_explanation",
+    "proof_uncertainty",
+    "recommendations",
+    "recommended_actions",
+    "schema_version",
+    "section_order",
+    "status_class",
+    "status_summary",
+    "uncertainty"
+  ],
+  "required_sections": [
+    "executive_surface",
+    "explanation",
+    "uncertainty",
+    "recommendations",
+    "codex_transparency",
+    "evidence_refs"
+  ],
+  "allowed_executive_states": [
+    "PASS",
+    "BLOCKED",
+    "DEGRADED",
+    "RUNNING",
+    "REVIEW_REQUIRED"
+  ],
+  "allowed_executive_confidence": [
+    "High",
+    "Medium",
+    "Low"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

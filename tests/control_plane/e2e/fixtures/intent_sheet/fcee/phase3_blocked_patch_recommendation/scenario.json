@@ -1,0 +1,67 @@
+{
+  "name": "phase3_blocked_patch_recommendation",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_phase3_blocked_chain_explain_and_recommend_v1",
+  "git_repo": false,
+  "payload": {
+    "report": {
+      "chain_id": "patch_apply_chain_v1::phase3-blocked",
+      "playbook_id": "patch_apply_chain_v1",
+      "action_family": "patch_apply",
+      "final_chain_outcome": "blocked",
+      "final_verifier_verdict": "",
+      "terminal_reason": "patch_contract_invalid",
+      "step_records": [
+        {
+          "node_id": "patch_ingest",
+          "step_outcome": "failed_known",
+          "proof_gaps": [
+            "missing_validation_commands"
+          ],
+          "decision": "block",
+          "checklist_complete": true
+        }
+      ],
+      "failure_escalation_log": []
+    },
+    "fallback_events": [
+      {
+        "action_family": "patch_apply",
+        "intent": "apply incoming patch",
+        "failure_class": "semantic_conflict",
+        "deterministic_steps_attempted": [
+          "patch_ingest_repair_v1",
+          "validation_subset_v1"
+        ],
+        "fallback_reason": "semantic_merge_required",
+        "pre_escalation_checklist": {
+          "evidence_gathered": true,
+          "failure_class_recorded": true,
+          "deterministic_recovery_exhausted_or_inapplicable": true,
+          "downstream_validation_contract_prepared": true
+        },
+        "post_fallback_outcome": "success_after_codex_fallback",
+        "solution_path_signature": "semantic_merge_then_validate",
+        "bounded_authority_safe": true,
+        "validator_path_clear": true,
+        "expected_future_codex_cost": 10.0,
+        "operator_friction_cost": 1.0,
+        "estimated_build_cost": 20.0,
+        "estimated_maintenance_cost": 5.0
+      }
+    ]
+  },
+  "expected_terminal_status": "proof_gap",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "operator_state": "blocked"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "schema_version": "job_shape_relationship_contract_v1",
+  "uid": "PIS-20260406-053812Z-C277",
+  "contract_family": "job_shape_parent_child_legality",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_shape_contract_rel": "governance/canonical_job_shape_contract_v1.json",
+  "canonical_doc_rel": "docs/contracts/contract_job_shape_parent_child_relationship_matrix_v1.md",
+  "legality_status_definitions": {
+    "allowed": "The parent-child pair is legal and launchable in the current v1 runtime contract.",
+    "future_only": "The pair is conceptually named but remains blocked until the parent runtime substrate is implemented and separately enabled.",
+    "forbidden": "The pair is illegal in v1 and must fail closed."
+  },
+  "integrator_owner_definitions": {
+    "no_child_launch": "The parent shape does not launch child jobs in this contract.",
+    "parent_verifier_loop": "The fanout parent remains the sole integrator and verifier of child results.",
+    "campaign_phase_integrator": "The campaign parent would own phase-gate reintegration when that runtime exists.",
+    "delegation_tree_parent": "The delegation-tree parent would own lineage and reintegration when that runtime exists."
+  },
+  "shapes": {
+    "verification_loop_job": {
+      "default_integrator_owner": "no_child_launch",
+      "children": {
+        "verification_loop_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        },
+        "fanout_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        },
+        "campaign_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        },
+        "experiment_run_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        },
+        "delegation_tree_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        }
+      }
+    },
+    "fanout_job": {
+      "default_integrator_owner": "parent_verifier_loop",
+      "children": {
+        "verification_loop_job": {
+          "legality": "allowed",
+          "integrator_owner": "parent_verifier_loop",
+          "reintegration_boundary": "fanout_parent_completion"
+        },
+        "fanout_job": {
+          "legality": "forbidden",
+          "integrator_owner": "parent_verifier_loop",
+          "reintegration_boundary": "fanout_parent_completion"
+        },
+        "campaign_job": {
+          "legality": "forbidden",
+          "integrator_owner": "parent_verifier_loop",
+          "reintegration_boundary": "fanout_parent_completion"
+        },
+        "experiment_run_job": {
+          "legality": "allowed",
+          "integrator_owner": "parent_verifier_loop",
+          "reintegration_boundary": "fanout_parent_completion"
+        },
+        "delegation_tree_job": {
+          "legality": "forbidden",
+          "integrator_owner": "parent_verifier_loop",
+          "reintegration_boundary": "fanout_parent_completion"
+        }
+      }
+    },
+    "campaign_job": {
+      "default_integrator_owner": "campaign_phase_integrator",
+      "children": {
+        "verification_loop_job": {
+          "legality": "future_only",
+          "integrator_owner": "campaign_phase_integrator",
+          "reintegration_boundary": "campaign_phase_gate"
+        },
+        "fanout_job": {
+          "legality": "future_only",
+          "integrator_owner": "campaign_phase_integrator",
+          "reintegration_boundary": "campaign_phase_gate"
+        },
+        "campaign_job": {
+          "legality": "forbidden",
+          "integrator_owner": "campaign_phase_integrator",
+          "reintegration_boundary": "campaign_phase_gate"
+        },
+        "experiment_run_job": {
+          "legality": "future_only",
+          "integrator_owner": "campaign_phase_integrator",
+          "reintegration_boundary": "campaign_phase_gate"
+        },
+        "delegation_tree_job": {
+          "legality": "forbidden",
+          "integrator_owner": "campaign_phase_integrator",
+          "reintegration_boundary": "campaign_phase_gate"
+        }
+      }
+    },
+    "experiment_run_job": {
+      "default_integrator_owner": "no_child_launch",
+      "children": {
+        "verification_loop_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        },
+        "fanout_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        },
+        "campaign_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        },
+        "experiment_run_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        },
+        "delegation_tree_job": {
+          "legality": "forbidden",
+          "integrator_owner": "no_child_launch",
+          "reintegration_boundary": "not_applicable"
+        }
+      }
+    },
+    "delegation_tree_job": {
+      "default_integrator_owner": "delegation_tree_parent",
+      "children": {
+        "verification_loop_job": {
+          "legality": "future_only",
+          "integrator_owner": "delegation_tree_parent",
+          "reintegration_boundary": "delegation_tree_node_boundary"
+        },
+        "fanout_job": {
+          "legality": "future_only",
+          "integrator_owner": "delegation_tree_parent",
+          "reintegration_boundary": "delegation_tree_node_boundary"
+        },
+        "campaign_job": {
+          "legality": "future_only",
+          "integrator_owner": "delegation_tree_parent",
+          "reintegration_boundary": "delegation_tree_node_boundary"
+        },
+        "experiment_run_job": {
+          "legality": "future_only",
+          "integrator_owner": "delegation_tree_parent",
+          "reintegration_boundary": "delegation_tree_node_boundary"
+        },
+        "delegation_tree_job": {
+          "legality": "future_only",
+          "integrator_owner": "delegation_tree_parent",
+          "reintegration_boundary": "delegation_tree_node_boundary"
+        }
+      }
+    }
+  }
+}

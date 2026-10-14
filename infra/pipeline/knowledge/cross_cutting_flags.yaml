@@ -1,0 +1,381 @@
+version: 1
+phase: 2
+notes: Deterministic cross-cutting flags used by Stage 2 routing. Families activate
+  flags primarily; clue terms provide conservative secondary activation with lower
+  false-positive risk.
+flags:
+- key: state_consistency
+  families:
+  - scheduler_safety
+  - stateful_workflow
+  - reconciliation_recovery
+  - persistence_integrity
+  - execution_lifecycle
+  - lab_assistant_memory
+  - governance_ledger_durability
+  - agent_orchestration_runtime
+  - orchestration_checkpointing
+  - ui_truth_projection
+  - retrieval_ranking_contract
+  - assistant_truth_and_identity
+  clue_terms:
+  - state divergence
+  - committed truth
+  - checkpoint mismatch
+  - status drift
+  - late write
+  - stale projection
+  - invalid convergence
+  - mixed versions
+  - proof drift
+  - binding drift
+  - journal divergence
+  - route hub selected instead of owner
+- key: idempotency
+  families:
+  - scheduler_safety
+  - operator_control
+  - queue_dispatch
+  - retry_timeout_resilience
+  - manual_backfill
+  - orchestration_checkpointing
+  clue_terms:
+  - duplicate side effect
+  - already processed
+  - safe replay
+  - idempotency key
+  - repeat delivery
+  - duplicate launch
+  - at-most-once
+  - deduplication
+- key: concurrency_control
+  families:
+  - scheduler_safety
+  - queue_dispatch
+  - distributed_coordination
+  - execution_lifecycle
+  - worker_runtime_safety
+  - orchestration_checkpointing
+  clue_terms:
+  - race condition
+  - concurrent mutation
+  - lock conflict
+  - lease conflict
+  - compare-and-swap
+  - single flight
+  - double claim
+  - split ownership
+- key: operator_safety
+  families:
+  - operator_control
+  - api_control_plane
+  - manual_backfill
+  - cleanup_retention
+  clue_terms:
+  - manual override
+  - forced action
+  - operator command
+  - admin endpoint
+  - approval gate
+  - destructive control
+  - manual intervention
+  - operator hold
+- key: observability
+  families:
+  - scheduler_safety
+  - operator_control
+  - queue_dispatch
+  - api_control_plane
+  - audit_evidence
+  - heartbeat_liveness
+  - lab_assistant_memory
+  - orchestration_checkpointing
+  - ui_truth_projection
+  - retrieval_ranking_contract
+  - assistant_truth_and_identity
+  clue_terms:
+  - decision log
+  - durable receipt
+  - correlation id
+  - trace context
+  - audit event
+  - reason code
+  - suppression evidence
+  - health signal
+- key: recovery_integrity
+  families:
+  - stateful_workflow
+  - queue_dispatch
+  - retry_timeout_resilience
+  - reconciliation_recovery
+  - worker_runtime_safety
+  - lab_assistant_delegation
+  - governance_ledger_durability
+  - agent_orchestration_runtime
+  - orchestration_checkpointing
+  - assistant_truth_and_identity
+  clue_terms:
+  - repair flow
+  - crash recovery
+  - orphan repair
+  - safe rerun
+  - lineage resume
+  - checkpoint recovery
+  - restart debt
+  - reconciliation pass
+  - restart-safe binding rebuild
+  - journal recovery
+  - orchestrator restart drift
+  - correlation rebuild
+- key: validation_rigor
+  families:
+  - operator_control
+  - api_control_plane
+  - dependency_gating
+  - admission_and_validation
+  - lab_assistant_memory
+  - lab_assistant_delegation
+  - host_execution_boundary
+  - orchestration_checkpointing
+  - ui_truth_projection
+  - retrieval_ranking_contract
+  - assistant_truth_and_identity
+  clue_terms:
+  - precondition guard
+  - state legality
+  - schema validation
+  - version check
+  - admission reject
+  - constraint check
+  - invalid transition
+  - guard failure
+  - typed delegation contract
+  - boundary contract
+  - invalid subsystem target
+  - missing verification evidence
+- key: ownership_control
+  families:
+  - scheduler_safety
+  - queue_dispatch
+  - distributed_coordination
+  - heartbeat_liveness
+  - worker_runtime_safety
+  - lab_assistant_delegation
+  - agent_orchestration_runtime
+  - orchestration_checkpointing
+  - assistant_truth_and_identity
+  clue_terms:
+  - ownership token
+  - fencing token
+  - current holder
+  - lease owner
+  - generation check
+  - authority proof
+  - term validation
+  - claim owner
+  - owner file
+  - truth owner
+  - binding owner
+  - job state owner
+- key: mutation_boundary
+  families:
+  - api_control_plane
+  - persistence_integrity
+  - admission_and_validation
+  - execution_lifecycle
+  - lab_assistant_memory
+  - assistant_truth_and_identity
+  clue_terms:
+  - durable mutation
+  - protected write
+  - transaction boundary
+  - state commit
+  - delete path
+  - side-effect boundary
+  - write ordering
+  - mutating endpoint
+- key: rollback_safety
+  families:
+  - stateful_workflow
+  - retry_timeout_resilience
+  - configuration_versioning
+  - cleanup_retention
+  clue_terms:
+  - safe rollback
+  - revert contract
+  - compensation step
+  - restore point
+  - rewind state
+  - rollback evidence
+  - recovery rollback
+  - restore lineage
+- key: auditability
+  families:
+  - operator_control
+  - audit_evidence
+  - cleanup_retention
+  - api_control_plane
+  - lab_assistant_memory
+  - governance_ledger_durability
+  - assistant_truth_and_identity
+  clue_terms:
+  - actor identity
+  - reason code
+  - audit trail
+  - append-only evidence
+  - forensic timeline
+  - receipt emission
+  - who changed
+  - when changed
+  - append-safe history
+  - artifact linkage
+  - commit journal
+  - governance event
+- key: eligibility_correctness
+  families:
+  - scheduler_safety
+  - dependency_gating
+  - manual_backfill
+  clue_terms:
+  - launch gate
+  - ready check
+  - blocked reason
+  - schedule window
+  - dependency satisfied
+  - eligibility decision
+  - misfire handling
+  - due evaluation
+- key: claim_integrity
+  families:
+  - scheduler_safety
+  - queue_dispatch
+  - distributed_coordination
+  - heartbeat_liveness
+  clue_terms:
+  - claim expiry
+  - lease renewal
+  - stale claim
+  - claim revocation
+  - claim fencing
+  - ownership renewal
+  - claim reassignment
+  - claim lineage
+- key: timing_correctness
+  families:
+  - scheduler_safety
+  - retry_timeout_resilience
+  - heartbeat_liveness
+  - timeout_deadline_control
+  - manual_backfill
+  clue_terms:
+  - deadline budget
+  - timeout expiry
+  - due window
+  - clock skew
+  - backoff window
+  - heartbeat gap
+  - ttl expiry
+  - remaining time
+- key: input_sanitization
+  families:
+  - api_control_plane
+  - admission_and_validation
+  - operator_control
+  clue_terms:
+  - normalized request
+  - invalid payload
+  - schema mismatch
+  - unsafe default
+  - request parsing
+  - input coercion
+  - payload sanitization
+  - ingress validation
+- key: fail_closed_behavior
+  families:
+  - admission_and_validation
+  - dependency_gating
+  - distributed_coordination
+  - api_control_plane
+  clue_terms:
+  - reject unsafe
+  - suppress on uncertainty
+  - deny by default
+  - block on ambiguity
+  - validation failure
+  - quorum lost
+  - dependency unresolved
+  - unsafe mutation
+- key: stale_state_handling
+  families:
+  - scheduler_safety
+  - stateful_workflow
+  - api_control_plane
+  - configuration_versioning
+  - lab_assistant_memory
+  - ui_truth_projection
+  - retrieval_ranking_contract
+  clue_terms:
+  - stale snapshot
+  - version mismatch
+  - obsolete checkpoint
+  - late event
+  - cached state
+  - stale generation
+  - old config
+  - outdated projection
+- key: duplicate_suppression
+  families:
+  - scheduler_safety
+  - queue_dispatch
+  - manual_backfill
+  - audit_evidence
+  clue_terms:
+  - already exists
+  - already processed
+  - suppress duplicate
+  - duplicate interval
+  - dedupe record
+  - once-only
+  - replay suppression
+  - duplicate receipt
+- key: reconciliation_correctness
+  families:
+  - reconciliation_recovery
+  - api_control_plane
+  - stateful_workflow
+  - persistence_integrity
+  - lab_assistant_memory
+  - retrieval_ranking_contract
+  clue_terms:
+  - converge safely
+  - repair drift
+  - reconcile debt
+  - orphan reconciliation
+  - state resync
+  - corrective mutation
+  - repair evidence
+  - projection repair
+- key: side_effect_control
+  families:
+  - worker_runtime_safety
+  - api_control_plane
+  - retry_timeout_resilience
+  - queue_dispatch
+  clue_terms:
+  - external provisioning
+  - outbound call
+  - publish event
+  - send webhook
+  - invoke integration
+  - downstream effect
+  - write-through effect
+  - side effect replay
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: cross_cutting_flags.yaml
+    payload:
+      canonical_runtime_source: cross_cutting_flags.yaml
+      bundle_extract_status: noncanonical_duplicate
+      use_bundle_extract_for_runtime: false
+      reason: bundle_extract_creates_overlap_and_should_not_override_canonical_asset

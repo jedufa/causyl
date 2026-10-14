@@ -1,0 +1,345 @@
+{
+  "schema_version": "job_shape_lifecycle_contract_v1",
+  "uid": "PIS-20260406-053811Z-339F",
+  "contract_family": "job_shape_lifecycle_recovery",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_shape_contract_rel": "governance/canonical_job_shape_contract_v1.json",
+  "canonical_doc_rel": "docs/contracts/contract_job_shape_lifecycle_recovery_matrix_v1.md",
+  "terminal_state_definitions": {
+    "succeeded": {
+      "summary_class": "evidence_bearing_completion",
+      "description": "The job finished with durable evidence that satisfies the shape's success condition."
+    },
+    "failed": {
+      "summary_class": "evidence_bearing_completion",
+      "description": "The job finished with durable evidence of runtime or task failure."
+    },
+    "failed_verification": {
+      "summary_class": "evidence_bearing_completion",
+      "description": "The verification loop finished with durable evidence that the attempted change did not pass verification."
+    },
+    "proof_gap": {
+      "summary_class": "evidence_bearing_completion",
+      "description": "The job finished by recording an explicit proof gap instead of claiming unsupported success."
+    },
+    "skipped": {
+      "summary_class": "evidence_bearing_completion",
+      "description": "The experiment run ended without execution but with durable evidence explaining the skip."
+    },
+    "blocked": {
+      "summary_class": "operator_actionable_terminal",
+      "description": "The job stopped because some operator or dependency action is required before a retry is safe."
+    },
+    "deferred": {
+      "summary_class": "operator_actionable_terminal",
+      "description": "The job stopped without launch or continuation because policy or scheduling chose not to proceed now."
+    },
+    "abandoned": {
+      "summary_class": "operator_actionable_terminal",
+      "description": "The job instance was intentionally given up after bounded attempts or supersession."
+    },
+    "cancelled": {
+      "summary_class": "operator_actionable_terminal",
+      "description": "The job was stopped by an explicit operator or system cancellation action."
+    },
+    "interrupted": {
+      "summary_class": "operator_actionable_terminal",
+      "description": "The job stopped due to interruption without an internal resumable lifecycle answer."
+    },
+    "error": {
+      "summary_class": "operator_actionable_terminal",
+      "description": "The job ended in an unhandled execution error that still needs operator interpretation."
+    }
+  },
+  "recovery_class_definitions": {
+    "rerun_from_last_iteration_boundary": "Restart from the last build-verify iteration boundary; retry and repair policy is explicit per loop receipt.",
+    "relaunch_children_from_parent_truth": "Reconstruct child launch intent from the durable parent record and relaunch only from parent truth.",
+    "resume_from_durable_checkpoint_if_present": "Resume from durable checkpoint truth when present; otherwise reconcile honestly and require an explicit new launch.",
+    "not_launchable_yet": "The shape is named for taxonomy completeness but must not launch until its own runtime substrate exists."
+  },
+  "shapes": {
+    "verification_loop_job": {
+      "launch_policy": "allowed",
+      "active_states": [
+        "queued",
+        "running_iteration",
+        "awaiting_verifier",
+        "awaiting_single_repair_pass"
+      ],
+      "terminal_states": [
+        "succeeded",
+        "failed_verification",
+        "proof_gap",
+        "blocked",
+        "deferred",
+        "abandoned",
+        "cancelled",
+        "interrupted",
+        "error"
+      ],
+      "evidence_bearing_terminal_states": [
+        "succeeded",
+        "failed_verification",
+        "proof_gap"
+      ],
+      "operator_actionable_terminal_states": [
+        "blocked",
+        "deferred",
+        "abandoned",
+        "cancelled",
+        "interrupted",
+        "error"
+      ],
+      "recovery_class": "rerun_from_last_iteration_boundary",
+      "interruption_state": "interrupted",
+      "current_repo_state_mappings": [
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "succeeded",
+          "values": [
+            "ok",
+            "conditional_pass_repair_applied",
+            "executed_with_closeout_integrity_defect"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "failed_verification",
+          "values": [
+            "failed_verification"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "proof_gap",
+          "values": [
+            "proof_gap"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "blocked",
+          "values": [
+            "blocked"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "deferred",
+          "values": [
+            "deferred"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "cancelled",
+          "values": [
+            "cancelled"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "error",
+          "values": [
+            "error"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "interrupted",
+          "values": [
+            "interrupted"
+          ]
+        }
+      ]
+    },
+    "fanout_job": {
+      "launch_policy": "allowed",
+      "active_states": [
+        "queued",
+        "launching_children",
+        "waiting_on_children"
+      ],
+      "terminal_states": [
+        "succeeded",
+        "blocked",
+        "deferred",
+        "abandoned",
+        "cancelled",
+        "interrupted",
+        "error"
+      ],
+      "evidence_bearing_terminal_states": [
+        "succeeded"
+      ],
+      "operator_actionable_terminal_states": [
+        "blocked",
+        "deferred",
+        "abandoned",
+        "cancelled",
+        "interrupted",
+        "error"
+      ],
+      "recovery_class": "relaunch_children_from_parent_truth",
+      "interruption_state": "interrupted",
+      "current_repo_state_mappings": [
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "succeeded",
+          "values": [
+            "ok"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "blocked",
+          "values": [
+            "blocked"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "deferred",
+          "values": [
+            "deferred"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "cancelled",
+          "values": [
+            "cancelled"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "error",
+          "values": [
+            "error"
+          ]
+        }
+      ]
+    },
+    "campaign_job": {
+      "launch_policy": "forbidden_until_implemented",
+      "active_states": [],
+      "terminal_states": [],
+      "evidence_bearing_terminal_states": [],
+      "operator_actionable_terminal_states": [],
+      "recovery_class": "not_launchable_yet",
+      "interruption_state": "",
+      "current_repo_state_mappings": []
+    },
+    "experiment_run_job": {
+      "launch_policy": "allowed",
+      "active_states": [
+        "launching",
+        "running",
+        "uncertain_interrupted"
+      ],
+      "terminal_states": [
+        "succeeded",
+        "failed",
+        "skipped",
+        "blocked",
+        "deferred",
+        "cancelled",
+        "interrupted",
+        "error"
+      ],
+      "evidence_bearing_terminal_states": [
+        "succeeded",
+        "failed",
+        "skipped"
+      ],
+      "operator_actionable_terminal_states": [
+        "blocked",
+        "deferred",
+        "cancelled",
+        "interrupted",
+        "error"
+      ],
+      "recovery_class": "resume_from_durable_checkpoint_if_present",
+      "interruption_state": "uncertain_interrupted",
+      "current_repo_state_mappings": [
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "succeeded",
+          "values": [
+            "ok"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "blocked",
+          "values": [
+            "blocked"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "deferred",
+          "values": [
+            "deferred"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "cancelled",
+          "values": [
+            "cancelled"
+          ]
+        },
+        {
+          "surface": "scheduled_job_receipt.status",
+          "canonical_state": "error",
+          "values": [
+            "error",
+            "timed_out"
+          ]
+        },
+        {
+          "surface": "run_record.lifecycle.state",
+          "canonical_state": "succeeded",
+          "values": [
+            "succeeded"
+          ]
+        },
+        {
+          "surface": "run_record.lifecycle.state",
+          "canonical_state": "failed",
+          "values": [
+            "failed"
+          ]
+        },
+        {
+          "surface": "run_record.lifecycle.state",
+          "canonical_state": "skipped",
+          "values": [
+            "skipped"
+          ]
+        },
+        {
+          "surface": "run_record.lifecycle.state",
+          "canonical_state": "cancelled",
+          "values": [
+            "cancelled"
+          ]
+        }
+      ]
+    },
+    "delegation_tree_job": {
+      "launch_policy": "forbidden_until_implemented",
+      "active_states": [],
+      "terminal_states": [],
+      "evidence_bearing_terminal_states": [],
+      "operator_actionable_terminal_states": [],
+      "recovery_class": "not_launchable_yet",
+      "interruption_state": "",
+      "current_repo_state_mappings": []
+    }
+  }
+}

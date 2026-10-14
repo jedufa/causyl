@@ -1,0 +1,83 @@
+{
+  "schema_version": "v2_continuity_contract_v1",
+  "uid": "PIS-20260409-195203Z-D1Y4",
+  "contract_family": "v2_continuity_recovery",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_v2_continuity_engine_recovery_v1.md",
+  "allowed_subject_kinds": [
+    "job",
+    "family"
+  ],
+  "allowed_states": [
+    "interrupted",
+    "resume_ready",
+    "rerun_ready",
+    "repairing",
+    "blocked",
+    "fail_closed"
+  ],
+  "allowed_outcomes": [
+    "resume",
+    "rerun",
+    "repair_then_rerun",
+    "operator_block",
+    "fail_closed"
+  ],
+  "state_definitions": {
+    "interrupted": "Durable runtime records show work stopped mid-flight and no continuity decision has been durably recorded yet.",
+    "resume_ready": "A replay-safe durable checkpoint exists, so continuity may resume from checkpoint truth.",
+    "rerun_ready": "Resume is not authorized or not possible; restart must occur from a clean rerun or focused revalidation boundary.",
+    "repairing": "A bounded repair is allowed, but repair may only prepare the next rerun or focused revalidation step.",
+    "blocked": "Continuation is intentionally held for operator or dependency action instead of being guessed.",
+    "fail_closed": "Continuity cannot be proven safely from durable facts, so the system must stop without promoting truth."
+  },
+  "outcome_definitions": {
+    "resume": "Resume from durable checkpoint truth without inventing new work.",
+    "rerun": "Launch a fresh rerun or focused revalidation from an explicit boundary.",
+    "repair_then_rerun": "Apply a bounded repair, then rerun or focused revalidate before any later promotion.",
+    "operator_block": "Stop and surface the block explicitly for operator or dependency handling.",
+    "fail_closed": "Stop because the durable facts are insufficient or conflicting."
+  },
+  "decision_precedence": [
+    "conflicting_truth_or_unbounded_gap",
+    "explicit_operator_or_dependency_block",
+    "bounded_repair_required",
+    "resume_from_checkpoint",
+    "rerun_or_revalidate",
+    "otherwise_fail_closed"
+  ],
+  "bounded_repair_rules": {
+    "repair_never_promotes_closure": true,
+    "repair_requires_follow_up_outcome": true,
+    "allowed_follow_up_outcomes": [
+      "rerun",
+      "focused_revalidation"
+    ]
+  },
+  "receipt_policy": {
+    "schema_version": "v2_continuity_receipt_v1",
+    "storage_root_rel": "runtime/state/controlplane/v2_continuity/receipts",
+    "required_fields": [
+      "decision_id",
+      "decision_utc",
+      "subject_kind",
+      "subject_id",
+      "workflow_kind",
+      "continuity_state",
+      "recovery_outcome",
+      "reason",
+      "runtime_record",
+      "receipt_fingerprint"
+    ],
+    "forbidden_fields": [
+      "promoted_terminal_state"
+    ],
+    "allowed_post_repair_actions": [
+      "rerun",
+      "focused_revalidation"
+    ]
+  }
+}

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Description: Create a draft Intent Sheet ledger object from pasted/copied text.
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/intent_sheet_create_from_text.py "$@"

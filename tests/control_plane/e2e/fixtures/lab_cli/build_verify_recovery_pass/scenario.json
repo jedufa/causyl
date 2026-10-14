@@ -1,0 +1,39 @@
+{
+  "name": "build_verify_recovery_pass",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": false,
+  "prompt_variants": [
+    "run build and verify",
+    "verify this task"
+  ],
+  "artifact_inputs": {
+    "iterations_file": "artifacts/iterations.json"
+  },
+  "payload": {
+    "cli_args": [
+      "--iterations-file",
+      "{iterations_file}"
+    ]
+  },
+  "expected_terminal_status": "ok",
+  "expected_receipt": {
+    "proof_gap": false,
+    "recovery_used": true
+  },
+  "expected_snapshot": {
+    "action_id": "build_verify_loop_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "build_verify_loop_v1",
+    "authority_class": "read_only"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

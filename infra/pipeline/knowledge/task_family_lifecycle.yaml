@@ -1,0 +1,75 @@
+version: 1
+phase: 1
+notes: Lifecycle registry for task families. Canonical runtime should only treat active families as routable. Draft or deprecated families must not silently participate in classification.
+families:
+- name: generic
+  status: active
+- name: scheduler_safety
+  status: active
+- name: operator_control
+  status: active
+- name: stateful_workflow
+  status: active
+- name: queue_dispatch
+  status: active
+- name: api_control_plane
+  status: active
+- name: retry_timeout_resilience
+  status: active
+- name: reconciliation_recovery
+  status: active
+- name: distributed_coordination
+  status: active
+- name: persistence_integrity
+  status: active
+- name: execution_lifecycle
+  status: active
+- name: dependency_gating
+  status: active
+- name: configuration_versioning
+  status: active
+- name: audit_evidence
+  status: active
+- name: manual_backfill
+  status: active
+- name: heartbeat_liveness
+  status: active
+- name: timeout_deadline_control
+  status: active
+- name: cleanup_retention
+  status: active
+- name: admission_and_validation
+  status: active
+- name: worker_runtime_safety
+  status: active
+- name: lab_assistant_memory
+  status: active
+- name: lab_assistant_delegation
+  status: active
+- name: governance_ledger_durability
+  status: active
+- name: agent_orchestration_runtime
+  status: active
+- name: host_execution_boundary
+  status: active
+- name: pipeline_internal_modification
+  status: active
+- name: knowledge_and_retrieval_policy
+  status: active
+- name: scheduler_or_control_plane
+  status: active
+- name: ui_local_changes
+  status: active
+- name: audit_and_integrity
+  status: active
+- name: operator_review_and_repair
+  status: active
+- name: experiment_or_run_validation
+  status: active
+- name: assistant_truth_and_identity
+  status: active
+retired_records:
+- name: task_families.additions.yaml
+  status: merged_into_canonical_file
+  merged_into: task_families.yaml
+  reason: Separate additive family registry created ambiguous runtime precedence and has been retired.

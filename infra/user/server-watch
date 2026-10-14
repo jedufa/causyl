@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/server-watch
+# Description: Watch the live scheduler/server dashboard from the WebUI API.
+# Example: bash infra/user/server-watch --interval 2 --pipeline-limit 40
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+python infra/bin/scheduler_live_watch.py "$@"

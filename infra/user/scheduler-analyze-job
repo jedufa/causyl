@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-analyze-job
+# Description: Analyze a recent scheduled job run with executive, standard, or complete detail.
+# Example: bash infra/user/scheduler-analyze-job 1 --mode standard
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/scheduler_analyze_job.py "$@"

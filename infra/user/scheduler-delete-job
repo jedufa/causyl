@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-delete-job
+# Description: Delete one or more scheduled jobs from the active scheduler inbox.
+# Example: bash infra/user/scheduler-delete-job 1,2,4-8 --yes
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash infra/bin/scheduler-delete-jobs "$@"

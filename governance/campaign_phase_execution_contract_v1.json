@@ -1,0 +1,56 @@
+{
+  "schema_version": "campaign_phase_execution_contract_v1",
+  "uid": "PIS-20260409-121602Z-L1P4",
+  "contract_family": "campaign_phase_execution_binding_and_launch",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_campaign_phase_execution_v1.md",
+  "supported_phase_job_kinds": [
+    "single_turn",
+    "build_verify_loop",
+    "swarm_launch"
+  ],
+  "job_kind_aliases": {
+    "fanout": "swarm_launch"
+  },
+  "job_kind_to_shape": {
+    "single_turn": "verification_loop_job",
+    "build_verify_loop": "verification_loop_job",
+    "swarm_launch": "fanout_job"
+  },
+  "phase_required_fields": [
+    "phase_id",
+    "job_shape",
+    "state",
+    "execution_binding"
+  ],
+  "execution_binding_required_fields": [
+    "binding_id",
+    "job_kind",
+    "instruction_refs",
+    "durable_context_refs",
+    "expected_evidence"
+  ],
+  "expected_evidence_required_fields": [
+    "summary",
+    "artifact_refs",
+    "next_decision"
+  ],
+  "next_decision_required_fields": [
+    "decision_owner",
+    "question"
+  ],
+  "fanout_required_fields": [
+    "mode",
+    "child_job_kind"
+  ],
+  "fail_closed_rules": [
+    "phase_execution_binding_is_required",
+    "phase_launch_requires_ready_or_partial_ready_gate_unlock",
+    "binding_job_kind_must_match_declared_phase_job_shape",
+    "campaign_phases_may_not_launch_campaign_or_recursive_children",
+    "fanout_inside_a_phase_must_remain_supervised_under_existing_fanout_boundaries"
+  ]
+}

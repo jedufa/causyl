@@ -1,0 +1,9 @@
+retrieval_policy:
+  stage4_structural_hint_limit: 56
+  stage4_structural_neighbor_limit: 40
+  narrow_task_pressure_multiplier: 1.3
+  target_requires_subsystem_fit: false
+  owner_promotion_strength: 1.35
+  target_fallback_allowance: 2
+  fallback_hub_allowance: 1
+  support_lane_allowance: 3

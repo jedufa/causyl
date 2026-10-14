@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# infra/user/pis
+# Description: Compatibility launcher for PIS-oriented ledger helpers.
+# Example: infra/user/pis
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
+bash infra/user/ledger --pis-only "$@"

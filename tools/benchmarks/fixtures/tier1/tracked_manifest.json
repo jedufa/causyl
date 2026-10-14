@@ -1,0 +1,10 @@
+{
+  "task": "draft",
+  "files": [
+    "notes/todo.md"
+  ],
+  "meta": {
+    "priority": "low",
+    "ready": false
+  }
+}

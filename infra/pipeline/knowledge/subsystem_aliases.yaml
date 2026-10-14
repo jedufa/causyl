@@ -1,0 +1,360 @@
+version: 1
+phase: 0
+notes: Deterministic subsystem alias catalog for path, filename, and symbol normalization. Expanded with stronger synonyms for truth/evidence, recovery/restore, UI shells/pages/mobile, and scheduler/control-plane runtime policy.
+aliases:
+- id: scheduler
+  terms:
+  - scheduled_job_controller
+  - scheduler_tick_runner
+  - due_window_evaluator
+  - cron_dispatch_coordinator
+  - misfire_suppression_guard
+- id: persistence
+  terms:
+  - authoritative_state_repository
+  - run_record_store
+  - claim_ledger_store
+  - event_ledger_repository
+  - checkpoint_state_store
+- id: api
+  terms:
+  - control_plane_http_handler
+  - operator_command_endpoint
+  - mutation_request_route
+  - reconciliation_admin_api
+  - status_callback_receiver
+- id: recovery
+  terms:
+  - stale_claim_reconciler
+  - repair_loop_worker
+  - retry_policy_executor
+  - orphan_cleanup_recoverer
+  - replay_safety_guard
+- id: validation
+  terms:
+  - transition_precondition_validator
+  - schema_guard_module
+  - ownership_validation_guard
+  - operator_request_validator
+  - schedule_definition_validator
+- id: observability
+  terms:
+  - audit_event_emitter
+  - structured_mutation_logger
+  - recovery_metric_instrumentation
+  - trace_context_propagator
+  - health_probe_reporter
+- id: dispatch
+  terms:
+  - execution_request_dispatcher
+  - queue_publish_coordinator
+  - delivery_ack_controller
+  - followup_task_emitter
+  - work_item_enqueuer
+- id: auth
+  terms:
+  - operator_authorization_policy
+  - role_scope_enforcer
+  - tenant_access_guard
+  - approval_requirement_checker
+  - principal_context_validator
+- id: cli
+  terms:
+  - operator_command_cli
+  - manual_repair_cli
+  - backfill_request_cli
+  - control_plane_console
+  - admin_override_command
+- id: worker
+  terms:
+  - background_execution_worker
+  - partition_owner_worker
+  - reconciliation_worker_loop
+  - timeout_recovery_worker
+  - cleanup_worker_runtime
+- id: config
+  terms:
+  - runtime_flag_registry
+  - feature_gate_config_store
+  - retry_policy_config
+  - control_plane_setting_loader
+  - schema_version_config
+- id: audit
+  terms:
+  - operator_receipt_ledger
+  - decision_reason_log
+  - state_transition_audit_store
+  - manual_action_evidence_writer
+  - change_lineage_recorder
+- id: sync
+  terms:
+  - reconciliation_sync_pass
+  - truth_convergence_step
+  - state_refresh_coordinator
+  - mirror_repair_sync
+  - dependency_resync_job
+- id: lock
+  terms:
+  - distributed_claim_lock
+  - lease_fencing_guard
+  - generation_match_guard
+  - single_owner_lock
+  - cross_process_mutex_adapter
+- id: input
+  terms:
+  - operator_payload_parser
+  - callback_body_decoder
+  - schedule_spec_reader
+  - command_argument_normalizer
+  - identifier_input_sanitizer
+- id: output
+  terms:
+  - result_manifest_writer
+  - status_response_formatter
+  - completion_notification_builder
+  - diagnostic_bundle_writer
+  - audit_report_exporter
+- id: resource
+  terms:
+  - execution_slot_allocator
+  - claim_token_manager
+  - retention_cleanup_manager
+  - checkpoint_blob_manager
+  - backfill_budget_controller
+- id: workflow
+  terms:
+  - lifecycle_state_machine
+  - stage_gate_orchestrator
+  - terminal_state_controller
+  - workflow_progress_coordinator
+  - pause_resume_flow_controller
+- id: client
+  terms:
+  - remote_status_client
+  - dependency_api_client
+  - callback_webhook_client
+  - external_control_client
+  - partner_integration_client
+- id: error
+  terms:
+  - failure_family_classifier
+  - safe_abort_handler
+  - exception_mapping_policy
+  - terminal_error_guard
+  - validation_rejection_handler
+- id: lab_assistant_delegation
+  terms:
+  - typed_delegation_controller
+  - delegation_binding_store
+  - delegation_policy_guard
+  - delegation_status_rebuilder
+  - delegation_request_result_linker
+- id: lab_assistant_correlation
+  terms:
+  - subsystem_correlation_registry
+  - task_correlation_record
+  - delegation_reverse_index
+  - correlation_snapshot_store
+  - correlation_rebuild_step
+- id: governance_ledger
+  terms:
+  - governance_ledger_store
+  - ledger_status_mutator
+  - artifact_linkage_writer
+  - governance_event_append_path
+  - ledger_item_state_repository
+- id: commit_traceability
+  terms:
+  - commit_journal_store
+  - git_trace_linkage_writer
+  - commit_correlation_recorder
+  - journal_reconciliation_step
+  - commit_history_linkage
+- id: route_surface
+  terms:
+  - server_route_hub
+  - endpoint_wiring_module
+  - blueprint_route_registration
+  - http_surface_composer
+  - route_aggregation_layer
+- id: agent_orchestration
+  terms:
+  - agent_orchestrator_runtime
+  - projflow_runner_state
+  - swarm_coordination_controller
+  - job_lineage_owner
+  - orchestrator_restart_recovery
+- id: host_verification
+  terms:
+  - host_verification_runner
+  - boundary_contract_loader
+  - verification_evidence_recorder
+  - device_capability_guard
+  - native_web_boundary_checker
+- id: truth_registry
+  terms:
+  - assistant_truth_registry
+  - truth_owner_record
+  - canonical_truth_source
+  - evidence_arbitration_state
+  - identity_truth_guard
+- id: recovery_mechanisms
+  terms:
+  - restore_reconcile_worker
+  - repair_loop_controller
+  - recover_and_restore_flow
+  - state_restore_guard
+  - repair_after_replay
+- id: ui_shell_and_mobile
+  terms:
+  - ui_shell_bridge
+  - page_view_controller
+  - mobile_surface_handler
+  - screen_route_shell
+  - local_view_contract
+- id: runtime_policy
+  terms:
+  - scheduler_runtime_policy
+  - watchdog_control_plane
+  - healer_runtime_policy
+  - scheduled_job_policy_guard
+  - control_plane_watchdog
+- id: ingestion
+  terms:
+  - downloader
+  - download manager
+  - data fetcher
+  - remote source client
+  - input acquisition
+  - source downloader
+- id: archive
+  terms:
+  - zip reader
+  - archive reader
+  - archive extractor
+  - compressed source handler
+  - bundle extractor
+- id: parsing
+  terms:
+  - csv parser
+  - tsv parser
+  - record parser
+  - schema normalizer
+  - row decoder
+  - input parser
+- id: transformation
+  terms:
+  - taxonomy processor
+  - data transformer
+  - normalization pipeline
+  - record enricher
+  - canonicalizer
+  - processing pipeline
+- id: export
+  terms:
+  - dictionary generator
+  - stardict generator
+  - artifact exporter
+  - format writer
+  - index generator
+  - output serializer
+- id: visualization
+  terms:
+  - tree visualizer
+  - main frame
+  - desktop ui
+  - graph renderer
+  - interactive view
+  - canvas presenter
+- id: search
+  terms:
+  - incremental search
+  - lookup index
+  - filter widget
+  - search state
+  - result navigation
+  - selection model
+- id: plugin
+  terms:
+  - plugin_registry_manager
+  - extension_loader_runtime
+  - plugin_discovery_registry
+  - addon_registration_layer
+  - pluggable_extension_surface
+- id: provider
+  terms:
+  - provider_adapter_registry
+  - external_provider_binding
+  - connector_provider_layer
+  - provider_capability_registry
+  - integration_provider_surface
+- id: hook
+  terms:
+  - lifecycle_hook_dispatcher
+  - plugin_hook_binding
+  - pre_post_hook_runner
+  - callback_hook_registry
+  - extension_hook_surface
+- id: executor
+  terms:
+  - task_executor_runtime
+  - execution_backend_adapter
+  - job_executor_controller
+  - parallel_executor_pool
+  - runtime_executor_binding
+- id: serializer
+  terms:
+  - payload_serializer_module
+  - response_serializer_layer
+  - schema_serializer_binding
+  - object_marshalling_adapter
+  - serialization_codec_surface
+- id: session
+  terms:
+  - user_session_store
+  - session_state_registry
+  - auth_session_manager
+  - request_session_binding
+  - session_cookie_policy
+- id: service
+  terms:
+  - service_registry_layer
+  - service_action_router
+  - service_call_dispatcher
+  - application_service_module
+  - domain_service_surface
+- id: component
+  terms:
+  - component_registry_layer
+  - component_binding_surface
+  - app_component_module
+  - component_loader_runtime
+  - component_capability_registry
+- id: integration
+  terms:
+  - integration_registry_layer
+  - integration_binding_adapter
+  - external_integration_surface
+  - integration_setup_module
+  - integration_bridge_runtime
+- id: entity
+  terms:
+  - entity_registry_store
+  - entity_state_adapter
+  - domain_entity_model
+  - entity_binding_layer
+  - entity_capability_surface
+- id: frontend
+  terms:
+  - frontend_asset_surface
+  - template_render_layer
+  - client_ui_shell
+  - web_app_frontend
+  - presentation_component_bundle
+- id: backend
+  terms:
+  - backend_service_layer
+  - server_backend_module
+  - application_backend_surface
+  - backend_api_runtime
+  - backend_processing_hub

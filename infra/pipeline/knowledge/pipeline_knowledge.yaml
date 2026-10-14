@@ -1,0 +1,617 @@
+status: legacy_reference_only
+runtime_loader_should_ignore: true
+canonical_replacement: domain_map.yaml and other canonical phase files
+notes: Historical or aggregate reference asset retained for provenance. Not canonical runtime knowledge.
+legacy_payload:
+  relationship_graph_version: 1
+  description: cross_domain_mapping_graph_only
+  relationships:
+  - id: rel_scheduler_duplicate_dispatch_requires_claim_integrity
+    source_domain: task_family
+    source_key: scheduler_safety
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: claim_integrity
+    when: dispatch, claim, lease, ownership, or duplicate-run signals appear
+  - id: rel_scheduler_duplicate_dispatch_requires_timing_correctness
+    source_domain: task_family
+    source_key: scheduler_safety
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: timing_correctness
+    when: due-window, eligibility-window, cron, tick, or schedule-evaluation signals appear
+  - id: rel_scheduler_duplicate_dispatch_maps_to_failure
+    source_domain: task_family
+    source_key: scheduler_safety
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: duplicate_execution
+    when: same logical job can be started twice
+  - id: rel_scheduler_stale_claim_maps_to_failure
+    source_domain: task_family
+    source_key: scheduler_safety
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: stale_claim_recovery
+    when: claim expiry, reclaim, abandoned owner, or stale lease paths are involved
+  - id: rel_scheduler_prefers_subsystem
+    source_domain: task_family
+    source_key: scheduler_safety
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: scheduler
+    when: scheduler tick, due evaluation, or dispatch gating code is in scope
+  - id: rel_scheduler_secondarily_targets
+    source_domain: task_family
+    source_key: scheduler_safety
+    relation: secondarily_targets
+    target_domain: subsystem
+    target_key: lock
+    when: ownership, lease, mutex, fencing, or claim code participates
+  - id: rel_operator_requires_auditability
+    source_domain: task_family
+    source_key: operator_control
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: auditability
+    when: manual pause, resume, retry, cancel, or override flows are in scope
+  - id: rel_operator_requires_authority
+    source_domain: task_family
+    source_key: operator_control
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: ownership_control
+    when: actor identity, role, entitlement, or approval checks are involved
+  - id: rel_operator_maps_to_failure
+    source_domain: task_family
+    source_key: operator_control
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: illegal_manual_transition
+    when: manual path can bypass lifecycle legality
+  - id: rel_operator_targets_api
+    source_domain: task_family
+    source_key: operator_control
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: api
+    when: operator action enters through HTTP or RPC control plane
+  - id: rel_operator_targets_cli
+    source_domain: task_family
+    source_key: operator_control
+    relation: secondarily_targets
+    target_domain: subsystem
+    target_key: cli
+    when: operator action enters through command-line tooling
+  - id: rel_stateful_requires_state_consistency
+    source_domain: task_family
+    source_key: stateful_workflow
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: state_consistency
+    when: persisted state, checkpoints, receipts, or status transitions are mutated
+  - id: rel_stateful_requires_mutation_boundary
+    source_domain: task_family
+    source_key: stateful_workflow
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: mutation_boundary
+    when: workflow decisions and state commits must remain separated
+  - id: rel_stateful_maps_to_failure
+    source_domain: task_family
+    source_key: stateful_workflow
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: illegal_state_transition
+    when: workflow stage or status changes can violate persisted lifecycle rules
+  - id: rel_stateful_targets_workflow
+    source_domain: task_family
+    source_key: stateful_workflow
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: workflow
+    when: stage-gate, step completion, or resume logic is involved
+  - id: rel_queue_requires_idempotency
+    source_domain: task_family
+    source_key: queue_dispatch
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: idempotency
+    when: enqueue, redelivery, ack, visibility timeout, or replay signals appear
+  - id: rel_queue_requires_side_effect_control
+    source_domain: task_family
+    source_key: queue_dispatch
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: side_effect_control
+    when: message replay can repeat externally visible work
+  - id: rel_queue_maps_to_failure
+    source_domain: task_family
+    source_key: queue_dispatch
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: ack_before_commit
+    when: acknowledgement can occur before authoritative mutation is durable
+  - id: rel_queue_targets_dispatch
+    source_domain: task_family
+    source_key: queue_dispatch
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: dispatch
+    when: queue submission, reservation, claim, or ack code is present
+  - id: rel_queue_targets_worker
+    source_domain: task_family
+    source_key: queue_dispatch
+    relation: secondarily_targets
+    target_domain: subsystem
+    target_key: worker
+    when: consumer runtime or visibility timeout handling is present
+  - id: rel_api_requires_validation_rigor
+    source_domain: task_family
+    source_key: api_control_plane
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: validation_rigor
+    when: mutation requests, callbacks, or patch routes can change authoritative state
+  - id: rel_api_requires_auditability
+    source_domain: task_family
+    source_key: api_control_plane
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: auditability
+    when: externally initiated changes must leave durable evidence
+  - id: rel_api_maps_to_failure
+    source_domain: task_family
+    source_key: api_control_plane
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: stale_version_write
+    when: request can commit against an obsolete generation or revision
+  - id: rel_api_targets_validation
+    source_domain: task_family
+    source_key: api_control_plane
+    relation: secondarily_targets
+    target_domain: subsystem
+    target_key: validation
+    when: admission checks, schema guards, or transition guards are involved
+  - id: rel_retry_requires_idempotency
+    source_domain: task_family
+    source_key: retry_timeout_resilience
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: idempotency
+    when: retry or replay can revisit already attempted work
+  - id: rel_retry_requires_recovery_integrity
+    source_domain: task_family
+    source_key: retry_timeout_resilience
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: recovery_integrity
+    when: timeout, retry, and reclaim flows may mutate after uncertainty
+  - id: rel_retry_maps_to_failure
+    source_domain: task_family
+    source_key: retry_timeout_resilience
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: duplicate_side_effect_on_retry
+    when: retry can repeat committed external effects
+  - id: rel_retry_targets_recovery
+    source_domain: task_family
+    source_key: retry_timeout_resilience
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: recovery
+    when: timeout recovery, retry scheduler, or reclaim logic is involved
+  - id: rel_reconcile_requires_reconciliation_correctness
+    source_domain: task_family
+    source_key: reconciliation_recovery
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: reconciliation_correctness
+    when: runtime truth and persisted truth can diverge
+  - id: rel_reconcile_requires_stale_state_handling
+    source_domain: task_family
+    source_key: reconciliation_recovery
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: stale_state_handling
+    when: repair decisions depend on choosing authoritative truth
+  - id: rel_reconcile_maps_to_failure
+    source_domain: task_family
+    source_key: reconciliation_recovery
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: repair_recreates_committed_work
+    when: repair or orphan cleanup can recreate live or committed work
+  - id: rel_reconcile_targets_persistence
+    source_domain: task_family
+    source_key: reconciliation_recovery
+    relation: secondarily_targets
+    target_domain: subsystem
+    target_key: persistence
+    when: repair inspects or rewrites durable records
+  - id: rel_distributed_requires_concurrency_control
+    source_domain: task_family
+    source_key: distributed_coordination
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: concurrency_control
+    when: multi-process ownership or leader election controls mutation rights
+  - id: rel_distributed_requires_claim_integrity
+    source_domain: task_family
+    source_key: distributed_coordination
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: claim_integrity
+    when: lease, fencing, or generation state determines ownership
+  - id: rel_distributed_maps_to_failure
+    source_domain: task_family
+    source_key: distributed_coordination
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: split_brain_ownership
+    when: two processes can both believe they are live owner
+  - id: rel_distributed_targets_lock
+    source_domain: task_family
+    source_key: distributed_coordination
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: lock
+    when: mutex, lease, fencing, or election implementation is involved
+  - id: rel_persistence_requires_state_consistency
+    source_domain: task_family
+    source_key: persistence_integrity
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: state_consistency
+    when: authoritative records, receipts, snapshots, or checkpoints can diverge
+  - id: rel_persistence_requires_auditability
+    source_domain: task_family
+    source_key: persistence_integrity
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: auditability
+    when: state commits must remain linked to durable evidence
+  - id: rel_persistence_maps_to_failure
+    source_domain: task_family
+    source_key: persistence_integrity
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: partial_commit_inconsistency
+    when: related durable records can commit only partially
+  - id: rel_persistence_targets_persistence
+    source_domain: task_family
+    source_key: persistence_integrity
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: persistence
+    when: repositories, event stores, or transactional boundaries are touched
+  - id: rel_execution_requires_eligibility_correctness
+    source_domain: task_family
+    source_key: execution_lifecycle
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: eligibility_correctness
+    when: lifecycle transitions depend on current state and legal progression
+  - id: rel_execution_requires_observability
+    source_domain: task_family
+    source_key: execution_lifecycle
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: observability
+    when: transition failures must be inspectable and attributable
+  - id: rel_execution_maps_to_failure
+    source_domain: task_family
+    source_key: execution_lifecycle
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: terminal_state_before_commit
+    when: run can appear terminal before authoritative receipt exists
+  - id: rel_execution_targets_workflow
+    source_domain: task_family
+    source_key: execution_lifecycle
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: workflow
+    when: run state machine or lifecycle controller is involved
+  - id: rel_dependency_requires_fail_closed
+    source_domain: task_family
+    source_key: dependency_gating
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: fail_closed_behavior
+    when: unsafe downstream dependency must suppress mutating work
+  - id: rel_dependency_requires_observability
+    source_domain: task_family
+    source_key: dependency_gating
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: observability
+    when: dependency health and gating reasons must be inspectable
+  - id: rel_dependency_maps_to_failure
+    source_domain: task_family
+    source_key: dependency_gating
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: unsafe_dependency_bypass
+    when: mutation proceeds despite unhealthy or incompatible dependency
+  - id: rel_dependency_targets_client
+    source_domain: task_family
+    source_key: dependency_gating
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: client
+    when: dependency API clients or health probes participate
+  - id: rel_config_requires_version_control
+    source_domain: task_family
+    source_key: configuration_versioning
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: ownership_control
+    when: configuration revision or generation guards determine write legality
+  - id: rel_config_requires_validation_rigor
+    source_domain: task_family
+    source_key: configuration_versioning
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: validation_rigor
+    when: schema or compatibility checks must gate config mutation
+  - id: rel_config_maps_to_failure
+    source_domain: task_family
+    source_key: configuration_versioning
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: stale_config_overwrite
+    when: older configuration can overwrite newer revision
+  - id: rel_config_targets_config
+    source_domain: task_family
+    source_key: configuration_versioning
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: config
+    when: feature gates, setting loaders, and version registries are in scope
+  - id: rel_audit_requires_auditability
+    source_domain: task_family
+    source_key: audit_evidence
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: auditability
+    when: externally visible mutations need durable, attributable evidence
+  - id: rel_audit_maps_to_failure
+    source_domain: task_family
+    source_key: audit_evidence
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: mutation_without_durable_evidence
+    when: change is visible but decision evidence is missing or unlinked
+  - id: rel_audit_targets_audit
+    source_domain: task_family
+    source_key: audit_evidence
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: audit
+    when: receipt writers, ledgers, and change logs are in scope
+  - id: rel_backfill_requires_duplicate_suppression
+    source_domain: task_family
+    source_key: manual_backfill
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: duplicate_suppression
+    when: manual replay can overlap scheduled or previously committed work
+  - id: rel_backfill_requires_operator_safety
+    source_domain: task_family
+    source_key: manual_backfill
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: operator_safety
+    when: manual ranges, approvals, and capacity protections must be enforced
+  - id: rel_backfill_maps_to_failure
+    source_domain: task_family
+    source_key: manual_backfill
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: backfill_overlaps_active_work
+    when: backfill window collides with live ownership or scheduled work
+  - id: rel_heartbeat_requires_stale_state_handling
+    source_domain: task_family
+    source_key: heartbeat_liveness
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: stale_state_handling
+    when: missing heartbeat alone is insufficient to reclaim ownership
+  - id: rel_heartbeat_maps_to_failure
+    source_domain: task_family
+    source_key: heartbeat_liveness
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: live_owner_reclaimed_as_stale
+    when: owner is reclaimed while still progressing
+  - id: rel_timeout_requires_side_effect_control
+    source_domain: task_family
+    source_key: timeout_deadline_control
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: side_effect_control
+    when: deadline expiry can race with partial mutation or retry
+  - id: rel_timeout_maps_to_failure
+    source_domain: task_family
+    source_key: timeout_deadline_control
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: post_timeout_replay_of_committed_work
+    when: timeout recovery repeats already committed work
+  - id: rel_cleanup_requires_rollback_safety
+    source_domain: task_family
+    source_key: cleanup_retention
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: rollback_safety
+    when: cleanup deletes runtime or durable state that recovery still needs
+  - id: rel_cleanup_maps_to_failure
+    source_domain: task_family
+    source_key: cleanup_retention
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: cleanup_removes_authoritative_truth
+    when: cleanup path deletes evidence or state required for convergence
+  - id: rel_admission_requires_fail_closed
+    source_domain: task_family
+    source_key: admission_and_validation
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: fail_closed_behavior
+    when: invalid or incomplete input reaches mutation path
+  - id: rel_admission_maps_to_failure
+    source_domain: task_family
+    source_key: admission_and_validation
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: mutation_without_prevalidation
+    when: unsupported or incomplete input can mutate authoritative truth
+  - id: rel_worker_requires_concurrency_control
+    source_domain: task_family
+    source_key: worker_runtime_safety
+    relation: requires_flag
+    target_domain: cross_cutting_flag
+    target_key: concurrency_control
+    when: worker shutdown, revocation, or crash paths can overlap commit
+  - id: rel_worker_maps_to_failure
+    source_domain: task_family
+    source_key: worker_runtime_safety
+    relation: commonly_implicates
+    target_domain: failure_family
+    target_key: worker_mutates_after_revocation
+    when: runtime continues mutating after ownership loss
+  - id: rel_worker_targets_worker
+    source_domain: task_family
+    source_key: worker_runtime_safety
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: worker
+    when: background execution, shutdown guards, and safe abort handlers are present
+  - id: rel_failure_duplicate_execution_implies_contract
+    source_domain: failure_family
+    source_key: duplicate_execution
+    relation: requires_patch_contract_section
+    target_domain: patch_contract_section
+    target_key: idempotency_and_duplicate_suppression
+    when: multiple starts or replays for the same logical unit are plausible
+  - id: rel_failure_stale_claim_implies_contract
+    source_domain: failure_family
+    source_key: stale_claim_recovery
+    relation: requires_patch_contract_section
+    target_domain: patch_contract_section
+    target_key: ownership_and_reclamation_guards
+    when: claim expiry, reclaim, or stale-owner repair logic is touched
+  - id: rel_failure_partial_commit_implies_contract
+    source_domain: failure_family
+    source_key: partial_commit_inconsistency
+    relation: requires_patch_contract_section
+    target_domain: patch_contract_section
+    target_key: commit_boundary_and_evidence_ordering
+    when: state and evidence can diverge across multi-step mutation
+  - id: rel_failure_manual_transition_implies_contract
+    source_domain: failure_family
+    source_key: illegal_manual_transition
+    relation: requires_patch_contract_section
+    target_domain: patch_contract_section
+    target_key: operator_authority_and_legal_transition_checks
+    when: manual pause/resume/cancel/retry paths are modified
+  - id: rel_failure_ack_before_commit_implies_contract
+    source_domain: failure_family
+    source_key: ack_before_commit
+    relation: requires_patch_contract_section
+    target_domain: patch_contract_section
+    target_key: ack_ordering_and_visibility_timeout_guards
+    when: queue acknowledgement and durable commit ordering are at risk
+  - id: rel_failure_split_brain_implies_contract
+    source_domain: failure_family
+    source_key: split_brain_ownership
+    relation: requires_patch_contract_section
+    target_domain: patch_contract_section
+    target_key: fencing_generation_and_live_owner_checks
+    when: distributed ownership may allow two writers
+  - id: rel_failure_mutation_without_evidence_implies_contract
+    source_domain: failure_family
+    source_key: mutation_without_durable_evidence
+    relation: requires_patch_contract_section
+    target_domain: patch_contract_section
+    target_key: audit_and_receipt_durability
+    when: externally visible state change must remain reconstructable
+  - id: rel_flag_claim_integrity_requires_subsystem
+    source_domain: cross_cutting_flag
+    source_key: claim_integrity
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: lock
+    when: claim, lease, fencing, or ownership tokens control mutation rights
+  - id: rel_flag_state_consistency_requires_subsystem
+    source_domain: cross_cutting_flag
+    source_key: state_consistency
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: persistence
+    when: authoritative truth is stored durably and compared across sources
+  - id: rel_flag_auditability_requires_subsystem
+    source_domain: cross_cutting_flag
+    source_key: auditability
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: audit
+    when: evidence, receipts, and actor attribution are required
+  - id: rel_flag_validation_rigor_requires_subsystem
+    source_domain: cross_cutting_flag
+    source_key: validation_rigor
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: validation
+    when: admission or transition checks are the primary safety surface
+  - id: rel_flag_observability_requires_subsystem
+    source_domain: cross_cutting_flag
+    source_key: observability
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: observability
+    when: diagnostic evidence is needed to explain suppression, failure, or recovery
+  - id: rel_flag_concurrency_requires_subsystem
+    source_domain: cross_cutting_flag
+    source_key: concurrency_control
+    relation: primarily_targets
+    target_domain: subsystem
+    target_key: worker
+    when: parallel owners or overlapping shutdown/commit paths are present
+  - id: rel_signal_retry_without_guard_indicates_failure
+    source_domain: signal
+    source_key: retry_loop_with_state_mutation_without_idempotency_guard
+    relation: indicates
+    target_domain: failure_family
+    target_key: duplicate_side_effect_on_retry
+    when: retry logic surrounds mutation and lacks receipt/idempotency check
+  - id: rel_signal_ack_before_commit_indicates_failure
+    source_domain: signal
+    source_key: acknowledgement_before_durable_commit
+    relation: indicates
+    target_domain: failure_family
+    target_key: ack_before_commit
+    when: ack or completion notice is emitted before durable truth is committed
+  - id: rel_signal_missing_operator_evidence_indicates_failure
+    source_domain: signal
+    source_key: manual_override_without_actor_reason_and_receipt
+    relation: indicates
+    target_domain: failure_family
+    target_key: mutation_without_durable_evidence
+    when: manual action mutates state without durable actor, reason, and timestamp
+  - id: rel_signal_generation_mismatch_indicates_failure
+    source_domain: signal
+    source_key: state_mutation_without_generation_or_fencing_validation
+    relation: indicates
+    target_domain: failure_family
+    target_key: stale_version_write
+    when: mutation path updates authoritative truth without revision guard
+  - id: rel_signal_cleanup_without_inactive_check_indicates_failure
+    source_domain: signal
+    source_key: cleanup_delete_without_inactivity_and_ownership_verification
+    relation: indicates
+    target_domain: failure_family
+    target_key: cleanup_removes_authoritative_truth
+    when: cleanup path can delete live or needed recovery artifacts

@@ -1,0 +1,43 @@
+{
+  "name": "patch_fix_basic",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": true,
+  "stage_patch_in_cwd": "artifacts/hello.patch",
+  "prompt_variants": [
+    "fix this patch",
+    "apply this patch"
+  ],
+  "payload": {
+    "cli_args": [
+      "--validation-command",
+      "python -c \"from pathlib import Path; import sys; sys.exit(0 if Path('hello.txt').read_text() == 'hello world\\n' else 1)\"",
+      "--verifier-verdict",
+      "PASS"
+    ]
+  },
+  "expected_terminal_status": "ok",
+  "allowed_mutation_prefixes": [
+    "governance/ledger/patch_instruction_sheets/",
+    "hello.txt"
+  ],
+  "expected_receipt": {
+    "proof_gap": false
+  },
+  "expected_snapshot": {
+    "action_id": "patch_ingest_repair_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "patch_ingest_repair_v1",
+    "authority_class": "repo_mutation",
+    "patch_supplied": true
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

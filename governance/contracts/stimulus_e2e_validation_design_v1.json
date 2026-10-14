@@ -1,0 +1,27 @@
+{
+  "schema_version": "stimulus_e2e_validation_design_v1",
+  "required_fields": [
+    "durable_evidence_surfaces",
+    "required_artifact_types",
+    "scenario_classes",
+    "schema_version",
+    "seam_rules",
+    "stimulation_rule"
+  ],
+  "required_scenario_classes": [
+    "deterministic_success",
+    "repair_then_validate",
+    "proof_gap_blocks_success",
+    "bounded_recovery",
+    "fallback_requires_checklist",
+    "economic_stop",
+    "forbidden_mutation"
+  ],
+  "durable_evidence_surfaces": [
+    "scheduler_receipts",
+    "verifier_reports",
+    "fallback_events",
+    "governance_proposals"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

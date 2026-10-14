@@ -1,0 +1,27 @@
+{
+  "schema_version": "action_registry_v1",
+  "actions": [
+    {
+      "action_id": "patch_ingest_repair_v1",
+      "action_family": "patch_ingest_repair",
+      "operator_verb": "apply incoming patch",
+      "authority_class": "repo_mutation",
+      "summary": "Ingest and repair a patch with explicit validation."
+    },
+    {
+      "action_id": "pis_assess_proof_gap_v1",
+      "action_family": "pis_assess_proof_gap",
+      "operator_verb": "assess item proof",
+      "authority_class": "read_only",
+      "summary": "Assess proof without asserting a pass."
+    },
+    {
+      "action_id": "job_inspect_bounded_recovery_v1",
+      "action_family": "job_inspect_bounded_recovery",
+      "operator_verb": "inspect job",
+      "authority_class": "scheduler_mutation",
+      "summary": "Inspect a job and propose bounded recovery."
+    }
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

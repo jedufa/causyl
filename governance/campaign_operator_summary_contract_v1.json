@@ -1,0 +1,35 @@
+{
+  "schema_version": "campaign_operator_summary_v1",
+  "uid": "PIS-20260409-121604Z-N3R6",
+  "contract_family": "campaign_operator_summary_and_evidence_surface",
+  "canonical_doc_rel": "docs/contracts/contract_campaign_operator_summary_v1.md",
+  "operator_readiness_states": [
+    "ready",
+    "partial_ready",
+    "blocked",
+    "waiting_review",
+    "uncertain"
+  ],
+  "required_summary_fields": [
+    "schema_version",
+    "campaign_id",
+    "campaign_state",
+    "operator_readiness",
+    "headline",
+    "current_phase",
+    "current_gate",
+    "next_step_logic",
+    "proof_gaps",
+    "budget_posture",
+    "review_summary",
+    "blocked_summary",
+    "phase_graph",
+    "operator_evidence"
+  ],
+  "rules": {
+    "summary_must_derive_from_reconciled_campaign_truth": "Campaign operator summaries must derive from the canonical campaign record, gate decisions, and reconciliation facts rather than transcript prose.",
+    "proof_gaps_must_remain_visible": "Proof gaps, ambiguity, and stale-or-missing durable references must stay explicit instead of being flattened into cheerful progress.",
+    "review_and_blocked_states_must_stay_distinct": "waiting_review, blocked, partial_ready, and uncertain are separate operator states and must not be collapsed together.",
+    "budget_posture_must_reuse_campaign_reconciliation_rollup": "Budget posture must reuse the campaign reconciliation rollup instead of campaign-local ad hoc accounting."
+  }
+}

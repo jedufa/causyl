@@ -1,0 +1,1 @@
+Handle this blocked patch request through the full FCEE ladder: attempt deterministic work first, explain the blocked state truthfully, surface uncertainty, recommend the safest next action, and if recurring bounded fallback evidence justifies it, prepare a governed upgrade proposal without pretending runtime behavior changed.

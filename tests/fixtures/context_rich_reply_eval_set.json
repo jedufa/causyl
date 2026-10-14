@@ -1,0 +1,52 @@
+[
+  {
+    "message": "What is this PIS?",
+    "binding": {"type": "task_id", "id": "abc"},
+    "expected_mode": "cheap_reply"
+  },
+  {
+    "message": "How would you implement this PIS?",
+    "binding": {"type": "ledger_uid", "id": "PIS-20260329-121518Z-1D0C"},
+    "expected_mode": "context_rich_reply"
+  },
+  {
+    "message": "Which files and tests would change for this PIS?",
+    "binding": {"type": "ledger_uid", "id": "PIS-20260329-121518Z-1D0C"},
+    "expected_mode": "context_rich_reply"
+  },
+  {
+    "message": "Implement this PIS now and patch the repo.",
+    "binding": {"type": "ledger_uid", "id": "PIS-20260329-121518Z-1D0C"},
+    "expected_mode": "escalate_to_task"
+  },
+  {
+    "message": "Run the validation for this item.",
+    "binding": {"type": "ledger_uid", "id": "PIS-20260329-121518Z-1D0C"},
+    "expected_mode": "escalate_to_task"
+  },
+  {
+    "message": "How would you implement it?",
+    "binding": {"type": "task_id", "id": "abc"},
+    "expected_mode": "cheap_reply"
+  },
+  {
+    "message": "What modules and endpoints does PIS-20260326-203500Z-G4K7 touch?",
+    "binding": {"type": "task_id", "id": "abc"},
+    "expected_mode": "cheap_reply"
+  },
+  {
+    "message": "What modules and endpoints would you touch for PIS-20260326-203500Z-G4K7?",
+    "binding": {"type": "task_id", "id": "abc"},
+    "expected_mode": "context_rich_reply"
+  },
+  {
+    "message": "Approach to build the routing contract for this repo",
+    "binding": {"type": "task_id", "id": "abc"},
+    "expected_mode": "context_rich_reply"
+  },
+  {
+    "message": "Make the change and fix this now",
+    "binding": {"type": "task_id", "id": "abc"},
+    "expected_mode": "escalate_to_task"
+  }
+]

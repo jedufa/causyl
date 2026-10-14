@@ -1,0 +1,33 @@
+{
+  "schema_version": "independence_gap_registry_v1",
+  "required_fields": [
+    "capability_miss_taxonomy",
+    "descriptive_only",
+    "entries",
+    "schema_version"
+  ],
+  "descriptive_only": true,
+  "gap_status_values": [
+    "missing",
+    "partial",
+    "wrapper_needed",
+    "covered"
+  ],
+  "required_entry_fields": [
+    "gap_id",
+    "operator_pain_description",
+    "manual_or_codex_heavy_path",
+    "desired_action_or_playbook",
+    "current_status",
+    "pain_score",
+    "frequency",
+    "codex_dependency_level",
+    "recurrence_evidence",
+    "proposed_absorption_target",
+    "blocker_reason",
+    "owner",
+    "learning_source",
+    "descriptive_only"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

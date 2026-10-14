@@ -1,0 +1,123 @@
+{
+  "schema_version": "scientific_campaign_method_template_contract_v1",
+  "uid": "PIS-20260410-193415Z-2A95",
+  "contract_family": "scientific_campaign_method_template",
+  "template_schema_version": "scientific_campaign_method_template_v1",
+  "contract_version": {
+    "major": 1,
+    "minor": 1
+  },
+  "canonical_doc_rel": "docs/contracts/contract_scientific_campaign_method_template_v1.md",
+  "reference_template_rel": "governance/scientific_campaign_method_template_reference_v1.json",
+  "pilot_fixtures_rel": "governance/scientific_campaign_method_template_pilot_fixtures_v1.json",
+  "top_level_required_fields": [
+    "schema_version",
+    "template_id",
+    "template_version",
+    "stable_identity",
+    "metadata",
+    "ownership_boundary",
+    "phases"
+  ],
+  "stable_identity_required_fields": [
+    "canonicalization",
+    "content_hash_algorithm",
+    "schema_migration_policy"
+  ],
+  "metadata_required_fields": [
+    "title",
+    "created_at_utc",
+    "source_intent_uid",
+    "ledger_refs"
+  ],
+  "ownership_boundary_required_fields": [
+    "belongs_in_method_template",
+    "outside_method_template"
+  ],
+  "phase_ids": [
+    "question_framing",
+    "prior_knowledge_consolidation",
+    "hypothesis_registry",
+    "experiment_design",
+    "analysis_plan",
+    "adversarial_review",
+    "outcome_documentation",
+    "continuation"
+  ],
+  "phase_required_fields": [
+    "phase_id",
+    "phase_order",
+    "label",
+    "purpose",
+    "required_inputs",
+    "required_outputs",
+    "completion_signals",
+    "input_linkages",
+    "output_linkages"
+  ],
+  "phase_extension_required_fields": {
+    "hypothesis_registry": [
+      "hypotheses"
+    ],
+    "adversarial_review": [
+      "review"
+    ],
+    "outcome_documentation": [
+      "outcome_record"
+    ],
+    "continuation": [
+      "continuation_notes"
+    ]
+  },
+  "ownership_boundary": {
+    "belongs_in_method_template": [
+      "canonical method phase vocabulary and ordering",
+      "stage purposes and minimum structured inputs and outputs",
+      "completion signals that let downstream systems validate methodological coverage",
+      "source-of-truth boundaries for neighboring campaign, evidence, continuation, and budget systems"
+    ],
+    "outside_method_template": [
+      "campaign execution lifecycle state and append-only run history",
+      "evidence pack payload contents and source provenance bodies",
+      "continuation packet payloads for concrete future handoff state",
+      "budget-adaptive rigor policy or runtime effort tuning"
+    ]
+  },
+  "forbidden_top_level_fields": {
+    "campaign_execution_record": "Method templates may link campaign records but may not embed execution truth.",
+    "campaign_record_body": "Campaign record bodies remain owned by the campaign execution contract.",
+    "evidence_pack_payload": "Evidence-pack contents remain canonical in evidence-pack artifacts.",
+    "continuation_packet_payload": "Continuation packet payloads remain canonical in continuation artifacts.",
+    "budget_adaptive_rigor_policy": "Budget-adaptive rigor policy belongs to the separate IS-14 workstream.",
+    "prompt_prose_template": "Prompt prose may explain a template but never replaces the structured template contract.",
+    "template_summary_only": "A prose summary alone is not a machine-readable method template."
+  },
+  "forbidden_phase_fields": {
+    "evidence_pack_body": "Phase rows may link evidence packs later, but may not inline pack payload bodies.",
+    "continuation_packet_body": "Phase rows may declare continuation obligations, but may not inline packet payloads.",
+    "execution_state": "Execution state belongs to campaign execution records, not to method templates.",
+    "budget_policy_override": "Budget-adaptive rigor remains outside the method-template contract.",
+    "prompt_text": "Prompt text is advisory prose, not canonical method-template structure."
+  },
+  "fail_closed_rules": [
+    "mandatory_phase_ids_must_be_present_exactly_once",
+    "phase_vocabulary_must_use_canonical_ids",
+    "phase_rows_require_structured_inputs_outputs_and_completion_signals",
+    "phase_handoff_links_must_use_reference_only_neighbor_links",
+    "each_phase_must_name_campaign_phase_record_authority",
+    "prior_knowledge_consolidation_requires_evidence_pack_linkage",
+    "continuation_phase_requires_continuation_packet_linkage",
+    "hypothesis_registry_requires_structured_claim_strength_and_uncertainty_records",
+    "adversarial_review_requires_structured_prompt_and_residual_risk_notes",
+    "negative_results_require_failure_notes_and_follow_up_visibility",
+    "prose_only_templates_rejected",
+    "adjacent_execution_evidence_continuation_and_budget_payloads_forbidden_inline"
+  ],
+  "advisory_method_posture_codes": [
+    "missing_prior_knowledge_evidence_chain",
+    "missing_hypothesis_uncertainty_notes",
+    "missing_adversarial_review_challenge_questions",
+    "missing_outcome_uncertainty_notes",
+    "missing_continuation_stop_conditions"
+  ]
+}

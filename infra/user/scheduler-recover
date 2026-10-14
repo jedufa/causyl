@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-recover
+# Description: Interactive scheduler recovery assistant (diagnose -> confirm -> repair -> optional relaunch).
+# Example: infra/user/scheduler-recover
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/scheduler_recovery_assistant.py "$@"
+

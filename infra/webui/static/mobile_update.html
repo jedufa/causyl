@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Causyl Mobile Update</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4efe5;
+      --panel: #fffaf0;
+      --ink: #1e1e1a;
+      --muted: #6b665d;
+      --line: #d6cbb7;
+      --accent: #1f6b5c;
+      --accent-strong: #12463d;
+      --danger: #8c2f39;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(31,107,92,0.10), transparent 38%),
+        linear-gradient(180deg, #f8f3ea 0%, var(--bg) 100%);
+      color: var(--ink);
+    }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 10px 8px 16px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(20, 26, 24, 0.08);
+    }
+    h1 {
+      margin: 0 0 4px;
+      font-size: 1.35rem;
+    }
+    p, li {
+      line-height: 1.45;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    .status {
+      margin: 8px 0;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(31,107,92,0.08);
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+    .status.error {
+      background: rgba(140,47,57,0.10);
+      color: var(--danger);
+    }
+    .status.warning {
+      background: rgba(178, 120, 31, 0.12);
+      color: #7a4d00;
+    }
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .button {
+      appearance: none;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .button.secondary {
+      background: transparent;
+      color: var(--accent-strong);
+      border: 1px solid var(--line);
+    }
+    dl {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 6px 10px;
+      margin: 8px 0 0;
+    }
+    dt {
+      font-weight: 700;
+    }
+    dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+    .build-panel {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+    }
+    .build-meta {
+      display: grid;
+      grid-template-columns: max-content 1fr;
+      gap: 6px 10px;
+      margin: 0 0 8px;
+    }
+    .build-meta dt {
+      font-weight: 700;
+    }
+    .build-meta dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+    .build-log {
+      margin: 0;
+      max-height: 320px;
+      overflow: auto;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #1f211d;
+      color: #f5f3ea;
+      font: 0.9rem/1.4 "IBM Plex Mono", "SFMono-Regular", monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    body.embedded-shell main {
+      max-width: none;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <h1>Causyl mobile update</h1>
+    <div id="status" class="status">Checking current APK state…</div>
+    <div class="actions">
+      <button id="build" class="button" type="button">Deploy fresh</button>
+      <button id="cancel" class="button secondary" type="button" hidden>Cancel</button>
+      <a id="download" class="button" href="#" hidden>Download APK</a>
+      <button id="copy" class="button secondary" type="button" hidden>Copy download link</button>
+    </div>
+    <section id="build-panel" class="build-panel" hidden>
+      <dl id="build-meta" class="build-meta">
+        <dt>State</dt><dd id="build-state"></dd>
+        <dt>Elapsed</dt><dd id="build-elapsed"></dd>
+        <dt>Last output</dt><dd id="build-last-output"></dd>
+      </dl>
+      <pre id="build-log" class="build-log"></pre>
+    </section>
+  </div>
+</main>
+<script>
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("embedded") === "1") {
+      document.body.classList.add("embedded-shell");
+    }
+    const channel = (params.get("channel") || "debug").trim().toLowerCase() || "debug";
+    const auto = (params.get("auto") || "").trim() === "1";
+    const statusEl = document.getElementById("status");
+    const buildEl = document.getElementById("build");
+    const cancelEl = document.getElementById("cancel");
+    const downloadEl = document.getElementById("download");
+    const copyEl = document.getElementById("copy");
+    const buildPanelEl = document.getElementById("build-panel");
+    const buildLogEl = document.getElementById("build-log");
+    const buildStateEl = document.getElementById("build-state");
+    const buildElapsedEl = document.getElementById("build-elapsed");
+    const buildLastOutputEl = document.getElementById("build-last-output");
+    let activeJobId = "";
+    let autoRedirected = false;
+    let pollTimer = 0;
+    let buildPollFailures = 0;
+
+    function setStatus(message, kind) {
+      statusEl.textContent = message;
+      statusEl.className = "status" + (kind ? (" " + kind) : "");
+    }
+
+    function formatDuration(seconds) {
+      const total = Math.max(0, Math.floor(Number(seconds) || 0));
+      const mins = Math.floor(total / 60);
+      const secs = total % 60;
+      if (mins <= 0) {
+        return secs + "s";
+      }
+      const hours = Math.floor(mins / 60);
+      const remMins = mins % 60;
+      if (hours <= 0) {
+        return mins + "m " + String(secs).padStart(2, "0") + "s";
+      }
+      return hours + "h " + String(remMins).padStart(2, "0") + "m";
+    }
+
+    function secondsSince(utcText) {
+      if (!utcText) {
+        return null;
+      }
+      const millis = Date.parse(String(utcText));
+      if (!Number.isFinite(millis)) {
+        return null;
+      }
+      return Math.max(0, Math.floor((Date.now() - millis) / 1000));
+    }
+
+    function buildLogText(job) {
+      const blocks = [];
+      const stdout = String((job && job.stdout) || "").trim();
+      const stderr = String((job && job.stderr) || "").trim();
+      if (stdout) {
+        blocks.push(stdout);
+      }
+      if (stderr) {
+        blocks.push("[stderr]\n" + stderr);
+      }
+      const flags = [];
+      if (job && job.stdout_truncated) {
+        flags.push("stdout tail only");
+      }
+      if (job && job.stderr_truncated) {
+        flags.push("stderr tail only");
+      }
+      if (flags.length) {
+        blocks.push("[output trimmed: " + flags.join(", ") + "]");
+      }
+      return blocks.join("\n\n").trim();
+    }
+
+    function firstMeaningfulLine(text) {
+      return String(text || "")
+        .split(/\r?\n/)
+        .map(function (line) { return line.trim(); })
+        .find(function (line) { return !!line; }) || "";
+    }
+
+    function buildFailureSummary(job) {
+      const parts = [
+        firstMeaningfulLine(job && job.error),
+        firstMeaningfulLine(job && job.stderr),
+        firstMeaningfulLine(job && job.stdout)
+      ].filter(Boolean);
+      return parts[0] || "";
+    }
+
+    function buildStateLabel(job) {
+      if (job && job.running) {
+        return "Running";
+      }
+      if (job && job.killed && String(job.error || "").trim() === "timeout") {
+        return "Timed out";
+      }
+      if (job && job.returncode === 0) {
+        return "Succeeded";
+      }
+      if (job && job.killed) {
+        return "Killed";
+      }
+      if (job && typeof job.returncode === "number") {
+        return "Failed (rc=" + String(job.returncode) + ")";
+      }
+      return "Unknown";
+    }
+
+    function terminalBuildStatus(job) {
+      const durationText = formatDuration(job && job.duration_sec);
+      if (job && job.killed && String(job.error || "").trim() === "timeout") {
+        return {
+          kind: "warning",
+          message:
+            "Build timed out after " + durationText + ". " +
+            (buildFailureSummary(job) || "See the build log below.")
+        };
+      }
+      if (job && job.killed) {
+        return {
+          kind: "warning",
+          message: "Build was cancelled after " + durationText + "."
+        };
+      }
+      const errorText =
+        buildFailureSummary(job) ||
+        ("Build failed (rc=" + String(job && job.returncode != null ? job.returncode : "?") + ")");
+      return {
+        kind: "error",
+        message: "Build failed after " + durationText + ". " + String(errorText)
+      };
+    }
+
+    function exposeDirectDownloadFallback() {
+      downloadEl.href = "/api/admin/mobile_apk/download?channel=" + encodeURIComponent(channel);
+      downloadEl.hidden = false;
+      copyEl.hidden = false;
+    }
+
+    function renderBuildJob(job) {
+      const logText = buildLogText(job);
+      buildPanelEl.hidden = false;
+      buildStateEl.textContent = buildStateLabel(job);
+      buildElapsedEl.textContent = formatDuration(job && job.duration_sec);
+      cancelEl.hidden = !(job && job.running && job.job_id);
+      cancelEl.disabled = !(job && job.running && job.job_id);
+      if (job && job.last_output_utc) {
+        buildLastOutputEl.textContent = formatDuration(secondsSince(job.last_output_utc)) + " ago";
+      } else if (job && job.output_seen) {
+        buildLastOutputEl.textContent = "recent output";
+      } else {
+        buildLastOutputEl.textContent = "no output yet";
+      }
+      buildLogEl.textContent = logText || "Waiting for build output…";
+    }
+
+    function clearBuildPanel() {
+      buildPanelEl.hidden = true;
+      buildLogEl.textContent = "";
+      buildStateEl.textContent = "";
+      buildElapsedEl.textContent = "";
+      buildLastOutputEl.textContent = "";
+      cancelEl.hidden = true;
+      cancelEl.disabled = false;
+    }
+
+    function schedulePoll(jobId, delayMs) {
+      if (pollTimer) {
+        window.clearTimeout(pollTimer);
+      }
+      pollTimer = window.setTimeout(function () {
+        pollBuild(jobId);
+      }, delayMs);
+    }
+
+    function resetBuildPollFailures() {
+      buildPollFailures = 0;
+    }
+
+    function buildPollRetryDelayMs() {
+      return Math.min(10000, 1200 * Math.max(1, buildPollFailures));
+    }
+
+    function handleBuildPollFailure(jobId, error) {
+      const delayMs = buildPollRetryDelayMs();
+      const detail = error && error.message ? error.message : "Unable to poll build status.";
+      buildEl.disabled = true;
+      buildEl.textContent = "Building...";
+      if (jobId) {
+        activeJobId = jobId;
+      }
+      if (activeJobId) {
+        cancelEl.hidden = false;
+        cancelEl.disabled = false;
+      }
+      setStatus(
+        "Lost contact with the build status. Retrying in " + formatDuration(delayMs / 1000) + ". " + detail,
+        "warning"
+      );
+      schedulePoll(activeJobId || jobId, delayMs);
+    }
+
+    function applyManifest(payload, options) {
+      const fresh = !!(options && options.fresh);
+      const releaseAvailable = payload.release_available !== false && !!payload.apk_name;
+      const downloadPath = payload.download_path || ("/api/admin/mobile_apk/download?channel=" + encodeURIComponent(channel));
+      const href = downloadPath;
+      downloadEl.href = href;
+      downloadEl.hidden = !fresh || !releaseAvailable;
+      copyEl.hidden = !fresh || !releaseAvailable;
+      if (!releaseAvailable) {
+        setStatus("No published APK yet. Deploy fresh to build one.", "");
+      } else {
+        setStatus(
+          fresh
+            ? "Fresh APK ready to download."
+            : "Last published APK found. Deploy fresh to rebuild from the newest code.",
+          ""
+        );
+      }
+      if (fresh && auto && !autoRedirected) {
+        autoRedirected = true;
+        setStatus("Fresh APK ready. Starting download...", "");
+        window.location.assign(href);
+      }
+    }
+
+    copyEl.addEventListener("click", function () {
+      navigator.clipboard.writeText(new URL(downloadEl.href, window.location.origin).toString()).then(function () {
+        setStatus("Download link copied.", "");
+      }).catch(function () {
+        setStatus("Unable to copy download link.", "error");
+      });
+    });
+
+    function fetchManifest() {
+      return fetch("/api/admin/mobile_apk/manifest?channel=" + encodeURIComponent(channel), {
+        credentials: "same-origin"
+      }).then(async function (response) {
+        const payload = await response.json().catch(function () { return {}; });
+        if (!response.ok) {
+          throw new Error(payload.error || ("manifest request failed (" + response.status + ")"));
+        }
+        applyManifest(payload, { fresh: false });
+        const activeJob = payload.active_build_job || null;
+        const latestJob = payload.latest_build_job || null;
+        if (activeJob && activeJob.running && activeJob.job_id) {
+          buildEl.disabled = true;
+          buildEl.textContent = "Building...";
+          renderBuildJob(activeJob);
+          setStatus("Build already running. Reconnecting to live progress…", "warning");
+          pollBuild(activeJob.job_id);
+        } else if (latestJob && !latestJob.running && latestJob.returncode !== 0) {
+          renderBuildJob(latestJob);
+          const terminalStatus = terminalBuildStatus(latestJob);
+          setStatus(terminalStatus.message, terminalStatus.kind);
+        } else if (!activeJob && !activeJobId) {
+          clearBuildPanel();
+        }
+        return payload;
+      });
+    }
+
+    function startBuild() {
+      if (activeJobId) {
+        return;
+      }
+      resetBuildPollFailures();
+      buildEl.disabled = true;
+      buildEl.textContent = "Building...";
+      downloadEl.hidden = true;
+      copyEl.hidden = true;
+        buildPanelEl.hidden = false;
+      buildElapsedEl.textContent = "0s";
+      buildLastOutputEl.textContent = "no output yet";
+      buildLogEl.textContent = "Waiting for build output…";
+      cancelEl.hidden = false;
+      cancelEl.disabled = false;
+      setStatus("Starting fresh APK build...", "");
+      fetch("/api/admin/mobile_apk/build", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ channel: channel })
+      }).then(async function (response) {
+        const payload = await response.json().catch(function () { return {}; });
+        if (!response.ok) {
+          throw new Error(payload.error || ("build request failed (" + response.status + ")"));
+        }
+        const job = payload.job || {};
+        if (!job.job_id) {
+          throw new Error("build request returned no job id");
+        }
+        resetBuildPollFailures();
+        renderBuildJob(job);
+        pollBuild(job.job_id);
+      }).catch(function (error) {
+        resetBuildPollFailures();
+        buildEl.disabled = false;
+        buildEl.textContent = "Deploy fresh";
+        activeJobId = "";
+        cancelEl.hidden = true;
+        setStatus(error && error.message ? error.message : "Unable to start build.", "error");
+      });
+    }
+
+    function cancelBuild() {
+      if (!activeJobId) {
+        return;
+      }
+      cancelEl.disabled = true;
+      setStatus("Cancel requested. Waiting for the build to stop...", "warning");
+      fetch("/api/admin/mobile_apk/cancel", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ job_id: activeJobId })
+      }).then(async function (response) {
+        const payload = await response.json().catch(function () { return {}; });
+        if (!response.ok) {
+          throw new Error(payload.error || ("cancel request failed (" + response.status + ")"));
+        }
+        const job = payload.job || {};
+        renderBuildJob(job);
+        if (job.job_id) {
+          activeJobId = job.job_id;
+        }
+        if (activeJobId) {
+          resetBuildPollFailures();
+          if (job.running) {
+            schedulePoll(activeJobId, 800);
+          } else {
+            pollBuild(activeJobId);
+          }
+        }
+      }).catch(function (error) {
+        cancelEl.disabled = false;
+        setStatus(
+          "Cancel response was unclear. Rechecking build state… " +
+            (error && error.message ? error.message : "Unable to cancel build."),
+          "warning"
+        );
+        if (activeJobId) {
+          schedulePoll(activeJobId, 1000);
+        }
+      });
+    }
+
+    function pollBuild(jobId) {
+      activeJobId = jobId;
+      return fetch("/api/admin/mobile_apk/build_status?job_id=" + encodeURIComponent(jobId), {
+        credentials: "same-origin"
+      }).then(async function (response) {
+        const payload = await response.json().catch(function () { return {}; });
+        if (!response.ok) {
+          throw new Error(payload.error || ("build status failed (" + response.status + ")"));
+        }
+        const job = payload.job || {};
+        resetBuildPollFailures();
+        renderBuildJob(job);
+        if (job.running) {
+          const quietSec = secondsSince(job.last_output_utc);
+          if (!job.output_seen && Number(job.duration_sec || 0) >= 60) {
+            setStatus(
+              "Build is running, but Gradle has not produced output for " + formatDuration(job.duration_sec) + " yet.",
+              "warning"
+            );
+          } else if (!job.output_seen) {
+            setStatus("Build is running. Waiting for the first Gradle output…", "warning");
+          } else if (quietSec !== null && quietSec >= 300) {
+            setStatus(
+              "Build may be stalled: no new output has arrived for " + formatDuration(quietSec) + ".",
+              "warning"
+            );
+          } else if (quietSec !== null && quietSec >= 180) {
+            setStatus(
+              "Build is still running, but no new output has arrived for " + formatDuration(quietSec) + ".",
+              "warning"
+            );
+          } else {
+            setStatus("Building latest APK... " + formatDuration(job.duration_sec) + " elapsed. See live output below.", "");
+          }
+          schedulePoll(jobId, 1200);
+          return;
+        }
+        buildEl.disabled = false;
+        buildEl.textContent = "Deploy fresh";
+        activeJobId = "";
+        resetBuildPollFailures();
+        cancelEl.hidden = true;
+        cancelEl.disabled = false;
+        if (pollTimer) {
+          window.clearTimeout(pollTimer);
+          pollTimer = 0;
+        }
+        if (job.returncode === 0) {
+          fetch("/api/admin/mobile_apk/manifest?channel=" + encodeURIComponent(channel), {
+            credentials: "same-origin"
+          }).then(async function (response) {
+            const payload = await response.json().catch(function () { return {}; });
+            if (!response.ok) {
+              throw new Error(payload.error || ("manifest request failed (" + response.status + ")"));
+            }
+            applyManifest(payload, { fresh: true });
+          }).catch(function (error) {
+            exposeDirectDownloadFallback();
+            setStatus(
+              "Build succeeded, but the APK metadata refresh failed. Download should still work. " +
+                (error && error.message ? error.message : "Manifest refresh failed."),
+              "warning"
+            );
+          });
+          return;
+        }
+        const terminalStatus = terminalBuildStatus(job);
+        setStatus(terminalStatus.message, terminalStatus.kind);
+      }).catch(function (error) {
+        buildPollFailures += 1;
+        handleBuildPollFailure(jobId, error);
+      });
+    }
+
+    buildEl.addEventListener("click", startBuild);
+    cancelEl.addEventListener("click", cancelBuild);
+
+    if (auto) {
+      startBuild();
+    } else {
+      fetchManifest().catch(function (error) {
+        clearBuildPanel();
+        setStatus(
+          "Unable to load current APK state. You can still deploy fresh. " +
+            (error && error.message ? error.message : "Manifest request failed."),
+          "warning"
+        );
+      });
+    }
+  })();
+</script>
+</body>
+</html>

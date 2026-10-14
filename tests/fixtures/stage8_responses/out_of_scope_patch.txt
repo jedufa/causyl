@@ -1,0 +1,6 @@
+diff --git a/forbidden.txt b/forbidden.txt
+--- a/forbidden.txt
++++ b/forbidden.txt
+@@ -1 +1 @@
+-nope
++still nope

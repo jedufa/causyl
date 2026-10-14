@@ -1,0 +1,16 @@
+{
+  "schema_version": "artifact_state_propagation_v2",
+  "explicit_state_only": true,
+  "required_fields": [
+    "artifact_id",
+    "producer_step",
+    "schema_version",
+    "timestamp",
+    "validity_scope"
+  ],
+  "forbidden_state_sources": [
+    "implicit_process_state",
+    "transcript_replay"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

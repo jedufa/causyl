@@ -1,0 +1,22 @@
+{
+  "schema_version": "improvement_opportunity_schema_v1",
+  "required_fields": [
+    "action_family",
+    "bounded_authority_safe",
+    "decision",
+    "economic_absorption_positive",
+    "estimated_build_cost",
+    "estimated_maintenance_cost",
+    "expected_future_codex_cost",
+    "failure_class",
+    "governed_follow_on_kind",
+    "observations",
+    "operator_friction_cost",
+    "rank_score",
+    "schema_version",
+    "stable_failure_class",
+    "stable_solution_path",
+    "validator_path_clear"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

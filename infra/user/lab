@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# infra/user/lab
+# Description: Human-facing front door for the plane, e.g. lab "fix this patch".
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash infra/bin/lab "$@"

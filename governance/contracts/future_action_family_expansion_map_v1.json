@@ -1,0 +1,33 @@
+{
+  "schema_version": "future_action_family_expansion_map_v1",
+  "required_fields": [
+    "authority_boundary_matrix",
+    "family_clusters",
+    "non_goals",
+    "schema_version",
+    "substrate_reuse_rules"
+  ],
+  "family_clusters": [
+    "patch_and_change",
+    "pis_and_governance",
+    "job_and_execution",
+    "scheduler_and_queue",
+    "server_and_runtime",
+    "repo_and_validation",
+    "operator_assistance",
+    "long_horizon"
+  ],
+  "allowed_authority_classes": [
+    "repo_mutation",
+    "scheduler_mutation",
+    "high_impact_guarded",
+    "runtime_mutation",
+    "read_only"
+  ],
+  "non_goals": [
+    "autonomous_deployment",
+    "scheduler_replacement",
+    "unbounded_planner"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

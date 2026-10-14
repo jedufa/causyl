@@ -1,0 +1,8 @@
+{
+  "expected_primary_stage8_behavior": "reject",
+  "fixture_name": "malformed_patch.txt",
+  "format_family": "invalid",
+  "notes": "Reality-shaped non-live fixture.",
+  "provenance_type": "synthetic_negative_case",
+  "source_reference": "baseline-260 stage8 non-live harness"
+}

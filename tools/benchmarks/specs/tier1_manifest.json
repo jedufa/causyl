@@ -1,0 +1,19 @@
+{
+  "schema_version": "agent_benchmark_suite_v1",
+  "label": "tier1-starter-pack",
+  "description": "First small benchmark set for cheap local task execution. These tasks are narrow, deterministic repo chores rather than broad reasoning tests.",
+  "spec_paths": [
+    "tools/benchmarks/specs/tier1/create_untracked_note.json",
+    "tools/benchmarks/specs/tier1/rewrite_tracked_prompt.json",
+    "tools/benchmarks/specs/tier1/update_tracked_status_json.json",
+    "tools/benchmarks/specs/tier1/normalize_tracked_checklist.json",
+    "tools/benchmarks/specs/tier1/replace_tracked_brief_section.json",
+    "tools/benchmarks/specs/tier1/reorder_tracked_sequence.json",
+    "tools/benchmarks/specs/tier1/create_untracked_payload_json.json",
+    "tools/benchmarks/specs/tier1/rewrite_tracked_pairs_tsv.json",
+    "tools/benchmarks/specs/tier1/update_tracked_manifest_json.json",
+    "tools/benchmarks/specs/tier1/rewrite_tracked_table.json",
+    "tools/benchmarks/specs/tier1/normalize_tracked_env_ini.json",
+    "tools/benchmarks/specs/tier1/rewrite_tracked_report.json"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "action_outcome_schema_v1",
+  "terminal_outcomes": [
+    "success_deterministic",
+    "success_after_deterministic_recovery",
+    "success_after_codex_fallback",
+    "partial_success",
+    "proof_gap_present",
+    "blocked_requires_review",
+    "failed_with_known_gap",
+    "failed_unknown_class"
+  ],
+  "success_requires": [
+    "validation_commands_executed",
+    "evidence_artifacts",
+    "verifier_verdict_PASS",
+    "no_proof_gaps"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

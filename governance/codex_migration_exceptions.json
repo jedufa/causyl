@@ -1,0 +1,11 @@
+{
+  "schema_version": "codex_migration_exceptions_v1",
+  "entries": [
+    {
+      "exception_id": "legacy-register-work",
+      "script_path": "tools/legacy/register_work.py",
+      "reason": "Temporary migration bridge while legacy Codex callers are moved onto the canonical programmatic surface.",
+      "added_utc": "2026-03-27T13:28:25Z"
+    }
+  ]
+}

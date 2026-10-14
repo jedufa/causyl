@@ -1,0 +1,106 @@
+{
+  "entries": [
+    {
+      "id": "ALW_BOOTSTRAP_SEED_MAIN_TEMP",
+      "justification": "Bootstrap still seeds legacy Python/NumPy globals for checkpoint compatibility; torch bootstrap seeding removed in P0-C.",
+      "removal_phase": "P0-B",
+      "reviewer": "P0-A",
+      "scope": {
+        "paths": [
+          "engine/main.py"
+        ],
+        "type": "file"
+      },
+      "symbols": [
+        "random.seed",
+        "numpy.random.seed"
+      ]
+    },
+    {
+      "id": "ALW_CHECKPOINT_OS_URANDOM_TEMP",
+      "justification": "Checkpoint identifiers currently use os.urandom; must be migrated to deterministic IDs in P0-B.",
+      "removal_phase": "P0-B",
+      "reviewer": "P0-A",
+      "scope": {
+        "paths": [
+          "engine/simulation/checkpoint.py"
+        ],
+        "type": "file"
+      },
+      "symbols": [
+        "os.urandom"
+      ]
+    },
+    {
+      "id": "ALW_CONTROLPLANE_UUID4_TEMP",
+      "justification": "Control-plane uses uuid4 for command/event IDs; migrate to deterministic IDs (hash-based) in P0-B.",
+      "removal_phase": "P0-B",
+      "reviewer": "P0-A",
+      "scope": {
+        "paths": [
+          "engine/simulation/control_plane_pkg/commands.py",
+          "engine/simulation/control_plane_pkg/event_log.py",
+          "engine/simulation/control_plane_pkg/plan.py"
+        ],
+        "type": "file"
+      },
+      "symbols": [
+        "uuid.uuid4"
+      ]
+    },
+    {
+      "id": "ALW_TOOLS_UUID4_TEMP",
+      "justification": "Tooling/webui uses uuid4 for request/job identifiers; must be made deterministic for managed runs in P0-B.",
+      "removal_phase": "P0-B",
+      "reviewer": "P0-A",
+      "scope": {
+        "paths": [
+          "infra/controlplane/job_registry.py",
+          "tools/diagnostics/verify_webui_actions.py",
+          "infra/webui/gpt_client.py",
+          "infra/webui/server.py",
+          "infra/webui/server_archives.py",
+          "infra/webui/server_branch_planning.py",
+          "infra/webui/server_builder.py",
+          "infra/webui/server_http_core.py",
+          "infra/webui/server_routes_and_main.py"
+        ],
+        "type": "file"
+      },
+      "symbols": [
+        "uuid.uuid4"
+      ]
+    },
+    {
+      "id": "ALW_RNG_GUARD_GETATTR_TEMP",
+      "justification": "rng_guard uses getattr for defensive probing; allowlisted until replaced with explicit attribute access in P0-B.",
+      "removal_phase": "P0-B",
+      "reviewer": "P0-A",
+      "scope": {
+        "paths": [
+          "engine/simulation/control_plane_pkg/rng_guard.py"
+        ],
+        "type": "file"
+      },
+      "symbols": [
+        "getattr"
+      ]
+    },
+    {
+      "id": "ALW_EXPERIMENTS_RANDOM_CHOICE_TEMP",
+      "justification": "Experiment harness uses random.choice for temp IDs; migrate to deterministic IDs in P0-B.",
+      "removal_phase": "P0-B",
+      "reviewer": "P0-A",
+      "scope": {
+        "paths": [
+          "experiments/harness/run_experiments.py"
+        ],
+        "type": "file"
+      },
+      "symbols": [
+        "random.choice"
+      ]
+    }
+  ],
+  "schema_version": "determinism_allowlist_v1"
+}

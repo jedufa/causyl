@@ -1,0 +1,28 @@
+{
+  "schema_version": "multi_step_action_composition_v1",
+  "required_fields": [
+    "composition_id",
+    "resume_law",
+    "schema_version",
+    "stage_contract",
+    "transition_law",
+    "truth_boundary_notes"
+  ],
+  "allowed_stage_kinds": [
+    "deterministic_attempt",
+    "deterministic_recovery",
+    "codex_fallback",
+    "validation",
+    "learning"
+  ],
+  "allowed_transition_kinds": [
+    "sequence",
+    "branch",
+    "bounded_retry"
+  ],
+  "non_goals": [
+    "scheduler_replacement",
+    "domain_general_planner"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

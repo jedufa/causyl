@@ -1,0 +1,9 @@
+semantic:
+  enable_semantic_retrieval: true
+  semantic_mode: retrieve_and_rank
+  semantic_provider: ollama
+  semantic_model_name: all-minilm
+  semantic_fail_open: true
+  semantic_mode_other1: retrieve_and_rank
+  semantic_mode_other2: none
+  semantic_mode_other3: rank_only

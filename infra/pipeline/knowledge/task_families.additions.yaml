@@ -1,0 +1,151 @@
+version: 1
+phase: 1
+notes: Additive task family extensions derived from repository/domain analysis. Merge
+  into canonical task_families.yaml under families.
+families:
+  lab_assistant_delegation:
+    triggers:
+    - typed delegation
+    - delegation policy
+    - delegation binding
+    - delegation request
+    - delegation result
+    - subsystem correlation
+    - correlation record
+    - routing policy
+    - host boundary
+    - delegation status
+  governance_ledger_durability:
+    triggers:
+    - governance ledger
+    - ledger storage
+    - ledger manager
+    - ledger action
+    - artifact linkage
+    - commit journal
+    - commit traceability
+    - governance event
+    - status history
+    - append-safe history
+  agent_orchestration_runtime:
+    triggers:
+    - projflow
+    - agent orchestrator
+    - agent orchestration
+    - runner state
+    - swarm coordination
+    - job lineage
+    - flow state
+    - orchestrator restart
+    - agent runtime
+    - job state owner
+  host_execution_boundary:
+    triggers:
+    - host verification
+    - verification contract
+    - native app boundary
+    - webui boundary
+    - mobile boundary
+    - device install
+    - host action
+    - boundary contract
+    - native/web boundary
+    - verification runner
+  pipeline_internal_modification:
+    triggers:
+    - pipeline internals
+    - pipeline stage
+    - search plan
+    - repo retriever
+    - context ranker
+    - context bundle
+    - patch plan
+    - planning.py
+    - retrieval scoring
+    - bundle selection
+  knowledge_and_retrieval_policy:
+    triggers:
+    - knowledge asset
+    - retrieval bias
+    - role assignment
+    - task family
+    - subsystem map
+    - negative targets
+    - passive relevance
+    - responsibility terms
+    - knowledge yaml
+    - loader-facing policy
+  scheduler_or_control_plane:
+    triggers:
+    - scheduler
+    - scheduled job
+    - watchdog
+    - healer
+    - pause
+    - resume
+    - runtime policy
+    - enable scheduled jobs
+    - disable scheduled jobs
+    - control plane
+  ui_local_changes:
+    triggers:
+    - button
+    - page
+    - panel
+    - menu
+    - layout
+    - label
+    - mobile
+    - web ui
+    - ui shell
+    - frontend
+  audit_and_integrity:
+    triggers:
+    - audit
+    - integrity
+    - ledger
+    - evidence
+    - append-only
+    - truth ownership
+    - commit journal
+    - tamper
+    - unauthorized create
+    - forensic
+  operator_review_and_repair:
+    triggers:
+    - review artifact
+    - operator decision
+    - approve
+    - reject
+    - rerun
+    - repair
+    - revision request
+    - retry lineage
+    - review flow
+    - decision writeback
+  experiment_or_run_validation:
+    triggers:
+    - benchmark
+    - compare runs
+    - host verification
+    - divergence
+    - run validation
+    - proof
+    - measurement
+    - regression suite
+    - validation harness
+    - verification runner
+  assistant_truth_and_identity:
+    triggers:
+    - assistant identity
+    - source of truth
+    - runtime state
+    - ledger truth
+    - transcript precedence
+    - append-only event log
+    - state snapshot
+    - write arbitration
+    - blocked state
+    - recovery-required
+    - schema version
+    - replayable mutation trail

@@ -1,0 +1,57 @@
+{
+  "schema_version": "fanout_child_contract_v1",
+  "uid": "PIS-20260409-082101Z-B2G2",
+  "contract_family": "fanout_child_execution_contract",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_fanout_child_execution_v1.md",
+  "context_resolution_rule": "bundle_plus_delta_minus_forbidden",
+  "work_order_required_fields": [
+    "schema_version",
+    "work_order_id",
+    "parent_uid",
+    "child_uid",
+    "child_role",
+    "scope_fence",
+    "ownership_fence",
+    "required_context_bundle",
+    "additional_context_refs",
+    "forbidden_context_refs",
+    "expected_evidence",
+    "next_decision"
+  ],
+  "return_packet_required_fields": [
+    "schema_version",
+    "packet_id",
+    "work_order_id",
+    "parent_uid",
+    "child_uid",
+    "status",
+    "summary",
+    "scope_fence",
+    "ownership_fence",
+    "evidence_summary",
+    "changed_files",
+    "caveats",
+    "unresolved_questions",
+    "next_decision"
+  ],
+  "fail_closed_rules": [
+    "missing_scope_fence_rejected",
+    "missing_evidence_summary_rejected",
+    "contradictory_child_status_rejected",
+    "undeclared_file_ownership_rejected",
+    "forbidden_parent_claim_rejected",
+    "forbidden_bundle_ref_rejected"
+  ],
+  "forbidden_parent_claims": [
+    "integrator_owner",
+    "integration_disposition",
+    "final_verdict",
+    "operator_summary_state",
+    "child_roster",
+    "fanout_stage"
+  ]
+}

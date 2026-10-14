@@ -1,0 +1,90 @@
+{
+  "schema_version": "campaign_phase_gate_contract_v1",
+  "uid": "PIS-20260409-121601Z-K9N3",
+  "contract_family": "campaign_phase_gate_and_handoff",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_campaign_phase_gate_v1.md",
+  "top_level_required_fields": [
+    "schema_version",
+    "campaign_id",
+    "phase_id",
+    "decision_id",
+    "verdict",
+    "evidence_refs",
+    "caveats",
+    "proof_gaps",
+    "downstream_unlock",
+    "handoff"
+  ],
+  "downstream_unlock_required_fields": [
+    "policy",
+    "allowed",
+    "unlocked_phase_ids"
+  ],
+  "handoff_required_fields": [
+    "summary",
+    "evidence_refs",
+    "caveats",
+    "proof_gaps",
+    "next_decision"
+  ],
+  "next_decision_required_fields": [
+    "decision_owner",
+    "question",
+    "recommended_action"
+  ],
+  "gate_verdicts": [
+    "ready",
+    "partial_ready",
+    "blocked",
+    "waiting_review",
+    "terminal_success",
+    "terminal_failed",
+    "terminal_cancelled"
+  ],
+  "unlock_policies": [
+    "none",
+    "full_ready",
+    "allowed_with_caveats",
+    "review_required"
+  ],
+  "recommended_actions": [
+    "launch_downstream",
+    "await_review",
+    "repair",
+    "stop",
+    "close_phase"
+  ],
+  "fail_closed_rules": [
+    "missing_handoff_evidence_rejected",
+    "partial_ready_without_caveats_rejected",
+    "under_evidenced_ready_rejected",
+    "blocked_or_review_state_cannot_unlock_downstream",
+    "contradictory_unlock_policy_rejected",
+    "missing_or_stale_evidence_pack_ref_rejected"
+  ],
+  "phase_gate_law": {
+    "ready": "Only explicit fully supported evidence may claim ready. Any remaining proof gap must demote the phase to blocked or waiting_review.",
+    "partial_ready": "Partial readiness is legal only with durable caveats and a declared unlock policy that either keeps the phase in review or unlocks specific downstream phases with caveats attached.",
+    "blocked": "Blocked means downstream unlock is forbidden until evidence or policy changes.",
+    "waiting_review": "Waiting review means the phase is not auto-promotable and must remain operator-visible until reviewed.",
+    "terminal_outcomes": "terminal_success, terminal_failed, and terminal_cancelled close the phase without advertising downstream unlock."
+  },
+  "handoff_requirements": {
+    "evidence_refs": "Every unlocking handoff must carry durable evidence refs.",
+    "caveats": "Partial-ready unlocks must keep caveats durable and operator-visible.",
+    "proof_gaps": "Proof gaps may travel through handoff only when the verdict is not full ready.",
+    "next_decision": "Every handoff names the next decision owner, the open question, and the recommended action.",
+    "evidence_pack_refs": "Handoffs may carry compact evidence-pack refs by pack ID, artifact path, fingerprint, and summary; linked pack storage remains authoritative."
+  },
+  "anti_patterns": [
+    "transcript_summary_as_gate_truth",
+    "partial_ready_without_durable_caveats",
+    "ready_with_known_proof_gap",
+    "blocked_or_waiting_review_states_unlocking_downstream",
+    "unlock_claim_without_handoff_evidence"
+  ]
+}

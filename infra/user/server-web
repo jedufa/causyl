@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# infra/user/server-web
+# Description: Control the public web/mobile/admin surface gate used by the plane.
+
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/../.." && pwd)"
+runtime_dir="${repo_root}/runtime/state/webui"
+control_file="${runtime_dir}/web_surface_control.env"
+
+mkdir -p "${runtime_dir}"
+
+web_enabled=1
+if [[ -f "${control_file}" ]]; then
+  # shellcheck disable=SC1090
+  source "${control_file}"
+  web_enabled="${EIEL_WEB_SURFACE_ENABLED:-1}"
+fi
+
+write_state() {
+  local value="$1"
+  cat > "${control_file}" <<EOF
+export EIEL_WEB_SURFACE_ENABLED=${value}
+EOF
+  echo "[server-web] web_surface_enabled=${value}"
+  echo "[server-web] web_surface_control_file=${control_file}"
+}
+
+status() {
+  echo "[server-web] web_surface_enabled=${web_enabled}"
+  echo "[server-web] web_surface_control_file=${control_file}"
+}
+
+usage() {
+  cat <<'EOF'
+Usage: bash infra/user/server-web <command>
+
+Commands:
+  status   Show current web surface state
+  on       Enable the web/mobile/admin surface
+  off      Disable the web/mobile/admin surface
+EOF
+}
+
+cmd="${1:-status}"
+case "${cmd}" in
+  status)
+    status
+    ;;
+  on)
+    write_state 1
+    ;;
+  off)
+    write_state 0
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    echo "[server-web] unknown command: ${cmd}" >&2
+    usage >&2
+    exit 2
+    ;;
+esac

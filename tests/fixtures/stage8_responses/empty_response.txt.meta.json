@@ -1,0 +1,8 @@
+{
+  "expected_primary_stage8_behavior": "reject",
+  "fixture_name": "empty_response.txt",
+  "format_family": "empty",
+  "notes": "Reality-shaped non-live fixture.",
+  "provenance_type": "synthetic_negative_case",
+  "source_reference": "baseline-260 stage8 non-live harness"
+}

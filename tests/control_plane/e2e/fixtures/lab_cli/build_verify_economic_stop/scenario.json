@@ -1,0 +1,38 @@
+{
+  "name": "build_verify_economic_stop",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": false,
+  "prompt_variants": [
+    "why is build verification failing",
+    "try again and stop if it is pointless"
+  ],
+  "artifact_inputs": {
+    "iterations_file": "artifacts/iterations.json"
+  },
+  "payload": {
+    "cli_args": [
+      "--iterations-file",
+      "{iterations_file}"
+    ]
+  },
+  "expected_terminal_status": "economic_stop_no_new_signal",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "action_id": "build_verify_loop_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "build_verify_loop_v1",
+    "authority_class": "read_only"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

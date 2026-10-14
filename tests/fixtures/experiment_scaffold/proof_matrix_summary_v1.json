@@ -1,0 +1,167 @@
+{
+  "created_written_paths": [
+    "experiments/projects/demo/README.md",
+    "experiments/projects/demo/_runner/README.md",
+    "experiments/projects/demo/_runner/run_experiment.py",
+    "experiments/projects/demo/_runner/experiment_contract.json",
+    "experiments/projects/demo/_runner/project_runner_manifest.json",
+    "experiments/projects/demo/_config/README.md",
+    "experiments/projects/demo/_config/profiles/starter.json",
+    "experiments/projects/demo/_spec/README.md",
+    "experiments/projects/demo/_spec/registry/v1/starter.yaml",
+    "experiments/projects/demo/_docs/operator_notes.md",
+    "experiments/projects/demo/analysis/README.md",
+    "experiments/projects/demo/analysis/summary_report.md",
+    "experiments/projects/demo/_artifacts/README.md",
+    "experiments/projects/demo/_artifacts/data_root_policy.json",
+    "experiments/projects/demo/_lifecycle/README.md",
+    "experiments/projects/demo/_lifecycle/run_record.placeholder.json",
+    "experiments/projects/demo/_lifecycle/run_record.interventions.placeholder.jsonl",
+    "experiments/projects/demo/_lifecycle/resume_from.placeholder.json",
+    "experiments/projects/demo/_lifecycle/checkpoint_bundles_v2/README.md",
+    "experiments/projects/demo/_scaffold/scaffold_manifest.json"
+  ],
+  "dry_run_planned_paths": [
+    "experiments/projects/demo/README.md",
+    "experiments/projects/demo/_runner/README.md",
+    "experiments/projects/demo/_runner/run_experiment.py",
+    "experiments/projects/demo/_runner/experiment_contract.json",
+    "experiments/projects/demo/_runner/project_runner_manifest.json",
+    "experiments/projects/demo/_config/README.md",
+    "experiments/projects/demo/_config/profiles/starter.json",
+    "experiments/projects/demo/_spec/README.md",
+    "experiments/projects/demo/_spec/registry/v1/starter.yaml",
+    "experiments/projects/demo/_docs/operator_notes.md",
+    "experiments/projects/demo/analysis/README.md",
+    "experiments/projects/demo/analysis/summary_report.md",
+    "experiments/projects/demo/_artifacts/README.md",
+    "experiments/projects/demo/_artifacts/data_root_policy.json",
+    "experiments/projects/demo/_lifecycle/README.md",
+    "experiments/projects/demo/_lifecycle/run_record.placeholder.json",
+    "experiments/projects/demo/_lifecycle/run_record.interventions.placeholder.jsonl",
+    "experiments/projects/demo/_lifecycle/resume_from.placeholder.json",
+    "experiments/projects/demo/_lifecycle/checkpoint_bundles_v2/README.md",
+    "experiments/projects/demo/_scaffold/scaffold_manifest.json"
+  ],
+  "manifest_summary": {
+    "discovery_registry_path": "experiments/registry/scaffolded_experiments.json",
+    "lifecycle_seams": [
+      {
+        "note": "Per-run canonical run records land later in wrapper directories; this scaffold file is a naming/ownership marker only.",
+        "placeholder_path": "experiments/projects/demo/_lifecycle/run_record.placeholder.json",
+        "runtime_filename": "run_record.json",
+        "seam_id": "run_record",
+        "source_of_truth_contract": "docs/20_contracts/experiments/Contract_Experiment_Run_Lifecycle_Truth_V1.html",
+        "status": "reserved_placeholder"
+      },
+      {
+        "note": "Intervention history stays append-only when later lifecycle adoption replaces this placeholder pack.",
+        "placeholder_path": "experiments/projects/demo/_lifecycle/run_record.interventions.placeholder.jsonl",
+        "runtime_filename": "run_record.interventions.jsonl",
+        "seam_id": "interventions",
+        "source_of_truth_contract": "docs/20_contracts/experiments/Contract_Experiment_Run_Lifecycle_Truth_V1.html",
+        "status": "reserved_placeholder"
+      },
+      {
+        "note": "Checkpoint lineage and resume pointers remain deferred to the lifecycle-truth family; the scaffold only reserves the seam.",
+        "placeholder_path": "experiments/projects/demo/_lifecycle/resume_from.placeholder.json",
+        "runtime_filename": "resume_from.json",
+        "seam_id": "checkpoint_resume",
+        "source_of_truth_contract": "docs/20_contracts/experiments/Contract_Experiment_Run_Lifecycle_Truth_V1.html",
+        "status": "reserved_placeholder"
+      },
+      {
+        "note": "The scaffold reserves the checkpoint bundle root name without generating live checkpoint payloads.",
+        "placeholder_path": "experiments/projects/demo/_lifecycle/checkpoint_bundles_v2/README.md",
+        "runtime_filename": "checkpoint_bundles_v2",
+        "seam_id": "checkpoint_bundle_root",
+        "source_of_truth_contract": "docs/20_contracts/experiments/Contract_Experiment_Run_Lifecycle_Truth_V1.html",
+        "status": "reserved_placeholder"
+      }
+    ],
+    "placeholder_paths": [
+      "experiments/projects/demo/_runner/run_experiment.py",
+      "experiments/projects/demo/_runner/experiment_contract.json",
+      "experiments/projects/demo/_runner/project_runner_manifest.json",
+      "experiments/projects/demo/_config/profiles/starter.json",
+      "experiments/projects/demo/_spec/registry/v1/starter.yaml",
+      "experiments/projects/demo/analysis/README.md",
+      "experiments/projects/demo/analysis/summary_report.md",
+      "experiments/projects/demo/_lifecycle/run_record.placeholder.json",
+      "experiments/projects/demo/_lifecycle/run_record.interventions.placeholder.jsonl",
+      "experiments/projects/demo/_lifecycle/resume_from.placeholder.json",
+      "experiments/projects/demo/_lifecycle/checkpoint_bundles_v2/README.md"
+    ],
+    "placeholder_rule_ids": [
+      "launch_placeholder",
+      "registry_placeholder",
+      "resource_placeholder",
+      "analysis_placeholder",
+      "context_bundle_confirmation",
+      "artifact_boundary_confirmation",
+      "profile_placeholder",
+      "lifecycle_run_record_placeholder",
+      "lifecycle_checkpoint_placeholder",
+      "lifecycle_intervention_placeholder"
+    ],
+    "reserved_paths": [
+      {
+        "ownership": "downstream_runtime_owned",
+        "path": "experiments/projects/demo/_artifacts/proofs",
+        "purpose": "runtime proofs and placeholder-run status outputs"
+      },
+      {
+        "ownership": "downstream_runtime_owned",
+        "path": "experiments/projects/demo/_artifacts/reports",
+        "purpose": "operator-readable reports generated by later experiment workflows"
+      },
+      {
+        "ownership": "downstream_runtime_owned",
+        "path": "~/causyl_experiment_data/demo",
+        "purpose": "external heavy-data root reserved outside the git tree"
+      }
+    ],
+    "scaffold_version": "experiment_scaffold_v2",
+    "schema_version": "experiment_scaffold_manifest_v1"
+  },
+  "registration_action": "create",
+  "registration_status": "registered",
+  "registry_record": {
+    "artifact_boundary": {
+      "external_data_root": "~/causyl_experiment_data/demo",
+      "policy_path": "experiments/projects/demo/_artifacts/data_root_policy.json",
+      "repo_tracked_placeholders": [
+        "experiments/projects/demo/_artifacts/README.md",
+        "experiments/projects/demo/_artifacts/data_root_policy.json",
+        "experiments/projects/demo/analysis/summary_report.md"
+      ],
+      "reserved_runtime_roots": [
+        "experiments/projects/demo/_artifacts/proofs",
+        "experiments/projects/demo/_artifacts/reports"
+      ],
+      "schema_version": "scaffold_experiment_registry_artifact_boundary_v1"
+    },
+    "compatibility_metadata": {
+      "contract_anchors": {
+        "canonical_contract_path": "experiments/projects/demo/_runner/experiment_contract.json",
+        "layout_contract_path": "docs/20_contracts/experiments/Contract_Experiment_Scaffold_Layout_V1.html",
+        "run_lifecycle_contract_path": "docs/20_contracts/experiments/Contract_Experiment_Run_Lifecycle_Truth_V1.html",
+        "scaffold_manifest_path": "experiments/projects/demo/_scaffold/scaffold_manifest.json"
+      },
+      "discovery_status": "registered",
+      "scaffold_version": "experiment_scaffold_v2",
+      "schema_version": "scaffold_experiment_registry_compatibility_v1",
+      "upgrade_readiness": "unknown"
+    },
+    "project_id": "demo",
+    "required_context_bundle": "lab_core_v1",
+    "scaffold_version": "experiment_scaffold_v2"
+  },
+  "seam_semantic_truth": {
+    "canonical_contract": "experiments/projects/demo/_runner/experiment_contract.json",
+    "compatibility_only_surface": "experiments/projects/demo/_runner/project_runner_manifest.json",
+    "discovery_registry": "experiments/registry/scaffolded_experiments.json",
+    "lifecycle_placeholder_pack": "experiments/projects/demo/_lifecycle/README.md",
+    "structural_layout_manifest": "experiments/projects/demo/_scaffold/scaffold_manifest.json"
+  }
+}

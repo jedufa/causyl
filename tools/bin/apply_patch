@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+#===============================================================================
+# infra/bin/apply_patch
+#
+# Thin executable shell frontend for the governed patch applier.
+#
+# Goal:
+# - Keep the operator interface simple.
+# - Delegate all logic + safety checks to Python.
+#
+# Typical usage (from repo root):
+#   infra/bin/apply_patch                # defaults to --latest-downloads
+#   infra/bin/apply_patch --latest-downloads
+#   infra/bin/apply_patch --zip /path/to/patch.zip
+#   infra/bin/apply_patch /path/to/patch.zip   # shorthand for --zip
+#
+# This wrapper exists so you can keep typing a short, stable command.
+#===============================================================================
+
+set -euo pipefail
+
+# Ensure we run from repo root for predictable path resolution.
+if git rev-parse --show-toplevel >/dev/null 2>&1; then
+  repo_root="$(git rev-parse --show-toplevel)"
+  cd "$repo_root"
+fi
+
+# Convenience default:
+# If operator runs `infra/bin/apply_patch` with no args, assume they mean
+# "apply the latest patch zip from Downloads".
+#
+# Also accept a bare zip path as shorthand for: --zip <path>
+if [[ $# -eq 0 ]]; then
+  set -- --latest-downloads
+elif [[ $# -eq 1 && "$1" != "-"* && -f "$1" && "$1" == *.zip ]]; then
+  set -- --zip "$1"
+fi
+
+exec python -m tools.patching.apply_patch "$@"

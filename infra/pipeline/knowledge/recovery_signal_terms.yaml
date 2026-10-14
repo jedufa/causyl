@@ -1,0 +1,144 @@
+version: 1
+phase: 0
+notes: Deterministic recovery signal catalog. Terms are high-precision recovery and reconciliation patterns that should bias retrieval toward code safely reclaiming ownership, converging state, or replaying work without duplicating side effects.
+signals:
+- id: retry_mechanism
+  terms:
+  - retry_after_retryable_failure_classification
+  - bounded_backoff_with_max_attempts
+  - retry_only_before_terminal_commit
+  - respect_retry_after_hint
+  - retry_guarded_by_idempotency_receipt
+- id: rollback_action
+  terms:
+  - rollback_uncommitted_state_change
+  - revert_claim_owner_on_abort
+  - undo_partial_resource_reservation
+  - abort_transaction_before_visibility
+  - restore_previous_generation_pointer
+- id: cleanup_logic
+  terms:
+  - cleanup_orphaned_claim_after_timeout
+  - purge_partial_artifacts_after_abort
+  - release_resources_in_finally_path
+  - delete_stale_temp_after_repair
+  - cleanup_failed_dispatch_envelope
+- id: fallback_strategy
+  terms:
+  - fallback_to_read_only_path_on_write_failure
+  - use_secondary_queue_after_primary_outage
+  - default_to_safe_suppression_when_unknown
+  - fallback_to_manual_review_queue
+  - degrade_to_non_mutating_observation_mode
+- id: circuit_breaker
+  terms:
+  - open_circuit_after_repeated_mutation_failures
+  - half_open_probe_before_resuming_writes
+  - trip_breaker_on_dependency_outage
+  - suppress_retry_when_circuit_open
+  - close_breaker_after_stable_recovery
+- id: dead_letter
+  terms:
+  - route_poison_message_to_dead_letter_queue
+  - park_unrecoverable_dispatch_record
+  - quarantine_invalid_retry_payload
+  - mark_dead_letter_reason_durably
+  - drain_parking_lot_after_manual_review
+- id: reconciliation
+  terms:
+  - reconcile_runtime_and_persisted_truth
+  - repair_missing_terminal_receipt
+  - compare_claim_store_vs_event_ledger
+  - heal_duplicate_active_run_records
+  - rebuild_state_from_authoritative_log
+- id: timeout_handling
+  terms:
+  - mark_execution_timed_out_after_deadline
+  - cancel_work_after_lease_expiry
+  - timeout_recovery_reclaims_stale_owner
+  - abort_retry_when_deadline_elapsed
+  - emit_timeout_recovery_reason
+- id: compensation
+  terms:
+  - compensate_external_side_effect_after_commit_gap
+  - issue_reverse_mutation_when_followup_fails
+  - write_compensation_receipt_before_retry
+  - schedule_compensation_worker_after_partial_success
+  - guard_compensation_by_lineage_identity
+- id: heartbeat_monitor
+  terms:
+  - detect_missing_worker_heartbeat
+  - expire_owner_after_heartbeat_gap
+  - renew_lease_during_long_running_step
+  - record_last_heartbeat_timestamp
+  - recover_run_after_heartbeat_timeout
+- id: zombie_cleanup
+  terms:
+  - detect_zombie_worker_without_claim
+  - terminate_stuck_execution_without_progress
+  - reap_abandoned_runtime_process
+  - cleanup_zombie_claim_record
+  - suppress_duplicate_recovery_for_same_zombie
+- id: snapshot_restore
+  terms:
+  - restore_checkpoint_after_safe_abort
+  - recover_state_from_last_durable_snapshot
+  - validate_snapshot_generation_before_restore
+  - reject_restore_from_stale_snapshot
+  - record_restore_source_receipt
+- id: error_mapping
+  terms:
+  - map_exception_to_recovery_policy
+  - classify_transient_vs_terminal_failure
+  - route_conflict_error_to_retry_guard
+  - convert_unknown_write_error_to_manual_review
+  - preserve_failure_family_in_recovery_record
+- id: idempotent_guard
+  terms:
+  - skip_recovery_if_receipt_already_committed
+  - check_idempotency_key_before_retry
+  - suppress_duplicate_reconciliation_effect
+  - reuse_existing_terminal_receipt
+  - guard_repair_by_previous_attempt_fingerprint
+- id: notification_on_fail
+  terms:
+  - notify_operator_on_recovery_exhausted
+  - emit_alert_after_dead_letter_route
+  - record_manual_intervention_required
+  - send_failure_summary_after_safe_abort
+  - page_oncall_for_repeated_recovery_failure
+- id: graceful_degradation
+  terms:
+  - continue_read_only_health_reporting_during_outage
+  - suppress_new_dispatch_while_dependency_unhealthy
+  - serve_cached_status_when_write_path_down
+  - defer_noncritical_mutations_under_failure
+  - keep_audit_logging_when_core_mutation_disabled
+- id: manual_intervention
+  terms:
+  - queue_manual_repair_after_recovery_exhaustion
+  - require_operator_reason_for_forced_resume
+  - record_handoff_to_human_reviewer
+  - pause_automatic_retries_pending_manual_decision
+  - surface_recovery_playbook_reference
+- id: resource_reallocation
+  terms:
+  - reassign_stale_claim_to_new_worker
+  - move_dead_partition_work_to_healthy_node
+  - rebalance_recovery_queue_after_outage
+  - transfer_lease_after_owner_timeout
+  - reallocate_repair_budget_after_partial_failures
+- id: log_recovery_event
+  terms:
+  - append_recovery_decision_event
+  - record_retry_attempt_outcome
+  - persist_reconciliation_delta
+  - emit_stale_claim_reclamation_log
+  - store_manual_repair_resolution
+- id: exception_safety
+  terms:
+  - catch_and_classify_recovery_exception
+  - ensure_cleanup_runs_on_recovery_error
+  - fail_closed_when_recovery_policy_unknown
+  - preserve_original_failure_context_on_rethrow
+  - avoid_masking_commit_gap_exception

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/next-jobs
+# Description: Show the next scheduled-pipeline jobs and their statuses.
+# Example: bash infra/user/next-jobs --limit 5
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/next_pipeline_jobs.py "$@"

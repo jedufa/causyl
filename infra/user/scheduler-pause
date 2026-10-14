@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-pause
+# Description: Pause the scheduler pipeline safely.
+# Example: bash infra/user/scheduler-pause
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash infra/bin/pause_scheduler_pipeline.sh "$@"

@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# infra/user/scheduler
+# Description: Interactive launcher for scheduler helpers living under infra/user/scheduler-*.
+# Example: infra/user/scheduler
+# Compatibility wrapper: this launcher is a convenience surface only.
+# Canonical operator truth lives in the lab assistant web plane surface.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
+echo "Compatibility wrapper only. Canonical operator state lives in /api/admin/lab_assistant/snapshot." >&2
+
+on_interrupt() {
+  printf '\nCanceled.\n' >&2
+  exit 130
+}
+
+trap on_interrupt INT
+
+shopt -s nullglob
+helpers=(infra/user/scheduler-*)
+shopt -u nullglob
+if [[ ${#helpers[@]} -eq 0 ]]; then
+  echo "No scheduler helpers found under infra/user/scheduler-*." >&2
+  exit 1
+fi
+
+describe() {
+  local script="$1"
+  local line
+  line="$(grep -m1 '^# Description:' "$script" 2>/dev/null || true)"
+  if [[ -z "$line" ]]; then
+    echo "No description available"
+  else
+    echo "${line#*: }"
+  fi
+}
+
+while true; do
+  echo
+  echo "Scheduler helpers:"
+  for idx in "${!helpers[@]}"; do
+    script="${helpers[$idx]}"
+    name="$(basename "$script")"
+    echo "  $((idx + 1)). ${name} - $(describe "$script")"
+  done
+  echo "  q. Quit"
+  read -rp "Choice> " choice
+  if [[ "$choice" =~ ^[Qq]$ ]]; then
+    exit 0
+  fi
+  if [[ "$choice" =~ ^[0-9]+$ ]]; then
+    idx=$((choice - 1))
+    if ((idx < 0 || idx >= ${#helpers[@]})); then
+      echo "Select a number between 1 and ${#helpers[@]}."
+      continue
+    fi
+  else
+    idx=-1
+    for i in "${!helpers[@]}"; do
+      script="$(basename "${helpers[$i]}")"
+      short="${script#scheduler-}"
+      if [[ "$choice" == "$script" || "$choice" == "$short" ]]; then
+        idx=$i
+        break
+      fi
+    done
+    if ((idx < 0)); then
+      echo "Enter a number, helper name, or q to quit."
+      continue
+    fi
+  fi
+  target="${helpers[$idx]}"
+  echo
+  echo "Running $(basename "$target")..."
+  set +e
+  bash "$target"
+  status=$?
+  set -e
+  if [[ "$status" == "130" ]]; then
+    printf '\nCanceled.\n' >&2
+    exit 130
+  fi
+  if [[ "$status" != "0" ]]; then
+    exit "$status"
+  fi
+  echo "Done $(basename "$target")."
+  read -rp "Press Enter to continue or q to quit: " next
+  if [[ "$next" =~ ^[Qq]$ ]]; then
+    exit 0
+  fi
+done

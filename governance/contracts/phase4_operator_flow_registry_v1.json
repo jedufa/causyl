@@ -1,0 +1,18 @@
+{
+  "schema_version": "phase4_operator_flow_registry_v1",
+  "flows": [
+    {
+      "flow_id": "repeated_patch_fallback_to_approved_upgrade_v1",
+      "steps": [
+        "cluster_output",
+        "candidate_output",
+        "economic_decision_output",
+        "upgrade_pipeline_output",
+        "guardrail_output"
+      ],
+      "proposal_only": true,
+      "automatic_rewrite_allowed": false
+    }
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

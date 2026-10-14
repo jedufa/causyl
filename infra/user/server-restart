@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# infra/user/server-restart
+# Description: Safely restart the WebUI server by draining active work, stopping the service, optionally waiting, and restarting with scheduler helpers.
+# Example: bash infra/user/server-restart --cooldown=45 --stop-arg=--drain-timeout=7200 -- --foreground
+
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "${repo_root}"
+
+cooldown_s=5
+stop_args=()
+start_args=(--replace-running)
+
+usage() {
+  cat <<'EOF'
+Usage: infra/user/server_restart [options] [-- <extra server-start args>]
+
+Safely restarts the web server by:
+1) waiting for active scheduled jobs to drain via infra/user/server-stop
+2) stopping the server
+3) waiting 5 seconds (default)
+4) starting the server again via infra/user/server-start
+
+Options:
+  --cooldown=<seconds>   Cooldown between stop and start (default: 5)
+  --no-replace-running   Do not pass --replace-running to server-start
+  --stop-arg=<arg>       Forward one argument to server-stop (repeatable)
+  -h, --help             Show this help
+
+Examples:
+  infra/user/server_restart
+  infra/user/server_restart --cooldown=45
+  infra/user/server_restart --stop-arg=--drain-timeout=7200 -- --foreground
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --cooldown=*)
+      cooldown_s="${1#*=}"
+      shift
+      ;;
+    --no-replace-running)
+      start_args=()
+      shift
+      ;;
+    --stop-arg=*)
+      stop_args+=("${1#*=}")
+      shift
+      ;;
+    --)
+      shift
+      while [[ $# -gt 0 ]]; do
+        start_args+=("$1")
+        shift
+      done
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "[server_restart] unknown argument: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+  esac
+done
+
+if ! [[ "${cooldown_s}" =~ ^[0-9]+$ ]]; then
+  echo "[server_restart] --cooldown must be a non-negative integer" >&2
+  exit 2
+fi
+
+echo "[server_restart] stopping server (waits for active scheduled jobs to drain)"
+infra/user/server-stop "${stop_args[@]}"
+
+if (( cooldown_s > 0 )); then
+  echo "[server_restart] cooldown ${cooldown_s}s"
+  sleep "${cooldown_s}"
+fi
+
+echo "[server_restart] starting server"
+infra/user/server-start "${start_args[@]}"
+echo "[server_restart] done"

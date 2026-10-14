@@ -1,0 +1,104 @@
+{
+  "schema_version": "job_shape_context_contract_v1",
+  "uid": "PIS-20260406-053812Z-733A",
+  "contract_family": "job_shape_context_obligations",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_shape_contract_rel": "governance/canonical_job_shape_contract_v1.json",
+  "bundle_registry_doc_rel": "docs/90_archive/markdown_source/persistent_files_chatgpt/lab_context_bundles.md",
+  "canonical_doc_rel": "docs/contracts/contract_job_shape_context_bundle_policy_v1.md",
+  "delta_ref_kind_definitions": {
+    "binding_context_ref": "A durable context ref attached from the bound work item or scheduler binding.",
+    "task_context_ref": "A task-specific durable ref attached for the current objective.",
+    "verification_target_ref": "A durable ref naming the exact code, test, or proof target under repair.",
+    "child_contract_ref": "A durable ref for child launch contracts or fanout child definitions.",
+    "experiment_contract_ref": "A durable ref to the experiment contract or compatible run contract.",
+    "run_input_ref": "A durable ref naming run-specific registries, profiles, or operator-approved inputs."
+  },
+  "shapes": {
+    "verification_loop_job": {
+      "required_context_bundle": "lab_core_v1",
+      "additional_context_refs_allowed": true,
+      "allowed_durable_delta_ref_kinds": [
+        "binding_context_ref",
+        "task_context_ref",
+        "verification_target_ref"
+      ],
+      "forbidden_context_refs": [
+        "full_repo_dump",
+        "legacy_transcript_blob"
+      ],
+      "forbidden_context_ref_prefixes": [
+        "governance/agents/sessions/"
+      ],
+      "transcript_summary_policy": "ignored_for_context_resolution",
+      "reentry_precedence": "durable_contract_then_durable_delta_then_transcript_summary"
+    },
+    "fanout_job": {
+      "required_context_bundle": "lab_arch_gov_v1",
+      "additional_context_refs_allowed": true,
+      "allowed_durable_delta_ref_kinds": [
+        "binding_context_ref",
+        "task_context_ref",
+        "child_contract_ref"
+      ],
+      "forbidden_context_refs": [
+        "full_repo_dump",
+        "legacy_transcript_blob"
+      ],
+      "forbidden_context_ref_prefixes": [
+        "governance/agents/sessions/"
+      ],
+      "transcript_summary_policy": "ignored_for_context_resolution",
+      "reentry_precedence": "durable_contract_then_durable_delta_then_transcript_summary"
+    },
+    "campaign_job": {
+      "required_context_bundle": "lab_arch_gov_v1",
+      "additional_context_refs_allowed": false,
+      "allowed_durable_delta_ref_kinds": [],
+      "forbidden_context_refs": [
+        "full_repo_dump",
+        "legacy_transcript_blob"
+      ],
+      "forbidden_context_ref_prefixes": [
+        "governance/agents/sessions/"
+      ],
+      "transcript_summary_policy": "ignored_for_context_resolution",
+      "reentry_precedence": "durable_contract_then_durable_delta_then_transcript_summary"
+    },
+    "experiment_run_job": {
+      "required_context_bundle": "lab_core_v1",
+      "additional_context_refs_allowed": true,
+      "allowed_durable_delta_ref_kinds": [
+        "binding_context_ref",
+        "experiment_contract_ref",
+        "run_input_ref"
+      ],
+      "forbidden_context_refs": [
+        "full_repo_dump",
+        "legacy_transcript_blob"
+      ],
+      "forbidden_context_ref_prefixes": [
+        "governance/agents/sessions/"
+      ],
+      "transcript_summary_policy": "ignored_for_context_resolution",
+      "reentry_precedence": "durable_contract_then_durable_delta_then_transcript_summary"
+    },
+    "delegation_tree_job": {
+      "required_context_bundle": "lab_arch_gov_v1",
+      "additional_context_refs_allowed": false,
+      "allowed_durable_delta_ref_kinds": [],
+      "forbidden_context_refs": [
+        "full_repo_dump",
+        "legacy_transcript_blob"
+      ],
+      "forbidden_context_ref_prefixes": [
+        "governance/agents/sessions/"
+      ],
+      "transcript_summary_policy": "ignored_for_context_resolution",
+      "reentry_precedence": "durable_contract_then_durable_delta_then_transcript_summary"
+    }
+  }
+}

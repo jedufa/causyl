@@ -1,0 +1,70 @@
+version: 1
+phase: 2
+status: canonical_runtime_support_file
+notes: Registry for non-subsystem retrieval surfaces used by retrieval bias and task-profile rules. These are virtual retrieval buckets, not canonical ownership subsystems. Runtime that consumes retrieval bias should resolve canonical subsystem keys separately from these bucket names.
+buckets:
+- name: docs
+  description: Documentation, contracts, interface notes, and policy/reference surfaces that help interpret boundaries but are not primary mutation owners.
+  member_subsystems:
+  - verification_surfaces
+  - policy_assets
+  - route_surface
+  intent: include for boundary, contract, and design reasoning; exclude for owner-code mutation work unless explicitly requested.
+- name: reports
+  description: Derived summaries, report surfaces, and comparison outputs.
+  member_subsystems:
+  - reporting
+  - run_comparison
+  - operator_visible_state
+  intent: usually exclude when editing implementation owners; include when the task explicitly asks for benchmark or report behavior.
+- name: runtime
+  description: Broad live-runtime surfaces that are useful for incident context but too wide for narrow owner edits.
+  member_subsystems:
+  - worker_runtime
+  - runtime_state
+  - assistant_runtime_state
+  - retrieval_runtime
+  - agent_orchestration
+  - orchestration_engine
+  intent: exclude for narrow edits when a more local owner exists; include when the task is explicitly about live runtime coordination or state ownership.
+- name: snapshots
+  description: Checkpoint, snapshot, replay, and versioned-state surfaces.
+  member_subsystems:
+  - checkpoint_resume
+  - checkpoint_and_replay
+  - configuration_versioning
+  - state_registry
+  - serialization_replay
+  intent: exclude unless the task directly concerns replay, restore, checkpointing, or snapshot-derived state.
+- name: generated_artifacts
+  description: Generated or projected outputs rather than authoritative mutation owners.
+  member_subsystems:
+  - reporting
+  - writeback_projection
+  - chat_projection_only
+  - operator_visible_state
+  intent: exclude for code mutation unless the task explicitly targets projection or generated-output behavior.
+- name: tests
+  description: Test and validation harness surfaces.
+  member_subsystems:
+  - testing_framework
+  - validation_harnesses
+  - benchmark_harnesses
+  - run_comparison
+  intent: include when the task asks for failing tests, validation harnesses, benchmarks, or proof-oriented evidence.
+- name: temporary_outputs
+  description: Ephemeral outputs, scratch surfaces, and operator-visible projections that are not authoritative state.
+  member_subsystems:
+  - reporting
+  - operator_visible_state
+  - chat_projection_only
+  intent: usually exclude for durable fixes; include only when troubleshooting temp/projection output paths.
+- name: explicit_non_goal_surfaces
+  description: Broad or presentation-only surfaces that should be de-prioritized unless the prompt explicitly names them.
+  member_subsystems:
+  - broad_orchestration_hubs
+  - planner_hubs
+  - chat_projection_only
+  - ui_render_only
+  - route_surface
+  intent: exclude to keep retrieval narrow and owner-focused.

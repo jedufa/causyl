@@ -1,0 +1,56 @@
+{
+  "schema_version": "pis_improvement_entrypoint_contract_v1",
+  "uid": "PIS-20260412-062103Z-D4F6",
+  "canonical_doc_rel": "docs/contracts/contract_pis_improvement_entrypoints_v1.md",
+  "request_schema_version": "pis_improvement_entrypoint_request_v1",
+  "result_schema_version": "pis_improvement_entrypoint_result_v1",
+  "supported_actions": [
+    "list_recent",
+    "launch"
+  ],
+  "list_recent_optional_fields": [
+    "request_id",
+    "limit"
+  ],
+  "launch_required_fields": [
+    "request_id",
+    "source_pis_uid"
+  ],
+  "launch_optional_fields": [
+    "selected_candidate_uids",
+    "limit",
+    "session_id",
+    "title",
+    "policy_overrides",
+    "overwrite",
+    "rounds",
+    "final_recommendation"
+  ],
+  "result_required_fields": [
+    "schema_version",
+    "ok",
+    "action",
+    "request_id",
+    "status",
+    "blocked",
+    "error_code",
+    "operator_summary",
+    "source_pis",
+    "recent_candidates",
+    "selected_candidate_uids",
+    "session_id",
+    "runtime_state",
+    "recommendation",
+    "artifacts",
+    "artifact_refs"
+  ],
+  "fail_closed_rules": [
+    "schema_version_must_match_the_shared_entrypoint_contract",
+    "launch_requests_require_explicit_request_id_and_source_pis_uid",
+    "assistant_and_cli_surfaces_must_call_the_same_backend_request_handler",
+    "selected_candidate_uids_must_be_explicit_and_come_from_the_materialized_recent_pool",
+    "policy_overrides_must_be_structured_json_not_hidden_chat_state",
+    "responses_must_return_operator_summary_runtime_status_and_durable_artifact_refs",
+    "malformed_requests_or_unknown_actions_fail_closed_instead_of_falling_back"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "sched_v2_production_wiring_contract_v1",
+  "workflow_scope": "intent_family_v2_only",
+  "ownership_modes": [
+    "legacy",
+    "v2_shadow",
+    "v2_canary",
+    "v2_primary"
+  ],
+  "canonical_write_rules": {
+    "legacy": "legacy scheduler owns canonical state; v2 may not write canonical state",
+    "v2_shadow": "legacy scheduler owns canonical state; v2 writes isolated shadow artifacts only",
+    "v2_canary": "legacy scheduler owns canonical state except explicitly listed canary parents; v2 still writes isolated artifacts unless promoted",
+    "v2_primary": "v2 owns intent_family_v2 canonical execution; legacy becomes read-only fallback"
+  },
+  "internal_wiring": {
+    "public_ports": "no new public port for v2",
+    "api": "serve v2 status through the existing plane schedule API",
+    "watch": "watch reads the shared scheduler projection bundle; no independent status derivation",
+    "web": "web surfaces read the same projection bundle as watch",
+    "mobile": "mobile surfaces read the same projection bundle as watch",
+    "watchdog": "watchdog reads health and receipts; it must not directly mutate v2 scheduler truth",
+    "healer": "healer requests scheduler-owned work items instead of repairing v2 truth directly",
+    "benchmark": "governance/evidence/benchmarks/scheduler compares legacy and v2 snapshots plus synthetic stress fixtures"
+  },
+  "cutover_sequence": [
+    "v2_shadow on real traffic",
+    "v2_canary for one small intent family",
+    "v2_canary for several concurrent intent families",
+    "v2_primary for intent_family_v2 only",
+    "disable equivalent legacy paths",
+    "delete replaced v1 paths"
+  ],
+  "production_gates": [
+    "zero or justified shadow diffs",
+    "restart truth identical across watch, API, web, and mobile",
+    "terminal jobs retire cleanly",
+    "closeout is the only promotion path",
+    "watchdog cannot mutate v2 scheduler truth",
+    "rollback to legacy is one ownership-mode change"
+  ]
+}

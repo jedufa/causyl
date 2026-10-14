@@ -1,0 +1,44 @@
+{
+  "name": "failed_verification",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_build_verify_loop_v1",
+  "git_repo": false,
+  "payload": {
+    "request": {
+      "task_id": "fcee_failed_verification",
+      "action_family": "build_verify",
+      "execution_mode": "deterministic_then_codex",
+      "context_bundle_id": "lab_core_v1",
+      "requested_by": "scheduler",
+      "source_event": "scheduler",
+      "authority_scope": "read_only",
+      "iterations": [
+        {
+          "builder_summary": "candidate produced",
+          "evidence_artifacts": [
+            "candidate_report_v1"
+          ],
+          "validation_commands": [
+            "python -c \"print('validated')\""
+          ],
+          "verifier_verdict": "FAIL",
+          "expected_gain": 0.5,
+          "cost_per_iteration": 1.0
+        }
+      ]
+    }
+  },
+  "expected_terminal_status": "failed_verification",
+  "expected_receipt": {
+    "proof_gap": false
+  },
+  "expected_snapshot": {
+    "terminal_reason": "missing_pass_or_evidence"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "status_reconcile_success",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": false,
+  "prompt_variants": [
+    "reconcile status",
+    "fix status drift",
+    "verify outcome"
+  ],
+  "payload": {
+    "cli_args": [
+      "--target-uid",
+      "PIS-EXAMPLE",
+      "--current-status",
+      "running",
+      "--expected-status",
+      "blocked",
+      "--validation-command",
+      "python -c \"print('status')\"",
+      "--verifier-verdict",
+      "PASS"
+    ]
+  },
+  "expected_terminal_status": "ok",
+  "expected_receipt": {
+    "proof_gap": false
+  },
+  "expected_snapshot": {
+    "action_id": "status_reconcile_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "status_reconcile_v1",
+    "authority_class": "read_only"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

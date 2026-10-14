@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/google-genai-setup
+# Description: Provision repo-local Python runtime and install google-genai SDK.
+# Example: bash infra/user/google-genai-setup
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "${repo_root}"
+bash infra/bin/google_genai_setup.sh "$@"

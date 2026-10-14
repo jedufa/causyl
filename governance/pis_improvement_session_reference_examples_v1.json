@@ -1,0 +1,566 @@
+{
+  "schema_version": "pis_improvement_session_reference_examples_v1",
+  "examples": [
+    {
+      "example_id": "recent_pis_session_valid",
+      "example_class": "valid_recent_pis_session",
+      "expected_validation_outcome": "accepted",
+      "session_record": {
+        "schema_version": "pis_improvement_session_v1",
+        "session_id": "pis_improve_session_demo_001",
+        "session_version": "1.0.0",
+        "stable_identity": {
+          "canonicalization": "json_sort_keys_compact_utf8",
+          "content_hash_algorithm": "sha256",
+          "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+        },
+        "metadata": {
+          "title": "Improve recent PIS with deterministic recent-item selection",
+          "created_at_utc": "2026-04-12T06:21:00Z",
+          "source_intent_uid": "IS-20260403-212914Z-AED0",
+          "ledger_refs": [
+            "PIS-20260412-062100Z-A1C3",
+            "PIS-20260412-060451Z-EB85"
+          ]
+        },
+        "source_pis_ref": {
+          "ledger_uid": "PIS-20260412-060451Z-EB85",
+          "pis_path": "governance/ledger/patch_instruction_sheets/causyl/active/2026/04/PIS-20260412-060451Z-EB85__pis-improvement-automation/pis.md",
+          "content_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "model_profiles": [
+          {
+            "profile_id": "reviewer_default",
+            "role": "reviewer",
+            "model_family": "gpt-5.4",
+            "selection_reason": "Strong contract review posture for critique rounds."
+          },
+          {
+            "profile_id": "reviser_default",
+            "role": "reviser",
+            "model_family": "gpt-5.4-mini",
+            "selection_reason": "Lower-cost revision drafting under the same deterministic session."
+          }
+        ],
+        "iteration_policy": {
+          "default_iteration_cap": 2,
+          "stop_conditions": [
+            "stop when recommendation outcome is adopt_revision or keep_source",
+            "stop immediately if any revision-ledger entry fails validation"
+          ],
+          "fail_closed_on_invalid_revision_entry": true
+        },
+        "workflow_state": {
+          "status": "completed",
+          "current_iteration": 1,
+          "last_transition_utc": "2026-04-12T06:24:00Z"
+        },
+        "candidate_selection": {
+          "selection_basis": "recent_ledger_items",
+          "candidate_pool_materialization_ref": "runtime/live/pis_improvement/sessions/demo_001/candidate_snapshot.json",
+          "preserved_filters": [
+            {
+              "filter_id": "filter_active_patch_instruction_sheets",
+              "field": "ledger_status",
+              "operator": "in",
+              "value": "active,draft,verified"
+            }
+          ],
+          "preserved_exclusions": [
+            {
+              "exclusion_id": "exclude_current_source_pis",
+              "candidate_ref": "cand_source_parent",
+              "reason_code": "source_pis_under_review_not_candidate"
+            }
+          ],
+          "candidate_refs": [
+            {
+              "candidate_ref": "cand_source_parent",
+              "source_kind": "ledger",
+              "locator": "PIS-20260412-060451Z-EB85",
+              "recency_basis": "meta.updated_utc:2026-04-12T06:21:06Z"
+            },
+            {
+              "candidate_ref": "cand_child_contract",
+              "source_kind": "ledger",
+              "locator": "PIS-20260412-062101Z-B2D4",
+              "recency_basis": "meta.updated_utc:2026-04-12T06:21:06Z"
+            }
+          ],
+          "selected_candidate_refs": [
+            "cand_child_contract"
+          ],
+          "deterministic_order": [
+            "cand_child_contract",
+            "cand_source_parent"
+          ]
+        },
+        "artifact_pointers": {
+          "session_manifest": "runtime/live/pis_improvement/sessions/demo_001/session.json",
+          "candidate_snapshot": "runtime/live/pis_improvement/sessions/demo_001/candidate_snapshot.json",
+          "revision_ledger": "runtime/live/pis_improvement/sessions/demo_001/revision_ledger.json",
+          "final_recommendation": "runtime/live/pis_improvement/sessions/demo_001/final_recommendation.md"
+        },
+        "revision_ledger": {
+          "ledger_schema_version": "pis_improvement_session_v1",
+          "critique_rounds": [
+            {
+              "round_id": "round_001",
+              "iteration_index": 1,
+              "candidate_ref": "cand_child_contract",
+              "reviewer_profile_id": "reviewer_default",
+              "critique_packet_ref": "runtime/live/pis_improvement/sessions/demo_001/round_001/critique_packet.json",
+              "critique_packet": {
+                "packet_schema_version": "pis_improvement_critique_packet_v1",
+                "packet_id": "critique_packet_001",
+                "round_id": "round_001",
+                "candidate_ref": "cand_child_contract",
+                "reviewer_profile_id": "reviewer_default",
+                "summary": "Revision ledger lacks explicit resolution mapping for each critique item.",
+                "packet_provenance": {
+                  "source_pis_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "cited_artifacts": [
+                    "governance/ledger/patch_instruction_sheets/causyl/active/2026/04/PIS-20260412-062101Z-B2D4__define-structured-critique-schema-reviewer-reviser-packets-and-generic-praise-rejection/pis.md",
+                    "docs/contracts/contract_pis_improvement_session_v1.md"
+                  ]
+                },
+                "critique_items": [
+                  {
+                    "critique_id": "critique_item_001",
+                    "category": "resolution_gap",
+                    "severity": "major",
+                    "finding": "The current revision ledger only records that a critique packet exists, so later rounds cannot prove which defect was answered.",
+                    "evidence": "The critique_round entry stores critique_packet_ref, but no embedded critique item list or resolution identifiers.",
+                    "proposed_resolution": "Persist structured critique items in the ledger so every reviser response can cite the specific critique_id it resolves."
+                  }
+                ],
+                "overall_verdict": "revision_required"
+              },
+              "status": "accepted"
+            }
+          ],
+          "revision_deltas": [
+            {
+              "delta_id": "delta_001",
+              "round_id": "round_001",
+              "reviser_profile_id": "reviser_default",
+              "proposed_revision_ref": "runtime/live/pis_improvement/sessions/demo_001/round_001/revision_delta.patch",
+              "reviser_packet": {
+                "packet_schema_version": "pis_improvement_reviser_packet_v1",
+                "packet_id": "reviser_packet_001",
+                "round_id": "round_001",
+                "candidate_ref": "cand_child_contract",
+                "reviser_profile_id": "reviser_default",
+                "source_critique_packet_id": "critique_packet_001",
+                "summary": "Embedded critique and resolution packets so the revision ledger preserves provenance and explicit item linkage.",
+                "resolution_items": [
+                  {
+                    "critique_id": "critique_item_001",
+                    "disposition": "addressed",
+                    "response": "Added canonical critique and reviser packet payloads to the revision ledger contract.",
+                    "change_summary": "Each revision delta now carries a reviser_packet that maps its response back to critique_item_001."
+                  }
+                ],
+                "overall_status": "ready_for_review"
+              },
+              "change_summary": "Tighten field names and preserve deterministic candidate selection artifacts."
+            }
+          ],
+          "recommendation_history": [
+            {
+              "recommendation_id": "recommendation_001",
+              "decided_at_utc": "2026-04-12T06:24:00Z",
+              "outcome": "adopt_revision",
+              "winning_candidate_ref": "cand_child_contract",
+              "rationale_ref": "runtime/live/pis_improvement/sessions/demo_001/final_recommendation.md"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "example_id": "hidden_context_selection_invalid",
+      "example_class": "invalid_hidden_context_selection",
+      "expected_validation_outcome": "rejected",
+      "session_record": {
+        "schema_version": "pis_improvement_session_v1",
+        "session_id": "pis_improve_session_demo_hidden_001",
+        "session_version": "1.0.0",
+        "stable_identity": {
+          "canonicalization": "json_sort_keys_compact_utf8",
+          "content_hash_algorithm": "sha256",
+          "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+        },
+        "metadata": {
+          "title": "Invalid hidden-context candidate selection",
+          "created_at_utc": "2026-04-12T06:21:00Z",
+          "source_intent_uid": "IS-20260403-212914Z-AED0",
+          "ledger_refs": [
+            "PIS-20260412-062100Z-A1C3"
+          ]
+        },
+        "source_pis_ref": {
+          "ledger_uid": "PIS-20260412-060451Z-EB85",
+          "pis_path": "governance/ledger/patch_instruction_sheets/causyl/active/2026/04/PIS-20260412-060451Z-EB85__pis-improvement-automation/pis.md",
+          "content_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        },
+        "model_profiles": [
+          {
+            "profile_id": "reviewer_default",
+            "role": "reviewer",
+            "model_family": "gpt-5.4",
+            "selection_reason": "Demo reviewer."
+          },
+          {
+            "profile_id": "reviser_default",
+            "role": "reviser",
+            "model_family": "gpt-5.4-mini",
+            "selection_reason": "Demo reviser."
+          }
+        ],
+        "iteration_policy": {
+          "default_iteration_cap": 1,
+          "stop_conditions": [
+            "stop on first recommendation"
+          ],
+          "fail_closed_on_invalid_revision_entry": true
+        },
+        "workflow_state": {
+          "status": "running",
+          "current_iteration": 0,
+          "last_transition_utc": "2026-04-12T06:22:00Z"
+        },
+        "candidate_selection": {
+          "selection_basis": "hidden_chat_context",
+          "candidate_pool_materialization_ref": "runtime/live/pis_improvement/sessions/demo_hidden_001/candidate_snapshot.json",
+          "preserved_filters": [
+            {
+              "filter_id": "recent_only",
+              "field": "updated_utc",
+              "operator": ">=",
+              "value": "2026-04-10T00:00:00Z"
+            }
+          ],
+          "preserved_exclusions": [],
+          "candidate_refs": [
+            {
+              "candidate_ref": "cand_a",
+              "source_kind": "ledger",
+              "locator": "PIS-20260412-062101Z-B2D4",
+              "recency_basis": "meta.updated_utc:2026-04-12T06:21:06Z"
+            }
+          ],
+          "selected_candidate_refs": [
+            "cand_a"
+          ],
+          "deterministic_order": [
+            "cand_a"
+          ]
+        },
+        "artifact_pointers": {
+          "session_manifest": "runtime/live/pis_improvement/sessions/demo_hidden_001/session.json",
+          "candidate_snapshot": "runtime/live/pis_improvement/sessions/demo_hidden_001/candidate_snapshot.json",
+          "revision_ledger": "runtime/live/pis_improvement/sessions/demo_hidden_001/revision_ledger.json",
+          "final_recommendation": "runtime/live/pis_improvement/sessions/demo_hidden_001/final_recommendation.md"
+        },
+        "revision_ledger": {
+          "ledger_schema_version": "pis_improvement_session_v1",
+          "critique_rounds": [
+            {
+              "round_id": "round_hidden_001",
+              "iteration_index": 0,
+              "candidate_ref": "cand_a",
+              "reviewer_profile_id": "reviewer_default",
+              "critique_packet_ref": "runtime/live/pis_improvement/sessions/demo_hidden_001/round_001/critique_packet.json",
+              "critique_packet": {
+                "packet_schema_version": "pis_improvement_critique_packet_v1",
+                "packet_id": "critique_packet_hidden_001",
+                "round_id": "round_hidden_001",
+                "candidate_ref": "cand_a",
+                "reviewer_profile_id": "reviewer_default",
+                "summary": "Candidate selection claims hidden chat context, so the packet cannot be replayed deterministically.",
+                "packet_provenance": {
+                  "source_pis_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "cited_artifacts": [
+                    "governance/pis_improvement_session_contract_v1.json"
+                  ]
+                },
+                "critique_items": [
+                  {
+                    "critique_id": "critique_hidden_001",
+                    "category": "provenance_gap",
+                    "severity": "major",
+                    "finding": "The session depends on hidden context instead of a replayable candidate snapshot.",
+                    "evidence": "candidate_selection.selection_basis is hidden_chat_context.",
+                    "proposed_resolution": "Use recent_ledger_items or explicit_file_list with a persisted candidate snapshot."
+                  }
+                ],
+                "overall_verdict": "revision_required"
+              },
+              "status": "accepted"
+            }
+          ],
+          "revision_deltas": [
+            {
+              "delta_id": "delta_hidden_001",
+              "round_id": "round_hidden_001",
+              "reviser_profile_id": "reviser_default",
+              "proposed_revision_ref": "runtime/live/pis_improvement/sessions/demo_hidden_001/round_001/revision_delta.patch",
+              "reviser_packet": {
+                "packet_schema_version": "pis_improvement_reviser_packet_v1",
+                "packet_id": "reviser_packet_hidden_001",
+                "round_id": "round_hidden_001",
+                "candidate_ref": "cand_a",
+                "reviser_profile_id": "reviser_default",
+                "source_critique_packet_id": "critique_packet_hidden_001",
+                "summary": "Rejected the hidden-context selection basis and requested a replayable snapshot.",
+                "resolution_items": [
+                  {
+                    "critique_id": "critique_hidden_001",
+                    "disposition": "addressed",
+                    "response": "Will replace hidden context with a persisted candidate snapshot.",
+                    "change_summary": "Move the selection basis to recent_ledger_items."
+                  }
+                ],
+                "overall_status": "ready_for_review"
+              },
+              "change_summary": "Switch hidden context to persisted candidate selection."
+            }
+          ],
+          "recommendation_history": [
+            {
+              "recommendation_id": "recommendation_hidden_001",
+              "decided_at_utc": "2026-04-12T06:23:00Z",
+              "outcome": "needs_operator_review",
+              "winning_candidate_ref": "cand_a",
+              "rationale_ref": "runtime/live/pis_improvement/sessions/demo_hidden_001/final_recommendation.md"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "example_id": "revision_history_gap_invalid",
+      "example_class": "invalid_revision_history_gap",
+      "expected_validation_outcome": "rejected",
+      "session_record": {
+        "schema_version": "pis_improvement_session_v1",
+        "session_id": "pis_improve_session_demo_gap_001",
+        "session_version": "1.0.0",
+        "stable_identity": {
+          "canonicalization": "json_sort_keys_compact_utf8",
+          "content_hash_algorithm": "sha256",
+          "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+        },
+        "metadata": {
+          "title": "Invalid revision history gap",
+          "created_at_utc": "2026-04-12T06:21:00Z",
+          "source_intent_uid": "IS-20260403-212914Z-AED0",
+          "ledger_refs": [
+            "PIS-20260412-062100Z-A1C3"
+          ]
+        },
+        "source_pis_ref": {
+          "ledger_uid": "PIS-20260412-060451Z-EB85",
+          "pis_path": "governance/ledger/patch_instruction_sheets/causyl/active/2026/04/PIS-20260412-060451Z-EB85__pis-improvement-automation/pis.md",
+          "content_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+        },
+        "model_profiles": [
+          {
+            "profile_id": "reviewer_default",
+            "role": "reviewer",
+            "model_family": "gpt-5.4",
+            "selection_reason": "Demo reviewer."
+          },
+          {
+            "profile_id": "reviser_default",
+            "role": "reviser",
+            "model_family": "gpt-5.4-mini",
+            "selection_reason": "Demo reviser."
+          }
+        ],
+        "iteration_policy": {
+          "default_iteration_cap": 2,
+          "stop_conditions": [
+            "stop on accepted recommendation"
+          ],
+          "fail_closed_on_invalid_revision_entry": true
+        },
+        "workflow_state": {
+          "status": "failed",
+          "current_iteration": 1,
+          "last_transition_utc": "2026-04-12T06:23:00Z"
+        },
+        "candidate_selection": {
+          "selection_basis": "explicit_file_list",
+          "candidate_pool_materialization_ref": "runtime/live/pis_improvement/sessions/demo_gap_001/candidate_snapshot.json",
+          "preserved_filters": [
+            {
+              "filter_id": "include_child_contract",
+              "field": "path",
+              "operator": "contains",
+              "value": "062101Z-B2D4"
+            }
+          ],
+          "preserved_exclusions": [],
+          "candidate_refs": [
+            {
+              "candidate_ref": "cand_gap_a",
+              "source_kind": "file",
+              "locator": "governance/ledger/patch_instruction_sheets/causyl/active/2026/04/PIS-20260412-062101Z-B2D4__define-structured-critique-schema-reviewer-reviser-packets-and-generic-praise-rejection/pis.md",
+              "recency_basis": "filesystem_mtime:2026-04-12T06:21:06Z"
+            }
+          ],
+          "selected_candidate_refs": [
+            "cand_gap_a"
+          ],
+          "deterministic_order": [
+            "cand_gap_a"
+          ]
+        },
+        "artifact_pointers": {
+          "session_manifest": "runtime/live/pis_improvement/sessions/demo_gap_001/session.json",
+          "candidate_snapshot": "runtime/live/pis_improvement/sessions/demo_gap_001/candidate_snapshot.json",
+          "revision_ledger": "runtime/live/pis_improvement/sessions/demo_gap_001/revision_ledger.json",
+          "final_recommendation": "runtime/live/pis_improvement/sessions/demo_gap_001/final_recommendation.md"
+        },
+        "revision_ledger": {
+          "ledger_schema_version": "pis_improvement_session_v1",
+          "critique_rounds": [
+            {
+              "round_id": "round_gap_001",
+              "iteration_index": 1,
+              "candidate_ref": "cand_gap_a",
+              "reviewer_profile_id": "reviewer_default",
+              "critique_packet_ref": "runtime/live/pis_improvement/sessions/demo_gap_001/round_001/critique_packet.json",
+              "critique_packet": {
+                "packet_schema_version": "pis_improvement_critique_packet_v1",
+                "packet_id": "critique_packet_gap_001",
+                "round_id": "round_gap_001",
+                "candidate_ref": "cand_gap_a",
+                "reviewer_profile_id": "reviewer_default",
+                "summary": "A revision delta is missing for the only critique round, so resolution provenance is broken.",
+                "packet_provenance": {
+                  "source_pis_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "cited_artifacts": [
+                    "runtime/live/pis_improvement/sessions/demo_gap_001/revision_ledger.json"
+                  ]
+                },
+                "critique_items": [
+                  {
+                    "critique_id": "critique_gap_001",
+                    "category": "resolution_gap",
+                    "severity": "critical",
+                    "finding": "No revision delta exists for the recorded critique round.",
+                    "evidence": "revision_ledger.revision_deltas is empty while critique_rounds contains round_gap_001.",
+                    "proposed_resolution": "Fail closed and require a reviser packet that resolves critique_gap_001 before recommendation."
+                  }
+                ],
+                "overall_verdict": "candidate_rejected"
+              },
+              "status": "accepted"
+            }
+          ],
+          "revision_deltas": [],
+          "recommendation_history": [
+            {
+              "recommendation_id": "recommendation_gap_001",
+              "decided_at_utc": "2026-04-12T06:23:00Z",
+              "outcome": "adopt_revision",
+              "winning_candidate_ref": "cand_gap_a",
+              "rationale_ref": "runtime/live/pis_improvement/sessions/demo_gap_001/final_recommendation.md"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "packet_examples": [
+    {
+      "example_id": "actionable_critique_packet_valid",
+      "example_class": "valid_actionable_critique_packet",
+      "expected_validation_outcome": "accepted",
+      "packet_kind": "critique",
+      "packet_record": {
+        "packet_schema_version": "pis_improvement_critique_packet_v1",
+        "packet_id": "critique_packet_example_valid",
+        "round_id": "round_example_valid",
+        "candidate_ref": "cand_example_valid",
+        "reviewer_profile_id": "reviewer_default",
+        "summary": "The proposal lacks explicit evidence references for the rewrite request.",
+        "packet_provenance": {
+          "source_pis_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "cited_artifacts": [
+            "docs/contracts/contract_pis_improvement_session_v1.md"
+          ]
+        },
+        "critique_items": [
+          {
+            "critique_id": "critique_example_valid_001",
+            "category": "evidence_gap",
+            "severity": "major",
+            "finding": "The requested rewrite does not cite the exact clause that should change.",
+            "evidence": "The packet asks for a rewrite but points to no paragraph, field, or artifact line.",
+            "proposed_resolution": "Require each rewrite request to cite the concrete clause or artifact it intends to replace."
+          }
+        ],
+        "overall_verdict": "revision_required"
+      }
+    },
+    {
+      "example_id": "generic_praise_critique_packet_invalid",
+      "example_class": "invalid_generic_praise_critique_packet",
+      "expected_validation_outcome": "rejected",
+      "packet_kind": "critique",
+      "packet_record": {
+        "packet_schema_version": "pis_improvement_critique_packet_v1",
+        "packet_id": "critique_packet_example_invalid_praise",
+        "round_id": "round_example_invalid_praise",
+        "candidate_ref": "cand_example_invalid_praise",
+        "reviewer_profile_id": "reviewer_default",
+        "summary": "Looks good.",
+        "packet_provenance": {
+          "source_pis_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "cited_artifacts": [
+            "docs/contracts/contract_pis_improvement_session_v1.md"
+          ]
+        },
+        "critique_items": [
+          {
+            "critique_id": "critique_example_invalid_praise_001",
+            "category": "contract_gap",
+            "severity": "minor",
+            "finding": "Great work.",
+            "evidence": "Nice work.",
+            "proposed_resolution": "Ship it."
+          }
+        ],
+        "overall_verdict": "candidate_acceptable"
+      }
+    },
+    {
+      "example_id": "opaque_reviser_packet_invalid",
+      "example_class": "invalid_opaque_reviser_packet",
+      "expected_validation_outcome": "rejected",
+      "packet_kind": "reviser",
+      "packet_record": {
+        "packet_schema_version": "pis_improvement_reviser_packet_v1",
+        "packet_id": "reviser_packet_example_invalid_opaque",
+        "round_id": "round_example_invalid_opaque",
+        "candidate_ref": "cand_example_invalid_opaque",
+        "reviser_profile_id": "reviser_default",
+        "source_critique_packet_id": "critique_packet_example_invalid_opaque",
+        "summary": "Looks good.",
+        "resolution_items": [
+          {
+            "critique_id": "critique_example_invalid_opaque_001",
+            "disposition": "addressed",
+            "response": "Done.",
+            "change_summary": "Rewrote it."
+          }
+        ],
+        "overall_status": "ready_for_review"
+      }
+    }
+  ]
+}

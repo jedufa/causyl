@@ -1,0 +1,1335 @@
+version: 1
+phase: 0
+notes: Expanded subsystem vocabulary registry for deterministic retrieval, subsystem hypothesis building, and coverage scoring. Merged draft subsystem clues into main subsystem entries without removing existing content.
+subsystems:
+- key: scheduler_core
+  aliases:
+  - scheduler
+  - cron engine
+  - dispatch loop
+  - tick loop
+  - job scheduler
+  - scheduler_core
+  - scheduled jobs
+  - schedule dispatcher
+  families:
+  - scheduler_safety
+  - manual_backfill
+  - retry_timeout_resilience
+  - reconciliation_recovery
+  filename_aliases:
+  - scheduler_schedule_job.py
+  - scheduler_start_job.py
+  - scheduler_verify_job.py
+  path_clues:
+  - /scheduler
+  - /engine
+  - /orchestrator
+- key: state_persistence
+  aliases:
+  - state store
+  - persistence
+  - database
+  - run store
+  - metadata store
+  - state_management
+  families:
+  - generic
+  - scheduler_safety
+  - operator_control
+  - stateful_workflow
+  - queue_dispatch
+  - lab_assistant_memory
+  - reconciliation_recovery
+  path_clues:
+  - /db
+  - /models
+  - /store
+  - /repository
+- key: operator_entrypoints
+  aliases:
+  - operator api
+  - admin api
+  - manual controls
+  - control endpoint
+  - operator command
+  - operator_entrypoints
+  - operator interfaces
+  - operator_interfaces
+  - pause
+  - resume
+  - manual pause
+  - manual resume
+  families:
+  - operator_control
+  - scheduler_safety
+  - api_control_plane
+  - manual_backfill
+  filename_aliases:
+  - scheduler_enable_disable_jobs.py
+  - scheduler_change_job_model.py
+  - scheduler_postpone_active_job.py
+  path_clues:
+  - /cli
+  - /api/v1/admin
+  - /handlers/operator
+- key: recovery_mechanisms
+  aliases:
+  - recovery
+  - reconciler
+  - repair logic
+  - healer
+  - restart handler
+  - recovery_mechanisms
+  - recovery logic
+  - watchdog
+  families:
+  - scheduler_safety
+  - reconciliation_recovery
+  - stateful_workflow
+  - queue_dispatch
+  - retry_timeout_resilience
+  filename_aliases:
+  - scheduler_watchdog.py
+  - scheduler_pipeline_healer.py
+  - scheduler_recovery_assistant.py
+  path_clues:
+  - /recovery
+  - /retry
+  - /rollback
+- key: validation
+  aliases:
+  - validation
+  - precondition checks
+  - schema checks
+  - guard rails
+  - admission checks
+  families:
+  - generic
+  - operator_control
+  - api_control_plane
+  - scheduler_safety
+  - stateful_workflow
+  - lab_assistant_memory
+  path_clues:
+  - /validation
+  - /schemas
+  - /guards
+- key: observability
+  aliases:
+  - logging
+  - metrics
+  - tracing
+  - audit trail
+  - telemetry
+  families:
+  - generic
+  - scheduler_safety
+  - operator_control
+  - queue_dispatch
+  - lab_assistant_memory
+  path_clues:
+  - /telemetry
+  - /logging
+  - /metrics
+- key: lease_claims
+  aliases:
+  - lease
+  - claim
+  - ownership
+  - run ownership
+  - job claim
+  - claim_integrity
+  - ownership control
+  - lease_claims
+  families:
+  - scheduler_safety
+  - queue_dispatch
+  - heartbeat_liveness
+  - distributed_coordination
+- key: worker_runtime
+  aliases:
+  - worker
+  - executor
+  - runner
+  - job worker
+  - task runtime
+  - executors
+  - execution runtime
+- key: queue_dispatch
+  aliases:
+  - queue
+  - dispatch queue
+  - work queue
+  - enqueue
+  - dequeue
+- key: retry_backoff
+  aliases:
+  - retry
+  - backoff
+  - attempt policy
+  - retry budget
+  - retry controller
+- key: timeouts_deadlines
+  aliases:
+  - timeout
+  - deadline
+  - ttl
+  - execution timeout
+  - time limit
+- key: dependency_gating
+  aliases:
+  - dependency check
+  - prerequisite
+  - eligibility
+  - launch gate
+  - dependency status
+  - preflight
+  - capability registry
+  - endpoint registry
+  - typed endpoint
+  - workcell endpoint
+  - capability check
+  families:
+  - dependency_gating
+  - configuration_versioning
+- key: schedule_calculation
+  aliases:
+  - due evaluation
+  - next run
+  - schedule window
+  - misfire logic
+  - cron parsing
+  - schedule_calculation
+  families:
+  - scheduler_safety
+  - manual_backfill
+- key: manual_backfill
+  aliases:
+  - backfill
+  - historical run
+  - manual replay
+  - catch-up run
+  - retroactive dispatch
+- key: heartbeat_liveness
+  aliases:
+  - heartbeat
+  - liveness
+  - worker health
+  - keepalive
+  - stale heartbeat
+  families:
+  - scheduler_safety
+  - heartbeat_liveness
+  - reconciliation_recovery
+- key: leadership_coordination
+  aliases:
+  - leader election
+  - leader
+  - primary scheduler
+  - coordination
+  - fencing
+- key: audit_receipts
+  aliases:
+  - receipt
+  - audit event
+  - execution record
+  - completion receipt
+  - evidence
+  families:
+  - scheduler_safety
+  - operator_control
+  - queue_dispatch
+  - lab_assistant_memory
+- key: checkpoint_resume
+  aliases:
+  - checkpoint
+  - resume point
+  - recovery point
+  - saved state
+  - restart checkpoint
+  families:
+  - scheduler_safety
+  - reconciliation_recovery
+  - stateful_workflow
+  - retry_timeout_resilience
+- key: configuration_versioning
+  aliases:
+  - config version
+  - job spec version
+  - parameter version
+  - revision
+  - configuration snapshot
+- key: cleanup_retention
+  aliases:
+  - cleanup
+  - retention
+  - garbage collection
+  - history pruning
+  - metadata cleanup
+- key: concurrency_control
+  aliases:
+  - mutex
+  - lock manager
+  - concurrency guard
+  - exclusive access
+  - critical section
+  families:
+  - scheduler_safety
+  - queue_dispatch
+  - distributed_coordination
+  - stateful_workflow
+  path_clues:
+  - /locks
+  - /mutex
+  - /synchronization
+- key: event_bus
+  aliases:
+  - event broker
+  - message bus
+  - pub sub
+  - event stream
+  - topic
+- key: admission_control
+  aliases:
+  - admission
+  - rate limiter
+  - request guard
+  - throttle gate
+  - quota enforcer
+- key: background_workers
+  aliases:
+  - background worker
+  - async worker
+  - cron worker
+  - deferred executor
+  - periodic task
+  path_clues:
+  - /workers
+  - /tasks
+  - /jobs
+- key: orchestration_engine
+  aliases:
+  - orchestrator
+  - workflow engine
+  - pipeline runner
+  - dag executor
+  - step coordinator
+- key: error_classifier
+  aliases:
+  - error handler
+  - failure classifier
+  - fault categorizer
+  - exception router
+  - error policy
+- key: circuit_breaker
+  aliases:
+  - breaker
+  - circuit
+  - fault barrier
+  - open state
+  - closed state
+- key: idempotency_store
+  aliases:
+  - idempotency key
+  - dedup store
+  - seen tracker
+  - replay guard
+  - duplicate filter
+  families:
+  - scheduler_safety
+  - queue_dispatch
+  - manual_backfill
+  - retry_timeout_resilience
+  - operator_control
+- key: api_gateway
+  aliases:
+  - gateway
+  - api proxy
+  - request router
+  - edge handler
+  - ingress controller
+- key: resource_manager
+  aliases:
+  - resource
+  - slot manager
+  - capacity controller
+  - resource pool
+  - quota tracker
+- key: knowledge_retrieval
+  aliases:
+  - research memory
+  - memory retrieval
+  - cross-project retrieval
+  - precedent lookup
+  - supporting sources
+  - knowledge retrieval
+  families:
+  - lab_assistant_memory
+- key: ledger_evidence
+  aliases:
+  - ledger
+  - evidence ledger
+  - provenance
+  - source records
+  - evidence links
+  families:
+  - lab_assistant_memory
+  filename_aliases:
+  - server_ledger_actions.py
+  - ledger_storage.py
+- key: truth_ownership
+  aliases:
+  - truth ownership
+  - source of truth
+  - canonical source
+  - authoritative truth
+  - truth boundary
+  - truth registry
+  - source-of-truth arbitration
+  - write arbitration
+  families:
+  - lab_assistant_memory
+  - assistant_truth_and_identity
+  - audit_and_integrity
+  filename_aliases:
+  - server_lab_assistant_execution_truth_ownership.py
+  doc_aliases:
+  - lab_assistant_execution_truth_ownership.md
+- key: execution_reconciliation
+  aliases:
+  - execution reconciliation
+  - contradiction handling
+  - correction history
+  - truth reconciliation
+  - correction workflow
+  - contradiction detection
+  - conflict resolution
+  families:
+  - lab_assistant_memory
+  - assistant_truth_and_identity
+  filename_aliases:
+  - server_lab_assistant_execution_reconciliation.py
+  - server_lab_assistant_recovery.py
+- key: task_register
+  aliases:
+  - task register
+  - open-loop truth
+  - task register entry
+  - task register lookup
+  - task register state
+  - open-loop memory
+  - task decomposition
+  - work decomposition
+  - clarification backlog
+  families:
+  - lab_assistant_memory
+  - assistant_truth_and_identity
+  filename_aliases:
+  - server_lab_assistant_task_register.py
+  doc_aliases:
+  - lab_assistant_task_register.md
+- key: turn_transcripts
+  aliases:
+  - transcript
+  - turn transcript
+  - conversation turns
+  - turn history
+  - transcript evidence
+  - chat transcript
+  - final transcript
+  - truncated chat stream
+  - session transcript
+  families:
+  - lab_assistant_memory
+  - assistant_truth_and_identity
+  filename_aliases:
+  - server_lab_assistant_turns.py
+- key: writeback_projection
+  aliases:
+  - writeback
+  - projection
+  - summary projection
+  - memory-backed answer
+  - derived memory projection
+  families:
+  - lab_assistant_memory
+  filename_aliases:
+  - server_lab_assistant_writeback.py
+- key: lab_assistant_delegation
+  aliases:
+  - delegation
+  - typed delegation
+  - delegation binding
+  - delegation policy
+  - delegation request
+- key: lab_assistant_correlation
+  aliases:
+  - correlation
+  - correlation record
+  - subsystem correlation
+  - delegation correlation
+  - reverse index
+- key: lab_assistant_execution_proof
+  aliases:
+  - execution proof
+  - completion proof
+  - proof record
+  - proof linkage
+  - proof evidence
+- key: governance_ledger
+  aliases:
+  - governance ledger
+  - ledger storage
+  - ledger manager
+  - ledger actions
+  - ledger truth
+- key: commit_traceability
+  aliases:
+  - commit journal
+  - commit traceability
+  - commit linkage
+  - journal trace
+  - commit correlation
+- key: route_surface
+  aliases:
+  - route surface
+  - route registration
+  - endpoint wiring
+  - server main routes
+  - hub server
+- key: agent_orchestration
+  aliases:
+  - agent orchestration
+  - agent orchestrator
+  - swarm
+  - projflow runner
+  - multi-assistant
+  - multi assistant
+  - assistant coordination
+  - delegation
+  - supervisory orchestration
+  - workcell routing
+  - coordinator
+  families:
+  - orchestration_checkpointing
+  - lab_assistant_delegation
+  - agent_orchestration_runtime
+- key: host_verification
+  aliases:
+  - host verification
+  - verification runner
+  - verification contract
+  - host boundary
+  - host capability check
+- key: mobile_runtime
+  aliases:
+  - android runtime
+  - mobile app
+  - device install
+  - native app
+  - mobile boundary
+- key: patching
+  aliases:
+  - apply patch
+  - patching
+  - diff application
+  - patch safety
+  - repo patch boundary
+- key: dispatch
+  aliases:
+  - dispatch
+  path_clues: &id001
+  - /queue
+  - /dispatch
+  - /events
+- key: auth
+  aliases:
+  - auth
+  path_clues: &id002
+  - /auth
+  - /permissions
+  - /security
+- key: api_control_plane
+  aliases:
+  - api control plane
+  path_clues: &id003
+  - /api
+  - /controllers
+  - /routes
+- key: configuration
+  aliases:
+  - configuration
+  path_clues: &id004
+  - /config
+  - /settings
+  - /env
+- key: audit_logging
+  aliases:
+  - audit logging
+  path_clues: &id005
+  - /audit
+  - /history
+  - /journal
+- key: input_processing
+  aliases:
+  - input processing
+  path_clues: &id006
+  - /parsers
+  - /ingress
+  - /decoders
+- key: external_integrations
+  aliases:
+  - external integrations
+  path_clues: &id007
+  - /clients
+  - /proxies
+  - /integration
+- key: data_transformation
+  aliases:
+  - data transformation
+  path_clues: &id008
+  - /transformers
+  - /mappers
+  - /formatters
+- key: reporting
+  aliases:
+  - reporting
+  path_clues: &id009
+  - /reports
+  - /stats
+  - /dashboards
+- key: cleanup_services
+  aliases:
+  - cleanup services
+  path_clues: &id010
+  - /cleanup
+  - /janitor
+  - /pruning
+- key: initialization
+  aliases:
+  - initialization
+  path_clues: &id011
+  - /init
+  - /bootstrap
+  - /setup
+- key: testing_framework
+  aliases:
+  - testing framework
+  path_clues: &id012
+  - /tests
+  - /fixtures
+  - /mocks
+- key: runtime_state
+  aliases:
+  - runtime state
+  - assistant state
+  - current assistant state
+  - assistant mode
+  - identity state
+  - runtime_state
+  - assistant runtime state
+  - current runtime truth
+  - active runtime state
+  families:
+  - assistant_truth_and_identity
+  filename_aliases:
+  - assistant_state.json
+  - server_lab_assistant_state.py
+  doc_aliases:
+  - lab_assistant_identity_contract.md
+  path_clues:
+  - /runtime
+  - /state
+  - /assistant
+- key: audit_log
+  aliases:
+  - audit log
+  - append-only event log
+  - event ledger
+  - mutation trail
+  - audit evidence
+  - durable evidence
+  - decision provenance
+  - append-only audit trail
+  families:
+  - assistant_truth_and_identity
+  - audit_and_integrity
+  filename_aliases:
+  - assistant_events.jsonl
+  path_clues:
+  - /audit
+  - /ledger
+  - /events
+- key: serialization_replay
+  aliases:
+  - serialization
+  - replay
+  - snapshot replay
+  - event replay
+  - schema version boot
+  - serialization and replay
+  - replay contract
+  - context reload
+  families:
+  - assistant_truth_and_identity
+  - experiment_or_run_validation
+  path_clues:
+  - /snapshot
+  - /replay
+  - /serialization
+- key: operator_visible_state
+  aliases:
+  - operator visible state
+  - blocked state
+  - interrupted state
+  - recovery-required state
+  - status surface
+  - degraded state
+  - unreachable state
+  - stale state
+  families:
+  - assistant_truth_and_identity
+  - operator_review_and_repair
+  - ui_truth_projection
+  path_clues:
+  - /review
+  - /status
+  - /ui
+- key: recovery_markers
+  aliases:
+  - recovery markers
+  - blocked marker
+  - recovery-required marker
+  - interrupt marker
+  families:
+  - assistant_truth_and_identity
+  - operator_review_and_repair
+  path_clues:
+  - /recovery
+  - /state
+- key: ledger_actions
+  aliases:
+  - ledger actions
+  - ledger mutations
+  - append-safe registry
+  - ledger write surfaces
+  families:
+  - audit_and_integrity
+  path_clues:
+  - /ledger
+  - /ledger_actions
+  - /registry
+- key: state_registry
+  aliases:
+  - state registry
+  - registry index
+  - durable state index
+  families:
+  - audit_and_integrity
+  - assistant_truth_and_identity
+  path_clues:
+  - /registry
+  - /state
+  - /index
+- key: verification_surfaces
+  aliases:
+  - verification surfaces
+  - proof checks
+  - integrity checks
+  - verification
+  families:
+  - audit_and_integrity
+  - experiment_or_run_validation
+  path_clues:
+  - /verification
+  - /proof
+  - /audit
+- key: assistant_runtime_state
+  aliases:
+  - assistant runtime state
+  - current assistant mode
+  - active assistant state
+  - active runtime state
+  families:
+  - assistant_truth_and_identity
+  filename_aliases:
+  - server_lab_assistant_state.py
+  - test_lab_assistant_state.py
+  doc_aliases:
+  - lab_assistant_identity_contract.md
+  path_clues:
+  - /runtime
+  - /state
+  - /assistant
+- key: truth_registry
+  aliases:
+  - truth registry
+  - source of truth registry
+  - authoritative register
+  families:
+  - assistant_truth_and_identity
+  - audit_and_integrity
+  filename_aliases:
+  - server_lab_assistant_state.py
+  doc_aliases:
+  - lab_assistant_identity_contract.md
+  path_clues:
+  - /truth
+  - /registry
+  - /register
+- key: ui_shell_and_mobile
+  aliases:
+  - ui shell
+  - mobile shell
+  - operator shell
+  - web or mobile entry surfaces
+  families:
+  - ui_local_changes
+  path_clues:
+  - /projflow
+  - /mobile
+  - /webui
+- key: page_handlers
+  aliases:
+  - page handlers
+  - page-specific handlers
+  - local page logic
+  families:
+  - ui_local_changes
+  path_clues:
+  - /pages
+  - /handlers
+  - /views
+- key: local_validation
+  aliases:
+  - local validation
+  - ui-local validation
+  - page validation
+  families:
+  - ui_local_changes
+  path_clues:
+  - /validation
+  - /guards
+  - /pages
+- key: intake_and_profile
+  aliases:
+  - intake and profile
+  - task intake
+  - task profile
+  families:
+  - pipeline_internal_modification
+  path_clues:
+  - /job_intake
+  - /intake
+  - /task_classification
+- key: retrieval_runtime
+  aliases:
+  - retrieval runtime
+  - candidate discovery
+  - repo retriever
+  - semantic prefilter
+  families:
+  - pipeline_internal_modification
+  path_clues:
+  - /repo_retriever
+  - /semantic
+  - /retrieval
+- key: retrieval_ranker
+  aliases:
+  - retrieval ranking
+  - evidence-first ranking
+  - freshness ranking
+  - applicability ranking
+  - retrieval scorer
+  - context ranking
+  - candidate scoring
+  families:
+  - retrieval_ranking_contract
+  - pipeline_internal_modification
+  filename_aliases:
+  - planning.py
+  - context_ranker.py
+  path_clues:
+  - /planning
+  - /rank
+  - /context_ranker
+- key: query_shaping
+  aliases:
+  - query shaping
+  - search plan
+  - search-plan owner
+  - lexical query shaping
+  - conceptual query coverage
+  families:
+  - retrieval_ranking_contract
+  - pipeline_internal_modification
+  filename_aliases:
+  - search_plan.py
+  path_clues:
+  - /search_plan
+  - /query
+- key: answer_assembly
+  aliases:
+  - answer assembly
+  - evidence-first answer assembly
+  - missing evidence handling
+  - applicability boundary
+  - supporting source precedence
+  families:
+  - retrieval_ranking_contract
+  - pipeline_internal_modification
+  filename_aliases:
+  - planning.py
+  - repo_retriever.py
+  path_clues:
+  - /planning
+  - /repo_retriever
+- key: policy_assets
+  aliases:
+  - policy assets
+  - knowledge assets
+  - retrieval policy
+  - classification policy
+  families:
+  - pipeline_internal_modification
+  - knowledge_and_retrieval_policy
+  path_clues:
+  - /knowledge
+  - /policy
+- key: validation_harnesses
+  aliases:
+  - validation harnesses
+  - benchmark harnesses
+  - regression harnesses
+  families:
+  - experiment_or_run_validation
+  path_clues:
+  - /tests
+  - /benchmark
+  - /verification
+- key: checkpoint_and_replay
+  aliases:
+  - checkpoint and replay
+  - resume and replay
+  - checkpoint validation
+  families:
+  - experiment_or_run_validation
+  - assistant_truth_and_identity
+  path_clues:
+  - /checkpoint
+  - /replay
+  - /resume
+- key: run_comparison
+  aliases:
+  - run comparison
+  - compare runs
+  - first divergence
+  - metrics comparison
+  families:
+  - experiment_or_run_validation
+  path_clues:
+  - /compare
+  - /metrics
+  - /divergence
+- key: runtime_policy
+  aliases:
+  - runtime policy
+  - runtime policy properties
+  - runtime control policy
+  families:
+  - scheduler_or_control_plane
+  path_clues:
+  - /runtime_policy
+  - /config
+  - /properties
+- key: benchmark_harnesses
+  aliases:
+  - benchmark harnesses
+  - benchmarks
+  - perf harnesses
+  families:
+  - experiment_or_run_validation
+  path_clues:
+  - /benchmarks
+  - /benchmark
+- key: broad_orchestration_hubs
+  aliases:
+  - broad orchestration hubs
+  - orchestrators
+  - global runners
+  families:
+  - pipeline_internal_modification
+  path_clues:
+  - /planning
+  - /pipeline_runner
+  - /orchestrator
+- key: planner_hubs
+  aliases:
+  - planner hubs
+  - planning surfaces
+  - search/rank/bundle planners
+  families:
+  - pipeline_internal_modification
+  path_clues:
+  - /planning
+  - /search_plan
+  - /context_ranker
+  - /context_bundle
+- key: chat_projection_only
+  aliases:
+  - chat projection only
+  - projection-only chat state
+  - chat projection
+  families:
+  - assistant_truth_and_identity
+  path_clues:
+  - /chat
+  - /projection
+- key: ui_render_only
+  aliases:
+  - ui render only
+  - render-only surfaces
+  - passive ui rendering
+  families:
+  - ui_local_changes
+  path_clues:
+  - /render
+  - /templates
+  - /views
+- key: data_ingestion
+  aliases:
+  - downloader
+  - source fetch
+  - remote input
+  - data acquisition
+  - input downloader
+  families:
+  - generic
+  - experiment_or_run_validation
+  filename_aliases:
+  - Downloader.cpp
+  - Downloader.hpp
+  path_clues:
+  - /download
+  - /fetch
+  - /input
+  - /ingest
+- key: archive_handling
+  aliases:
+  - archive reader
+  - zip handler
+  - bundle extraction
+  - compressed input
+  families:
+  - generic
+  - experiment_or_run_validation
+  filename_aliases:
+  - ZipReader.cpp
+  - ZipReader.hpp
+  path_clues:
+  - /zip
+  - /archive
+  - /extract
+- key: parsing_and_normalization
+  aliases:
+  - parser
+  - csv parser
+  - tsv parser
+  - record normalization
+  - schema normalization
+  families:
+  - generic
+  - pipeline_internal_modification
+  filename_aliases:
+  - CSVParser.cpp
+  - CSVParser.hpp
+  path_clues:
+  - /parser
+  - /parse
+  - /csv
+  - /tsv
+- key: transformation_pipeline
+  aliases:
+  - processor
+  - canonicalization
+  - data transformation
+  - relationship builder
+  - normalization pipeline
+  families:
+  - generic
+  - pipeline_internal_modification
+  - experiment_or_run_validation
+  filename_aliases:
+  - TaxonomyProcessor.cpp
+  - TaxonomyProcessor.hpp
+  path_clues:
+  - /processor
+  - /transform
+  - /normalize
+- key: export_generation
+  aliases:
+  - exporter
+  - artifact generation
+  - format writer
+  - dictionary generation
+  - output serializer
+  families:
+  - generic
+  - experiment_or_run_validation
+  filename_aliases:
+  - DictionaryGenerator.cpp
+  - DictionaryGenerator.hpp
+  - StarDictGenerator.cpp
+  - StarDictGenerator.hpp
+  path_clues:
+  - /export
+  - /generate
+  - /writer
+  - /output
+- key: visualization_ui
+  aliases:
+  - desktop ui
+  - visualizer
+  - interactive tree
+  - main frame
+  - rendered view
+  families:
+  - ui_local_changes
+  - api_control_plane
+  filename_aliases:
+  - MainFrame.cpp
+  - MainFrame.hpp
+  - TaxonomyApp.cpp
+  - TaxonomyApp.hpp
+  - main.cpp
+  path_clues:
+  - /ui
+  - /view
+  - /frame
+  - /render
+- key: search_navigation
+  aliases:
+  - incremental search
+  - selection model
+  - filtering ui
+  - result navigation
+  families:
+  - ui_local_changes
+  - generic
+  path_clues:
+  - /search
+  - /filter
+  - /selection
+- key: plugin_extension
+  aliases:
+  - plugin
+  - plugins
+  - extension
+  - extensions
+  - plugin registry
+  - extension point
+  - addon
+  families:
+  - generic
+  path_clues:
+  - /plugins
+  - /extensions
+  - /addons
+- key: provider_integration
+  aliases:
+  - provider
+  - providers
+  - connector
+  - connectors
+  - integration provider
+  - external adapter
+  families:
+  - generic
+  - api_control_plane
+  path_clues:
+  - /providers
+  - /connectors
+  - /integrations
+- key: hook_extension_points
+  aliases:
+  - hook
+  - hooks
+  - callback hook
+  - extension hook
+  - lifecycle hook
+  families:
+  - generic
+  path_clues:
+  - /hooks
+- key: serialization_marshalling
+  aliases:
+  - serializer
+  - serializers
+  - serialization
+  - marshalling
+  - marshal
+  - encode/decode
+  families:
+  - generic
+  - data_processing
+  path_clues:
+  - /serializers
+  - /serialization
+- key: session_state
+  aliases:
+  - session
+  - sessions
+  - auth session
+  - user session
+  - session store
+  families:
+  - generic
+  - ui_local_changes
+  - api_control_plane
+  path_clues:
+  - /sessions
+- key: service_actions
+  aliases:
+  - service
+  - services
+  - service layer
+  - action service
+  - service registry
+  families:
+  - generic
+  - api_control_plane
+  path_clues:
+  - /services
+- key: application_components
+  aliases:
+  - component
+  - components
+  - app component
+  - module component
+  families:
+  - generic
+  - ui_local_changes
+  path_clues:
+  - /components
+- key: integration_surfaces
+  aliases:
+  - integration
+  - integrations
+  - integration module
+  - integration surface
+  families:
+  - generic
+  - api_control_plane
+  path_clues:
+  - /integrations
+- key: entity_model
+  aliases:
+  - entity
+  - entities
+  - domain entity
+  - entity registry
+  - entity model
+  families:
+  - generic
+  - stateful_workflow
+  path_clues:
+  - /entities
+- key: frontend_ui
+  aliases:
+  - frontend
+  - front end
+  - ui frontend
+  - client ui
+  - presentation layer
+  families:
+  - ui_local_changes
+  - generic
+  path_clues:
+  - /frontend
+  - /templates
+  - /static
+- key: backend_services
+  aliases:
+  - backend
+  - back end
+  - server backend
+  - backend service
+  - application backend
+  families:
+  - api_control_plane
+  - generic
+  path_clues:
+  - /backend
+  - /server
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: subsystem_map.yaml
+    payload:
+      subsystems:
+      - id: scheduler_core
+        path_clues:
+        - /scheduler
+        - /engine
+        - /orchestrator
+      - id: state_persistence
+        path_clues:
+        - /db
+        - /models
+        - /store
+        - /repository
+      - id: operator_entrypoints
+        path_clues:
+        - /cli
+        - /api/v1/admin
+        - /handlers/operator
+      - id: recovery_mechanisms
+        path_clues:
+        - /recovery
+        - /retry
+        - /rollback
+      - id: validation
+        path_clues:
+        - /validation
+        - /schemas
+        - /guards
+      - id: observability
+        path_clues:
+        - /telemetry
+        - /logging
+        - /metrics
+      - id: dispatch
+        path_clues: *id001
+      - id: auth
+        path_clues: *id002
+      - id: api_control_plane
+        path_clues: *id003
+      - id: background_workers
+        path_clues:
+        - /workers
+        - /tasks
+        - /jobs
+      - id: configuration
+        path_clues: *id004
+      - id: concurrency_control
+        path_clues:
+        - /locks
+        - /mutex
+        - /synchronization
+      - id: audit_logging
+        path_clues: *id005
+      - id: input_processing
+        path_clues: *id006
+      - id: external_integrations
+        path_clues: *id007
+      - id: data_transformation
+        path_clues: *id008
+      - id: reporting
+        path_clues: *id009
+      - id: cleanup_services
+        path_clues: *id010
+      - id: initialization
+        path_clues: *id011
+      - id: testing_framework
+        path_clues: *id012

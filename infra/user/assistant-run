@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# infra/user/assistant-run
+# Description: Apply a ChatGPT-generated diff locally and run focused validation commands.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/assistant_run.py "$@"

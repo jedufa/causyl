@@ -1,0 +1,4 @@
+retrieval_policy:
+  stage4_structural_hint_limit: 48
+  stage4_structural_neighbor_limit: 32
+  narrow_task_pressure_multiplier: 1.35

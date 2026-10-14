@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Pretty wrapper around tools.scripts.verify_syntax
+set -euo pipefail
+
+EIEL_COLOR="${EIEL_COLOR:-1}"
+if [[ -t 1 && "${EIEL_COLOR}" == "1" ]]; then
+  _R=$'\033[0m'
+  _B=$'\033[1m'
+  _G=$'\033[32m'
+  _Y=$'\033[33m'
+  _C=$'\033[36m'
+  _BL=$'\033[34m'
+else
+  _R=''; _B=''; _G=''; _Y=''; _C=''; _BL=''
+fi
+
+section(){ echo; echo "${_B}${_C}========== $* ==========${_R}"; }
+ok(){ echo "${_G}[OK]${_R} $*"; }
+fail(){ echo "${_Y}[FAIL]${_R} $*"; }
+
+section "VERIFY SYNTAX"
+python -m tools.scripts.verify_syntax "$@"
+ok "verify_syntax completed"

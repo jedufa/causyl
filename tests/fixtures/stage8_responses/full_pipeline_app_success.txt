@@ -1,0 +1,10 @@
+Here is the patch to apply.
+
+```diff
+--- a/app.py
++++ b/app.py
+@@ -1,2 +1,2 @@
+ def greet() -> str:
+-    return 'hello'
++    return 'hello world'
+```

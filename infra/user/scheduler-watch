@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-watch
+# Description: Watch the live scheduler dashboard with progress markers.
+# Example: bash infra/user/scheduler-watch 20
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+source infra/bin/mobile_agent_env.sh
+
+# Convenience: allow `bash infra/user/scheduler-watch 20` as shorthand
+# for `--interval 20`.
+args=("$@")
+if [[ ${#args[@]} -gt 0 && "${args[0]}" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+  args=(--interval "${args[0]}" "${args[@]:1}")
+fi
+
+python_bin="${EIEL_PYTHON_BIN:-}"
+if [[ -z "${python_bin}" ]]; then
+  python_bin="$(command -v python)"
+fi
+PYTHONPATH=. "${python_bin}" infra/bin/scheduler_live_watch.py "${args[@]}"

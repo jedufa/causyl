@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# infra/user/server-assistant
+# Description: Control the assistant bridge runtime gate used by the plane.
+
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/../.." && pwd)"
+runtime_dir="${repo_root}/runtime/state/webui"
+control_file="${runtime_dir}/assistant_bridge_control.env"
+
+mkdir -p "${runtime_dir}"
+
+assistant_enabled=1
+if [[ -f "${control_file}" ]]; then
+  # shellcheck disable=SC1090
+  source "${control_file}"
+  assistant_enabled="${EIEL_ASSISTANT_BRIDGE_ENABLED:-1}"
+fi
+
+write_state() {
+  local value="$1"
+  cat > "${control_file}" <<EOF
+export EIEL_ASSISTANT_BRIDGE_ENABLED=${value}
+EOF
+  echo "[server-assistant] assistant_bridge_enabled=${value}"
+  echo "[server-assistant] assistant_bridge_control_file=${control_file}"
+}
+
+status() {
+  echo "[server-assistant] assistant_bridge_enabled=${assistant_enabled}"
+  echo "[server-assistant] assistant_bridge_control_file=${control_file}"
+}
+
+usage() {
+  cat <<'EOF'
+Usage: bash infra/user/server-assistant <command>
+
+Commands:
+  status   Show current assistant bridge state
+  on       Enable the assistant bridge
+  off      Disable the assistant bridge
+EOF
+}
+
+cmd="${1:-status}"
+case "${cmd}" in
+  status)
+    status
+    ;;
+  on)
+    write_state 1
+    ;;
+  off)
+    write_state 0
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    echo "[server-assistant] unknown command: ${cmd}" >&2
+    usage >&2
+    exit 2
+    ;;
+esac

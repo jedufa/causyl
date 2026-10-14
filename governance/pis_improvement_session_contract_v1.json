@@ -1,0 +1,89 @@
+{
+  "schema_version": "pis_improvement_session_contract_v1",
+  "uid": "PIS-20260412-062100Z-A1C3",
+  "canonical_doc_rel": "docs/contracts/contract_pis_improvement_session_v1.md",
+  "reference_examples_rel": "governance/pis_improvement_session_reference_examples_v1.json",
+  "session_schema_version": "pis_improvement_session_v1",
+  "critique_packet_schema_version": "pis_improvement_critique_packet_v1",
+  "reviser_packet_schema_version": "pis_improvement_reviser_packet_v1",
+  "top_level_required_fields": [
+    "schema_version",
+    "session_id",
+    "session_version",
+    "stable_identity",
+    "metadata",
+    "source_pis_ref",
+    "model_profiles",
+    "iteration_policy",
+    "workflow_state",
+    "candidate_selection",
+    "artifact_pointers",
+    "revision_ledger"
+  ],
+  "critique_packet_required_fields": [
+    "packet_schema_version",
+    "packet_id",
+    "round_id",
+    "candidate_ref",
+    "reviewer_profile_id",
+    "summary",
+    "packet_provenance",
+    "critique_items",
+    "overall_verdict"
+  ],
+  "reviser_packet_required_fields": [
+    "packet_schema_version",
+    "packet_id",
+    "round_id",
+    "candidate_ref",
+    "reviser_profile_id",
+    "source_critique_packet_id",
+    "summary",
+    "resolution_items",
+    "overall_status"
+  ],
+  "candidate_selection_required_fields": [
+    "selection_basis",
+    "candidate_pool_materialization_ref",
+    "preserved_filters",
+    "preserved_exclusions",
+    "candidate_refs",
+    "selected_candidate_refs",
+    "deterministic_order"
+  ],
+  "revision_ledger_required_fields": [
+    "ledger_schema_version",
+    "critique_rounds",
+    "revision_deltas",
+    "recommendation_history"
+  ],
+  "canonical_critique_categories": [
+    "contract_gap",
+    "evidence_gap",
+    "provenance_gap",
+    "resolution_gap",
+    "scope_boundary",
+    "test_gap"
+  ],
+  "canonical_critique_severities": [
+    "critical",
+    "major",
+    "minor"
+  ],
+  "canonical_resolution_dispositions": [
+    "addressed",
+    "rejected",
+    "deferred"
+  ],
+  "fail_closed_rules": [
+    "source_pis_reference_iteration_policy_and_artifact_pointers_are_mandatory",
+    "candidate_selection_must_be_replayable_from_file_or_ledger_backed_inputs",
+    "hidden_chat_context_candidate_selection_is_rejected",
+    "selected_candidates_must_come_from_the_materialized_candidate_pool",
+    "revision_history_requires_explicit_critique_and_delta_artifact_refs",
+    "critique_packets_must_be_specific_evidence_bearing_and_non_flattering",
+    "reviser_packets_must_map_every_resolution_back_to_a_concrete_critique_item",
+    "recommendation_history_cannot_overwrite_prior_rounds",
+    "mutable_source_pis_payloads_forbidden_inline"
+  ]
+}

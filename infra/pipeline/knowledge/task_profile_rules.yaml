@@ -1,0 +1,1112 @@
+version: 1
+phase: 2
+notes: Deterministic Stage 2 task classification mappings driven by Phase 1 intake
+  families. Canonical file with additive family profiles merged in.
+defaults:
+  primary_task_type: code_modification
+  task_mode: targeted_change
+  risk_level: medium
+  expected_edit_scope: few_files
+  retrieval_bias:
+    include:
+    - validation
+    - observability
+    exclude:
+    - docs
+    - generated_artifacts
+    - reports
+    - runtime
+    - temporary_outputs
+    - snapshots
+  cross_cutting_flags:
+  - observability
+  classifier_confidence: 0.46
+  ambiguity_score: 0.58
+  design_intent_terms:
+  - design
+  - architecture
+  - architectural
+  - proposal
+  - greenfield
+  - component design
+  - user-visible contract
+  - out of scope
+  - parent workstream
+  - child boundaries
+  - truth ownership
+  - decomposition-ready
+  hardening_terms:
+  - harden
+  - hardening
+  - safety
+  - robust
+  - resilient
+  - integrity
+  bugfix_terms:
+  - fix
+  - bug
+  - regression
+  - failing
+  - broken
+  - error
+  feature_terms:
+  - implement
+  - add
+  - introduce
+  - build
+  - create
+  refactor_terms:
+  - refactor
+  - cleanup
+  - rename
+  - restructure
+  - simplify
+  config_terms:
+  - config
+  - configuration
+  - yaml
+  - yml
+  - toml
+  - json
+  - properties
+  test_terms:
+  - test
+  - pytest
+  - unit test
+  - integration test
+  - failing test
+  - regression test
+  explicit_patch_terms:
+  - patch
+  - modify
+  - update
+  - change
+  truth_contract_terms:
+  - source of truth
+  - truth contract
+  - precedence
+  - authoritative
+  - assistant identity
+  - runtime state
+  - append-only
+  - audit event
+  - write arbitration
+  - write generation
+  - recovery marker
+  - blocked state
+  - schema version
+  - edit
+families:
+  generic:
+    primary_task_type: code_modification
+    risk_level: medium
+    expected_edit_scope: single_file
+    retrieval_bias:
+      include:
+      - validation
+      - observability
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - observability
+  scheduler_safety:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    legacy_aliases:
+    - scheduler_hardening
+    retrieval_bias:
+      include:
+      - scheduler_core
+      - schedule_calculation
+      - lease_claims
+      - recovery_mechanisms
+      - state_persistence
+      - validation
+      - audit_receipts
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - idempotency
+    - concurrency_control
+    - operator_safety
+    - observability
+    - recovery_integrity
+    secondary_tags:
+    - system_hardening
+  operator_control:
+    primary_task_type: system_hardening
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - operator_entrypoints
+      - validation
+      - state_persistence
+      - audit_receipts
+      - observability
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - idempotency
+    - operator_safety
+    - observability
+    - validation_rigor
+    - auditability
+    - input_sanitization
+    secondary_tags:
+    - system_hardening
+  stateful_workflow:
+    primary_task_type: refactor
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - state_persistence
+      - checkpoint_resume
+      - validation
+      - recovery_mechanisms
+      - observability
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - observability
+    - recovery_integrity
+    - validation_rigor
+    - rollback_safety
+    - stale_state_handling
+    secondary_tags:
+    - refactor
+  queue_dispatch:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - queue_dispatch
+      - lease_claims
+      - state_persistence
+      - worker_runtime
+      - retry_backoff
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - idempotency
+    - concurrency_control
+    - observability
+    - recovery_integrity
+    - ownership_control
+    - claim_integrity
+    secondary_tags:
+    - system_hardening
+  api_control_plane:
+    primary_task_type: code_modification
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - operator_entrypoints
+      - validation
+      - state_persistence
+      - audit_receipts
+      - observability
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - operator_safety
+    - observability
+    - validation_rigor
+    - ownership_control
+    - mutation_boundary
+    secondary_tags:
+    - code_modification
+  retry_timeout_resilience:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - retry_backoff
+      - timeouts_deadlines
+      - state_persistence
+      - recovery_mechanisms
+      - observability
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - idempotency
+    - observability
+    - recovery_integrity
+    - validation_rigor
+    - rollback_safety
+    - timing_correctness
+    secondary_tags:
+    - system_hardening
+  reconciliation_recovery:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    legacy_aliases:
+    - workflow_recovery
+    retrieval_bias:
+      include:
+      - recovery_mechanisms
+      - state_persistence
+      - audit_receipts
+      - observability
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - idempotency
+    - observability
+    - recovery_integrity
+    - ownership_control
+    - rollback_safety
+    secondary_tags:
+    - system_hardening
+  distributed_coordination:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - leadership_coordination
+      - lease_claims
+      - heartbeat_liveness
+      - observability
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - concurrency_control
+    - observability
+    - recovery_integrity
+    - validation_rigor
+    - ownership_control
+    secondary_tags:
+    - system_hardening
+  persistence_integrity:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - state_persistence
+      - audit_receipts
+      - configuration_versioning
+      - validation
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - observability
+    - recovery_integrity
+    - mutation_boundary
+    - reconciliation_correctness
+    secondary_tags:
+    - system_hardening
+  execution_lifecycle:
+    primary_task_type: code_modification
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - worker_runtime
+      - state_persistence
+      - audit_receipts
+      - observability
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - concurrency_control
+    - observability
+    secondary_tags:
+    - code_modification
+  dependency_gating:
+    primary_task_type: system_hardening
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - dependency_gating
+      - validation
+      - state_persistence
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - observability
+    - validation_rigor
+    - eligibility_correctness
+    - fail_closed_behavior
+    secondary_tags:
+    - system_hardening
+  configuration_versioning:
+    primary_task_type: refactor
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - configuration_versioning
+      - state_persistence
+      - audit_receipts
+      - validation
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - observability
+    - rollback_safety
+    - stale_state_handling
+    secondary_tags:
+    - refactor
+  audit_evidence:
+    primary_task_type: code_modification
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - audit_receipts
+      - observability
+      - state_persistence
+      - cleanup_retention
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - observability
+    - auditability
+    - duplicate_suppression
+    secondary_tags:
+    - code_modification
+  manual_backfill:
+    primary_task_type: system_hardening
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - manual_backfill
+      - schedule_calculation
+      - dependency_gating
+      - state_persistence
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - idempotency
+    - operator_safety
+    - observability
+    - eligibility_correctness
+    - timing_correctness
+    - duplicate_suppression
+    secondary_tags:
+    - system_hardening
+  heartbeat_liveness:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - heartbeat_liveness
+      - lease_claims
+      - worker_runtime
+      - recovery_mechanisms
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - observability
+    - ownership_control
+    - claim_integrity
+    - timing_correctness
+    secondary_tags:
+    - system_hardening
+  timeout_deadline_control:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - timeouts_deadlines
+      - retry_backoff
+      - worker_runtime
+      - state_persistence
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - observability
+    - timing_correctness
+    secondary_tags:
+    - system_hardening
+  cleanup_retention:
+    primary_task_type: code_modification
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - cleanup_retention
+      - audit_receipts
+      - state_persistence
+      - recovery_mechanisms
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - observability
+    - rollback_safety
+    - auditability
+    secondary_tags:
+    - code_modification
+  admission_and_validation:
+    primary_task_type: code_modification
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - validation
+      - operator_entrypoints
+      - state_persistence
+      - observability
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - observability
+    - validation_rigor
+    - mutation_boundary
+    - input_sanitization
+    - fail_closed_behavior
+    secondary_tags:
+    - code_modification
+  worker_runtime_safety:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - worker_runtime
+      - heartbeat_liveness
+      - state_persistence
+      - audit_receipts
+      - tests
+      exclude:
+      - docs
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - concurrency_control
+    - observability
+    - recovery_integrity
+    - mutation_boundary
+    - side_effect_control
+    secondary_tags:
+    - system_hardening
+  lab_assistant_memory:
+    primary_task_type: code_modification
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - knowledge_retrieval
+      - ledger_evidence
+      - truth_ownership
+      - execution_reconciliation
+      - task_register
+      - turn_transcripts
+      - writeback_projection
+      - state_persistence
+      - validation
+      - observability
+      - tests
+      exclude:
+      - generated_artifacts
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - auditability
+    - stale_state_handling
+    - mutation_boundary
+    - reconciliation_correctness
+    - validation_rigor
+    - observability
+    secondary_tags:
+    - architecture_contracts
+  lab_assistant_delegation:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - lab_assistant_delegation
+      - lab_assistant_correlation
+      - host_verification
+      - validation
+      - observability
+      - tests
+      exclude:
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - validation_rigor
+    - ownership_control
+    - observability
+    - recovery_integrity
+    secondary_tags:
+    - ownership_sensitive
+    - routing_sensitive
+  governance_ledger_durability:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - governance_ledger
+      - commit_traceability
+      - state_persistence
+      - observability
+      - tests
+      exclude:
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - auditability
+    - mutation_boundary
+    - observability
+    - recovery_integrity
+    secondary_tags:
+    - governance
+    - durability
+  agent_orchestration_runtime:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - agent_orchestration
+      - route_surface
+      - state_persistence
+      - observability
+      - tests
+      exclude:
+      - generated_artifacts
+      - reports
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - state_consistency
+    - concurrency_control
+    - observability
+    - recovery_integrity
+    - ownership_control
+    secondary_tags:
+    - runtime
+    - orchestration
+  host_execution_boundary:
+    primary_task_type: system_hardening
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - host_verification
+      - mobile_runtime
+      - validation
+      - docs
+      - tests
+      exclude:
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - validation_rigor
+    - mutation_boundary
+    - observability
+    secondary_tags:
+    - boundary
+    - deployment
+  pipeline_internal_modification:
+    primary_task_type: code_modification
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - intake_and_profile
+      - retrieval_runtime
+      - policy_assets
+      exclude:
+      - benchmark_harnesses
+      - broad_orchestration_hubs
+    cross_cutting_flags:
+    - state_consistency
+    - validation_rigor
+    - observability
+    secondary_tags:
+    - pipeline_internal
+    - owner_vs_hub
+  knowledge_and_retrieval_policy:
+    primary_task_type: config_change
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - knowledge_retrieval
+      - validation
+      - configuration_versioning
+      - tests
+      exclude:
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - validation_rigor
+    - mutation_boundary
+    - state_consistency
+    secondary_tags:
+    - policy
+    - retrieval
+  scheduler_or_control_plane:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - scheduler_core
+      - runtime_policy
+      - recovery_mechanisms
+      - operator_entrypoints
+      exclude:
+      - benchmark_harnesses
+      - broad_orchestration_hubs
+      - explicit_non_goal_surfaces
+    cross_cutting_flags:
+    - state_consistency
+    - ownership_control
+    - operator_safety
+    - auditability
+    - recovery_integrity
+    secondary_tags:
+    - scheduler
+    - control_plane
+  ui_local_changes:
+    primary_task_type: code_modification
+    risk_level: medium
+    expected_edit_scope: single_file
+    retrieval_bias:
+      include:
+      - ui_shell_and_mobile
+      - page_handlers
+      - local_validation
+      exclude:
+      - benchmark_harnesses
+      - broad_orchestration_hubs
+      - planner_hubs
+      - scheduler_core
+    cross_cutting_flags:
+    - validation_rigor
+    - observability
+    secondary_tags:
+    - ui
+    - localized_change
+  audit_and_integrity:
+    primary_task_type: system_hardening
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - ledger_actions
+      - audit_log
+      - state_registry
+      - verification_surfaces
+      exclude:
+      - benchmark_harnesses
+      - broad_orchestration_hubs
+      - explicit_non_goal_surfaces
+    cross_cutting_flags:
+    - auditability
+    - mutation_boundary
+    - state_consistency
+    - observability
+    secondary_tags:
+    - ledger
+    - truth
+  operator_review_and_repair:
+    primary_task_type: code_modification
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - operator_entrypoints
+      - recovery_mechanisms
+      - audit_receipts
+      - state_persistence
+      - tests
+      exclude:
+      - generated_artifacts
+      - reports
+      - runtime
+      - temporary_outputs
+      - snapshots
+    cross_cutting_flags:
+    - operator_safety
+    - auditability
+    - recovery_integrity
+    secondary_tags:
+    - review
+    - repair
+  experiment_or_run_validation:
+    primary_task_type: test_change
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - validation_harnesses
+      - checkpoint_and_replay
+      - run_comparison
+      exclude:
+      - benchmark_harnesses
+      - broad_orchestration_hubs
+      - planner_hubs
+      - ui_shell_and_mobile
+    cross_cutting_flags:
+    - observability
+    - validation_rigor
+    - auditability
+    secondary_tags:
+    - benchmark
+    - validation
+  assistant_truth_and_identity:
+    primary_task_type: truth_contract
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - assistant_runtime_state
+      - truth_registry
+      - audit_log
+      - serialization_replay
+      - recovery_markers
+      - operator_visible_state
+      - tests
+      - validation
+      exclude:
+      - benchmark_harnesses
+      - broad_orchestration_hubs
+      - chat_projection_only
+      - ui_render_only
+    cross_cutting_flags:
+    - state_consistency
+    - auditability
+    - ownership_control
+    - recovery_integrity
+    - validation_rigor
+    secondary_tags:
+    - identity
+    - truth_precedence
+    - write_arbitration
+  orchestration_checkpointing:
+    primary_task_type: orchestration_checkpointing
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - agent_orchestration
+      - checkpoint_resume
+      - state_persistence
+      - recovery_mechanisms
+      - audit_receipts
+      - tests
+      - validation
+      exclude:
+      - benchmark_harnesses
+      - broad_orchestration_hubs
+      - planner_hubs
+      - ui_shell_and_mobile
+      - chat_projection_only
+    cross_cutting_flags:
+    - state_consistency
+    - idempotency
+    - recovery_integrity
+    - ownership_control
+    - validation_rigor
+    - auditability
+    secondary_tags:
+    - checkpointing
+    - restart_safety
+    - duplicate_suppression
+  ui_truth_projection:
+    primary_task_type: ui_truth_projection
+    risk_level: medium
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - operator_visible_state
+      - route_surface
+      - state_persistence
+      - validation
+      - observability
+      - tests
+      exclude:
+      - benchmark_harnesses
+      - broad_orchestration_hubs
+      - planner_hubs
+      - scheduler_core
+      - chat_projection_only
+    cross_cutting_flags:
+    - state_consistency
+    - observability
+    - validation_rigor
+    - stale_state_handling
+    secondary_tags:
+    - projection
+    - operator_truthfulness
+    - backend_reachability
+  retrieval_ranking_contract:
+    primary_task_type: retrieval_ranking_contract
+    risk_level: high
+    expected_edit_scope: few_files
+    retrieval_bias:
+      include:
+      - intake_and_profile
+      - retrieval_runtime
+      - retrieval_ranker
+      - query_shaping
+      - answer_assembly
+      - knowledge_retrieval
+      - policy_assets
+      - validation
+      - tests
+      exclude:
+      - broad_orchestration_hubs
+      - ui_shell_and_mobile
+      - scheduler_core
+      - operator_entrypoints
+      - explicit_non_goal_surfaces
+    cross_cutting_flags:
+    - observability
+    - validation_rigor
+    - auditability
+    - stale_state_handling
+    - reconciliation_correctness
+    secondary_tags:
+    - evidence_first
+    - freshness
+    - applicability_boundaries
+design_mode:
+  primary_task_type: design_or_planning
+  task_mode: planning_only
+  risk_level: medium
+  expected_edit_scope: no_direct_edits
+  retrieval_bias:
+    include:
+    - validation
+    - observability
+    - state_persistence
+    exclude:
+    - generated_artifacts
+    - runtime
+    - temporary_outputs
+    - snapshots
+  cross_cutting_flags:
+  - observability
+  - validation_rigor
+  activation_terms:
+  - design
+  - architecture
+  - plan
+  - proposal
+  - study
+  - workflow
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: task_profile_rules.yaml
+    payload:
+      rules:
+      - id: high_risk_state_mutation
+        condition: concerns include mutation_boundary
+        bias: increase retrieval of persistence layer
+      - id: external_side_effect_risk
+        condition: triggers include ['send', 'api', 'notify']
+        bias: require idempotency_keys section in patch contract
+      - id: concurrency_critical
+        condition: concerns include concurrency_control
+        bias: prioritize files with 'lock', 'atomic', or 'mutex' symbols
+      - id: manual_operator_path
+        condition: task_family == operator_action_add
+        bias: require operator_safety validation in bundle
+      - id: recovery_logic_sensitive
+        condition: concerns include recovery_integrity
+        bias: include rollback_strategy in patch contract
+      - id: observability_gap
+        condition: concerns include observability AND NOT triggers include ['log',
+          'metric']
+        bias: flag bundle_gap_warning for missing telemetry
+      - id: stale_state_risk
+        condition: concerns include stale_state_handling
+        bias: bias towards files with 'version', 'timestamp', or 'etag'
+      - id: idempotency_required
+        condition: concerns include idempotency
+        bias: require idempotent_retry_handling in derived requirements
+      - id: validation_rigor_required
+        condition: concerns include validation_rigor
+        bias: search for schema files and validation decorators
+      - id: audit_required
+        condition: concerns include auditability
+        bias: require audit_log_on_manual_override requirement
+      - id: fail_closed_priority
+        condition: concerns include fail_closed_behavior
+        bias: search for top-level exception handlers and try-except blocks
+      - id: consistency_critical
+        condition: concerns include state_consistency
+        bias: include consistency_guarantees in patch contract
+      - id: input_sanitization_needed
+        condition: triggers include ['api', 'cli', 'request']
+        bias: prioritize entrypoint controllers and parsers
+      - id: timing_race_risk
+        condition: concerns include timing_correctness
+        bias: increase depth of search for async/await calls
+      - id: rollback_safety_check
+        condition: concerns include rollback_safety
+        bias: require rollback_integrity_check in requirements
+      - id: claim_integrity_validation
+        condition: concerns include claim_integrity
+        bias: prioritize lock management and heartbeat logic
+      - id: duplicate_suppression_needed
+        condition: concerns include duplicate_suppression
+        bias: look for cache-based deduplication or unique index handlers
+      - id: reconciliation_logic_update
+        condition: task_family == reconciliation_loop_fix
+        bias: prioritize background syncing workers
+      - id: orchestration_step_change
+        condition: task_family == orchestration_change
+        bias: include state_transition_map in patch contract
+      - id: resource_leak_risk
+        condition: triggers include ['dispose', 'leak', 'open']
+        bias: search for context managers and finalizers

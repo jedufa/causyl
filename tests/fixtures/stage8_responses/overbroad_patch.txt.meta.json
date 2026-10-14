@@ -1,0 +1,8 @@
+{
+  "expected_primary_stage8_behavior": "reject",
+  "fixture_name": "overbroad_patch.txt",
+  "format_family": "unified_diff",
+  "notes": "Reality-shaped non-live fixture.",
+  "provenance_type": "synthetic_repo_diff",
+  "source_reference": "baseline-260 stage8 non-live harness"
+}

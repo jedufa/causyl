@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# infra/user/intent-sheet
+# Description: Interactive launcher for Intent Sheet helpers.
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+echo "Compatibility wrapper only. Canonical operator state lives in the plane." >&2
+bash infra/user/intent-sheet-create-from-text "$@"

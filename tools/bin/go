@@ -1,0 +1,870 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import signal
+import shutil
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from infra.pipeline.automation import run_full_auto
+from infra.pipeline.automation import make_job_id
+from infra.pipeline.core import STAGE_FILE_SPECS, PipelineError, load_pipeline_config, save_json_atomic, save_text_atomic, utc_now_iso
+from infra.pipeline.pipeline_runner import DEFAULT_PIPELINE
+from infra.pipeline.semantic import semantic_cli_overrides
+from infra.pipeline.stages.patch_generate import _build_prompt
+from infra.pipeline.user_progress import describe_progress_event, mark_user_stop_requested
+
+MODES = [
+    ("deterministic", {"provider": "none", "model": None, "mode": "off"}),
+    ("semantic_rank_only", {"provider": None, "model": None, "mode": "rank_only"}),
+    ("semantic_retrieve_and_rank", {"provider": None, "model": None, "mode": "retrieve_and_rank"}),
+]
+
+MODE_ALIASES = {
+    "deterministic": "deterministic",
+    "det": "deterministic",
+    "rank": "semantic_rank_only",
+    "semantic_rank_only": "semantic_rank_only",
+    "retrieve": "semantic_retrieve_and_rank",
+    "retrieval": "semantic_retrieve_and_rank",
+    "semantic_retrieve_and_rank": "semantic_retrieve_and_rank",
+    "all": "all",
+}
+
+MODE_INDEX = {name: (name, preset) for name, preset in MODES}
+
+
+_LIVE_RENDERED_LINES = 0
+
+
+class GracefulInterruptController:
+    def __init__(self) -> None:
+        self.sigint_count = 0
+        self.stop_requested = False
+        self.current_proc: Any = None
+        self.current_prefix = "go"
+        self.current_job_dir: Path | None = None
+
+    def set_context(self, *, prefix: str, job_dir: str | Path | None = None) -> None:
+        self.current_prefix = str(prefix or "go")
+        self.current_job_dir = Path(job_dir).resolve() if job_dir else None
+
+    def clear_context(self) -> None:
+        self.current_proc = None
+        self.current_job_dir = None
+
+    def should_stop(self) -> bool:
+        return bool(self.stop_requested)
+
+    def set_current_proc(self, proc: Any) -> None:
+        self.current_proc = proc
+
+    def _kill_current_process_group(self, *, force: bool) -> None:
+        proc = self.current_proc
+        if proc is None:
+            return
+        try:
+            if proc.poll() is not None:
+                return
+            if hasattr(os, "killpg"):
+                os.killpg(proc.pid, signal.SIGKILL if force else signal.SIGTERM)
+            elif force:
+                proc.kill()
+            else:
+                proc.terminate()
+        except ProcessLookupError:
+            return
+        except Exception:
+            try:
+                if proc.poll() is None:
+                    if force:
+                        proc.kill()
+                    else:
+                        proc.terminate()
+            except Exception:
+                pass
+
+    def handle_sigint(self, signum: int, frame: object) -> None:
+        self.sigint_count += 1
+        _clear_live_line()
+        if self.sigint_count == 1:
+            self.stop_requested = True
+            message = "Finishing the current attempt and returning the best available result. Press Ctrl-C again to abort immediately."
+            if self.current_job_dir is not None:
+                try:
+                    mark_user_stop_requested(job_dir=self.current_job_dir, message=message)
+                except Exception:
+                    pass
+            sys.stderr.write(f"[{utc_now_iso()}] {self.current_prefix} Ctrl-C received. {message}\n")
+            sys.stderr.flush()
+            return
+        sys.stderr.write(
+            f"[{utc_now_iso()}] {self.current_prefix} second Ctrl-C received. Forcing immediate stop; partial artifacts already written will be kept.\n"
+        )
+        sys.stderr.flush()
+        self._kill_current_process_group(force=True)
+        raise KeyboardInterrupt
+
+
+def _live_progress_enabled() -> bool:
+    return sys.stderr.isatty() or str(os.environ.get("PIPELINE_FORCE_LIVE_PROGRESS") or "").strip() == "1"
+
+
+def _clear_live_line() -> None:
+    global _LIVE_RENDERED_LINES
+    if _LIVE_RENDERED_LINES <= 0 or not _live_progress_enabled():
+        _LIVE_RENDERED_LINES = 0
+        return
+    sys.stderr.write("\r")
+    if _LIVE_RENDERED_LINES > 1:
+        sys.stderr.write(f"\033[{_LIVE_RENDERED_LINES - 1}A")
+    for index in range(_LIVE_RENDERED_LINES):
+        sys.stderr.write("\033[2K")
+        if index < _LIVE_RENDERED_LINES - 1:
+            sys.stderr.write("\n")
+    if _LIVE_RENDERED_LINES > 1:
+        sys.stderr.write(f"\033[{_LIVE_RENDERED_LINES - 1}A")
+    sys.stderr.write("\r")
+    sys.stderr.flush()
+    _LIVE_RENDERED_LINES = 0
+
+
+def _render_live_lines(lines: List[str]) -> None:
+    global _LIVE_RENDERED_LINES
+    if not _live_progress_enabled():
+        return
+    clean_lines = list(lines or [])
+    if _LIVE_RENDERED_LINES > 0:
+        sys.stderr.write("\r")
+        if _LIVE_RENDERED_LINES > 1:
+            sys.stderr.write(f"\033[{_LIVE_RENDERED_LINES - 1}A")
+    target_lines = max(_LIVE_RENDERED_LINES, len(clean_lines))
+    for index in range(target_lines):
+        sys.stderr.write("\033[2K")
+        if index < len(clean_lines):
+            sys.stderr.write(clean_lines[index])
+        if index < target_lines - 1:
+            sys.stderr.write("\n")
+    sys.stderr.flush()
+    _LIVE_RENDERED_LINES = len(clean_lines)
+
+
+def _print_progress_line(text: str) -> None:
+    _render_live_lines([text[:200]])
+
+
+def _format_duration_ms(duration_ms: int) -> str:
+    seconds = max(0, int(duration_ms // 1000))
+    minutes, seconds = divmod(seconds, 60)
+    if minutes:
+        return f"{minutes}m {seconds:02d}s"
+    return f"{seconds}s"
+
+
+def _resolve_selected_modes(raw_modes: List[str], *, deterministic_only: bool) -> List[tuple[str, Dict[str, Any]]]:
+    if deterministic_only:
+        return [MODES[0]]
+    requested = [str(item or "").strip().lower() for item in list(raw_modes or []) if str(item or "").strip()]
+    if not requested:
+        return list(MODES)
+    out: List[tuple[str, Dict[str, Any]]] = []
+    seen: set[str] = set()
+    for raw in requested:
+        canonical = MODE_ALIASES.get(raw)
+        if not canonical:
+            choices = ", ".join(sorted(MODE_ALIASES.keys()))
+            raise ValueError(f"unsupported --mode value: {raw}. Expected one of: {choices}")
+        if canonical == "all":
+            for name, preset in MODES:
+                if name not in seen:
+                    out.append((name, dict(preset)))
+                    seen.add(name)
+            continue
+        if canonical not in seen:
+            name, preset = MODE_INDEX[canonical]
+            out.append((name, dict(preset)))
+            seen.add(canonical)
+    return out or list(MODES)
+
+
+def _terminal_width(default: int = 118) -> int:
+    try:
+        return max(72, int(shutil.get_terminal_size((default, 20)).columns))
+    except Exception:
+        return default
+
+
+def _truncate(text: str, *, width: Optional[int] = None) -> str:
+    limit = max(40, int(width or _terminal_width()))
+    raw = " ".join(str(text or "").split())
+    if len(raw) <= limit:
+        return raw
+    return raw[: max(0, limit - 3)].rstrip() + "..."
+
+
+def _load_user_progress_snapshot(job_dir: str | Path | None) -> Dict[str, Any]:
+    if not job_dir:
+        return {}
+    path = Path(job_dir).resolve() / "job_progress.json"
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _format_file_list(files: List[Any], *, width: int) -> str:
+    values = [str(item or "").strip() for item in list(files or []) if str(item or "").strip()]
+    if not values:
+        return "working set: selecting the relevant files"
+    visible = values[:3]
+    label = ", ".join(visible)
+    remaining = len(values) - len(visible)
+    if remaining > 0:
+        label += f" (+{remaining} more)"
+    return _truncate(f"working set: {label}", width=width)
+
+
+def _compact_result_phrase(progress: Dict[str, Any], payload: Dict[str, Any]) -> str:
+    attempt_status = str(progress.get("attempt_status") or payload.get("status") or "").strip()
+    if attempt_status:
+        return f"last result: {attempt_status.lower()}"
+    if progress.get("status") == "retrying":
+        return "last result: retry scheduled"
+    return "last result: first attempt in flight"
+
+
+def _compact_goal_phrase(progress: Dict[str, Any]) -> str:
+    goal = str(progress.get("current_goal") or "").strip()
+    if goal:
+        return goal
+    detail = str(progress.get("detail") or "").strip()
+    if detail:
+        return detail
+    return "make measurable progress toward a valid result"
+
+
+def _compact_retry_phrase(progress: Dict[str, Any]) -> str:
+    strategy = str(progress.get("retry_strategy") or "").strip().replace("_", " ")
+    expected_change = _truncate(str(progress.get("expected_change") or "").strip(), width=36)
+    convergence = _truncate(
+        str(progress.get("convergence_summary") or progress.get("convergence_note") or "").strip(),
+        width=80,
+    )
+    next_step = f"next: {strategy}" if strategy else "next: retry"
+    parts = []
+    if convergence:
+        parts.append(f"convergence: {convergence}")
+    parts.append(next_step)
+    text = " | ".join(part for part in parts if part)
+    if expected_change:
+        candidate = f"{text} ({expected_change})"
+        if len(candidate) <= _terminal_width():
+            return candidate
+    return text
+
+
+class CompactProgressRenderer:
+    def __init__(self, *, prefix: str) -> None:
+        self.prefix = str(prefix or "go")
+
+    def build_lines(self, *, event: str, payload: Dict[str, Any], progress: Dict[str, Any]) -> List[str]:
+        width = _terminal_width()
+        phase = str(progress.get("headline") or describe_progress_event(event, payload).get("headline") or "Working").strip()
+        elapsed = _format_duration_ms(int(progress.get("elapsed_ms") or payload.get("elapsed_ms") or 0))
+        attempt_index = progress.get("next_attempt_index") if progress.get("status") == "retrying" and progress.get("next_attempt_index") else progress.get("attempt_index")
+        max_attempts = progress.get("max_attempts") or progress.get("max_attempts_total")
+        attempt_text = f"attempt {attempt_index}/{max_attempts}" if attempt_index and max_attempts else (f"attempt {attempt_index}" if attempt_index else "attempt ?")
+        tokens_total = progress.get("model_tokens_total")
+        tokens_budget = progress.get("max_model_tokens_total")
+        tokens_text = ""
+        if tokens_total is not None:
+            if tokens_budget:
+                tokens_text = f" | total tokens to date: {int(tokens_total):,}/{int(tokens_budget):,}"
+            else:
+                tokens_text = f" | total tokens to date: {int(tokens_total):,}"
+        line1 = _truncate(f"{self.prefix} | {attempt_text} | {phase} | elapsed {elapsed}{tokens_text}", width=width)
+        line2 = _format_file_list(list(progress.get("files_under_consideration") or []), width=width)
+        if progress.get("status") == "retrying":
+            line3 = _truncate(_compact_retry_phrase(progress), width=width)
+        else:
+            goal = _compact_goal_phrase(progress)
+            status = _compact_result_phrase(progress, payload)
+            line3 = _truncate(f"goal: {goal}; {status}", width=width)
+        return [line1, line2, line3]
+
+    def render(self, *, event: str, payload: Dict[str, Any], job_dir: str | Path | None) -> None:
+        progress = _load_user_progress_snapshot(job_dir)
+        _render_live_lines(self.build_lines(event=event, payload=payload, progress=progress))
+
+
+def _resolve_stop_stage(step_number: int) -> str:
+    if step_number < 1 or step_number > len(DEFAULT_PIPELINE):
+        raise ValueError(f"--pipeline-step-stop must be between 1 and {len(DEFAULT_PIPELINE)}")
+    return DEFAULT_PIPELINE[step_number - 1].key
+
+
+def _slugify(text: str) -> str:
+    cleaned = "".join(ch.lower() if ch.isalnum() else "-" for ch in text).strip("-")
+    while "--" in cleaned:
+        cleaned = cleaned.replace("--", "-")
+    return (cleaned or "job")[:40].strip("-") or "job"
+
+
+def _write_mode_artifacts(mode_dir: Path, summary: Dict[str, Any]) -> None:
+    save_json_atomic(mode_dir / "summary.json", summary)
+    lines = [str(path) for path in list(summary.get("selected_files") or [])]
+    save_text_atomic(mode_dir / "selected_files.txt", "\n".join(lines) + ("\n" if lines else ""))
+
+
+def _load_job_report_quick_read(summary: Dict[str, Any]) -> List[str]:
+    artifacts = dict(summary.get("artifacts") or {})
+    job_report_path = str(artifacts.get("job_report_path") or "").strip()
+    if not job_report_path:
+        return []
+    path = Path(job_report_path)
+    if not path.exists():
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    result = dict(payload.get("result") or {})
+    report = dict(result.get("job_report") or {})
+    out: List[str] = []
+    for item in list(report.get("quick_read") or []):
+        text = str(item or "").strip()
+        if text:
+            out.append(text)
+    return out
+
+
+def _emit_terminal_summary(prefix: str, summary: Dict[str, Any]) -> None:
+    quick_read = _load_job_report_quick_read(summary)
+    controller = dict(summary.get("controller") or {})
+    stop_reason = dict(controller.get("stop_reason") or {})
+    if not quick_read and not stop_reason:
+        return
+    _clear_live_line()
+    sys.stderr.write(f"[{utc_now_iso()}] {prefix} 30-second summary\n")
+    for item in quick_read:
+        sys.stderr.write(f"  - {item}\n")
+    if stop_reason:
+        sys.stderr.write(f"  - Controller stop: {str(stop_reason.get('message') or stop_reason.get('reason_code') or '').strip()}\n")
+        next_step = str(controller.get("recommended_next_step") or "").strip()
+        if next_step:
+            sys.stderr.write(f"  - Recommended next step: {next_step}\n")
+    sys.stderr.flush()
+
+
+def _load_job_report_markdown(summary: Dict[str, Any]) -> tuple[str, str]:
+    artifacts = dict(summary.get("artifacts") or {})
+    job_report_path = str(artifacts.get("job_report_path") or "").strip()
+    if not job_report_path:
+        return ("", "")
+    json_path = Path(job_report_path)
+    md_path = json_path.with_name("16_job_report.md")
+    if not md_path.exists():
+        return (str(md_path), "")
+    try:
+        return (str(md_path), md_path.read_text(encoding="utf-8"))
+    except Exception:
+        return (str(md_path), "")
+
+
+def _emit_debug_verbose_report(prefix: str, summary: Dict[str, Any]) -> None:
+    report_path, report_text = _load_job_report_markdown(summary)
+    if not report_path:
+        return
+    _clear_live_line()
+    sys.stderr.write(f"[{utc_now_iso()}] {prefix} debug verbose report\n")
+    sys.stderr.write(f"report_path={report_path}\n")
+    if report_text:
+        sys.stderr.write(report_text.rstrip() + "\n")
+    else:
+        sys.stderr.write("(report unavailable or unreadable)\n")
+    sys.stderr.flush()
+
+
+def _load_stage8_prompt(summary: Dict[str, Any]) -> tuple[str, str]:
+    artifacts = dict(summary.get("artifacts") or {})
+    patch_plan_path = str(artifacts.get("patch_plan_path") or "").strip()
+    execution_contract_path = str(artifacts.get("execution_contract_path") or "").strip()
+    if not patch_plan_path or not execution_contract_path:
+        return ("", "")
+    patch_plan_file = Path(patch_plan_path)
+    execution_contract_file = Path(execution_contract_path)
+    if not patch_plan_file.exists() or not execution_contract_file.exists():
+        return ("", "")
+    try:
+        stage7_payload = json.loads(patch_plan_file.read_text(encoding="utf-8"))
+        execution_contract_payload = json.loads(execution_contract_file.read_text(encoding="utf-8"))
+        stage7_result = dict(stage7_payload.get("result") or {})
+        execution_contract = dict(
+            execution_contract_payload.get("execution_contract")
+            or dict(execution_contract_payload.get("result") or {}).get("execution_contract")
+            or {}
+        )
+        prompt = _build_prompt(execution_contract=execution_contract, stage7_result=stage7_result)
+        return (f"{execution_contract_path} + {patch_plan_path}", prompt)
+    except Exception:
+        return ("", "")
+
+
+def _emit_debug_verbose_prompt(prefix: str, summary: Dict[str, Any]) -> None:
+    source_path, prompt_text = _load_stage8_prompt(summary)
+    if not prompt_text:
+        return
+    _clear_live_line()
+    sys.stderr.write(f"[{utc_now_iso()}] {prefix} debug verbose outgoing prompt\n")
+    if source_path:
+        sys.stderr.write(f"prompt_sources={source_path}\n")
+    sys.stderr.write(prompt_text.rstrip() + "\n")
+    sys.stderr.flush()
+
+
+def _emit_debug_verbose_failure(prefix: str, *, repo_root: str | Path, job_id: str, run_id: str, failed_stage: str, config_overrides: Dict[str, Any]) -> None:
+    config = load_pipeline_config(repo_root=repo_root, cli_overrides=config_overrides)
+    jobs_root = Path(str(config.get("_derived", {}).get("jobs_root") or ""))
+    if not jobs_root:
+        return
+    run_dir = jobs_root / str(job_id) / "runs" / str(run_id)
+    if not run_dir.exists():
+        return
+    prompt_source, prompt_text = _load_stage8_prompt(
+        {
+            "artifacts": {
+                "patch_plan_path": str(run_dir / "07_patch_plan.json"),
+                "execution_contract_path": str(run_dir / "07_execution_contract.json"),
+            }
+        }
+    )
+    if prompt_text:
+        _clear_live_line()
+        sys.stderr.write(f"[{utc_now_iso()}] {prefix} debug verbose outgoing prompt\n")
+        if prompt_source:
+            sys.stderr.write(f"prompt_sources={prompt_source}\n")
+        sys.stderr.write(prompt_text.rstrip() + "\n")
+    raw_output_path = run_dir / "08_patch_artifact.raw.txt"
+    if raw_output_path.exists():
+        sys.stderr.write(f"[{utc_now_iso()}] {prefix} debug verbose raw model output\n")
+        sys.stderr.write(f"raw_output_path={raw_output_path}\n")
+        try:
+            sys.stderr.write(raw_output_path.read_text(encoding="utf-8").rstrip() + "\n")
+        except Exception:
+            sys.stderr.write("(raw output unreadable)\n")
+    patch_artifact_path = run_dir / STAGE_FILE_SPECS["script_8_patch_generate"].output_name
+    if patch_artifact_path.exists():
+        sys.stderr.write(f"[{utc_now_iso()}] {prefix} debug verbose stage 8 artifact\n")
+        try:
+            payload = json.loads(patch_artifact_path.read_text(encoding="utf-8"))
+            sys.stderr.write(json.dumps(payload.get("result") or {}, indent=2, ensure_ascii=False) + "\n")
+        except Exception:
+            sys.stderr.write("(stage 8 artifact unreadable)\n")
+    if failed_stage in STAGE_FILE_SPECS:
+        exec_log_path = run_dir / STAGE_FILE_SPECS[failed_stage].log_name
+        if exec_log_path.exists():
+            sys.stderr.write(f"[{utc_now_iso()}] {prefix} debug verbose failed stage log\n")
+            sys.stderr.write(f"log_path={exec_log_path}\n")
+            try:
+                sys.stderr.write(exec_log_path.read_text(encoding="utf-8").rstrip() + "\n")
+            except Exception:
+                sys.stderr.write("(failed stage log unreadable)\n")
+    sys.stderr.flush()
+
+
+def _clear_semantic_cache(repo_root: str | Path) -> None:
+    cache_root = Path(repo_root).resolve() / "runtime" / "state" / "pipeline_semantic"
+    if cache_root.exists():
+        shutil.rmtree(cache_root, ignore_errors=True)
+
+
+def _comparison_report(all_summaries: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    selected_sets = {name: set(summary.get("selected_files") or []) for name, summary in all_summaries.items()}
+    target_sets = {name: set(summary.get("implementation_targets") or []) for name, summary in all_summaries.items()}
+    modify_sets = {name: set(summary.get("selected_modify_files") or []) for name, summary in all_summaries.items()}
+    common_files = sorted(set.intersection(*selected_sets.values())) if selected_sets else []
+    common_targets = sorted(set.intersection(*target_sets.values())) if target_sets else []
+    common_modify = sorted(set.intersection(*modify_sets.values())) if modify_sets else []
+    baseline = all_summaries.get("deterministic", {})
+    baseline_time = int(baseline.get("elapsed_time_ms") or 0)
+    report = {
+        "runs": {},
+        "comparison": {
+            "common_selected_files": common_files,
+            "common_implementation_targets": common_targets,
+            "common_modify_files": common_modify,
+            "unique_selected_files": {},
+            "unique_implementation_targets": {},
+            "unique_modify_files": {},
+            "runtime_deltas_ms": {},
+            "semantic_changed_selected_files": {},
+            "semantic_changed_implementation_targets": {},
+            "semantic_changed_ranking_only": {},
+            "semantic_added_non_deterministic_candidates": {},
+        },
+    }
+    for name, summary in all_summaries.items():
+        provenance = dict(summary.get("retrieval_provenance") or {})
+        impact = dict(provenance.get("semantic_impact") or {})
+        report["runs"][name] = {
+            "job_id": summary.get("job_id"),
+            "run_id": summary.get("run_id"),
+            "status": summary.get("status"),
+            "elapsed_time_ms": summary.get("elapsed_time_ms"),
+            "selected_files": list(summary.get("selected_files") or []),
+            "implementation_targets": list(summary.get("implementation_targets") or []),
+            "selected_modify_files": list(summary.get("selected_modify_files") or []),
+            "stage_timings": list(summary.get("stage_timings") or []),
+            "retrieval_provenance": provenance,
+            "artifacts": dict(summary.get("artifacts") or {}),
+        }
+        report["comparison"]["unique_selected_files"][name] = sorted(selected_sets.get(name, set()) - set(common_files))
+        report["comparison"]["unique_implementation_targets"][name] = sorted(target_sets.get(name, set()) - set(common_targets))
+        report["comparison"]["unique_modify_files"][name] = sorted(modify_sets.get(name, set()) - set(common_modify))
+        report["comparison"]["runtime_deltas_ms"][name] = int(summary.get("elapsed_time_ms") or 0) - baseline_time
+        report["comparison"]["semantic_changed_selected_files"][name] = bool(impact.get("changed_selected_files"))
+        report["comparison"]["semantic_changed_implementation_targets"][name] = bool(impact.get("changed_implementation_targets"))
+        report["comparison"]["semantic_changed_ranking_only"][name] = bool(impact.get("changed_ranking_only"))
+        report["comparison"]["semantic_added_non_deterministic_candidates"][name] = int(impact.get("semantic_only_candidate_count") or 0)
+    return report
+
+
+def _comparison_markdown(report: Dict[str, Any]) -> str:
+    lines = ["# go comparison report", ""]
+    for name, payload in dict(report.get("runs") or {}).items():
+        provenance = dict(payload.get("retrieval_provenance") or {})
+        impact = dict(provenance.get("semantic_impact") or {})
+        lines.extend([
+            f"## {name}",
+            f"- job_id: `{payload.get('job_id')}`",
+            f"- run_id: `{payload.get('run_id')}`",
+            f"- status: `{payload.get('status')}`",
+            f"- elapsed_time_ms: `{payload.get('elapsed_time_ms')}`",
+            f"- strategy: `{provenance.get('strategy')}`",
+            f"- semantic status: `{provenance.get('status') or provenance.get('semantic_status')}`",
+            f"- requested mode: `{provenance.get('requested_mode')}`",
+            f"- effective mode: `{provenance.get('effective_mode')}`",
+            f"- requested provider: `{provenance.get('requested_provider')}`",
+            f"- effective provider: `{provenance.get('effective_provider')}`",
+            f"- requested model: `{provenance.get('requested_model')}`",
+            f"- effective model: `{provenance.get('effective_model')}`",
+            f"- changed selected files: `{impact.get('changed_selected_files')}`",
+            f"- changed implementation targets: `{impact.get('changed_implementation_targets')}`",
+            f"- changed ranking only: `{impact.get('changed_ranking_only')}`",
+            f"- semantic-only candidate count: `{impact.get('semantic_only_candidate_count')}`",
+            f"- semantic expansion candidate count: `{provenance.get('semantic_expansion_candidate_count')}`",
+            f"- semantic result categories: `{provenance.get('semantic_result_category_counts')}`",
+            "- selected files:",
+        ])
+        for path in list(payload.get("selected_files") or []):
+            lines.append(f"  - `{path}`")
+        if payload.get("implementation_targets"):
+            lines.append("- implementation targets:")
+            for path in list(payload.get("implementation_targets") or []):
+                lines.append(f"  - `{path}`")
+        if payload.get("selected_modify_files"):
+            lines.append("- planned modify files:")
+            for path in list(payload.get("selected_modify_files") or []):
+                lines.append(f"  - `{path}`")
+        lines.append("")
+    lines.append("## Cross-run summary")
+    lines.append("- common selected files:")
+    for path in list(report.get("comparison", {}).get("common_selected_files") or []):
+        lines.append(f"  - `{path}`")
+    lines.append("- common implementation targets:")
+    for path in list(report.get("comparison", {}).get("common_implementation_targets") or []):
+        lines.append(f"  - `{path}`")
+    lines.append("- common modify files:")
+    for path in list(report.get("comparison", {}).get("common_modify_files") or []):
+        lines.append(f"  - `{path}`")
+    for name, files in dict(report.get("comparison", {}).get("unique_selected_files") or {}).items():
+        lines.append(f"- unique to {name}:")
+        for path in files:
+            lines.append(f"  - `{path}`")
+    for name, files in dict(report.get("comparison", {}).get("unique_modify_files") or {}).items():
+        lines.append(f"- modify files unique to {name}:")
+        for path in files:
+            lines.append(f"  - `{path}`")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _emit_compact_terminal_summary(prefix: str, summary: Dict[str, Any]) -> None:
+    controller = dict(summary.get("controller") or {})
+    stop_reason = dict(summary.get("controller_stop") or controller.get("stop_reason") or {})
+    attempts_total = int(dict(controller.get("totals") or {}).get("attempts_total") or 0)
+    elapsed_ms = int(summary.get("elapsed_time_ms") or 0)
+    status = str(summary.get("status") or "unknown").strip()
+    _clear_live_line()
+    headline = f"[{utc_now_iso()}] {prefix} finished status={status} elapsed={_format_duration_ms(elapsed_ms)}"
+    if attempts_total:
+        headline += f" attempts={attempts_total}"
+    sys.stderr.write(headline + "\n")
+    message_bits: List[str] = []
+    if stop_reason:
+        reason = str(stop_reason.get("message") or stop_reason.get("reason_code") or "").strip()
+        if reason:
+            message_bits.append(f"stop: {reason}")
+    next_step = str(dict(summary.get("controller_stop") or {}).get("recommended_next_step") or controller.get("recommended_next_step") or "").strip()
+    if next_step:
+        message_bits.append(f"next: {next_step}")
+    report_path = str(dict(summary.get("artifacts") or {}).get("job_report_path") or "").strip()
+    if report_path:
+        message_bits.append(f"report: {report_path}")
+    if message_bits:
+        sys.stderr.write(_truncate(" | ".join(message_bits), width=_terminal_width()) + "\n")
+    sys.stderr.flush()
+
+
+def _emit_cli_progress(prefix: str, event: str, payload: Dict[str, Any], *, compact_renderer: CompactProgressRenderer | None = None, job_dir: str | Path | None = None) -> None:
+    stamp = utc_now_iso()
+    stage = str(payload.get("stage") or "").strip()
+    stage_index = int(payload.get("stage_index") or 0)
+    total_stages = int(payload.get("total_stages") or 0)
+    info = describe_progress_event(event, payload)
+    if compact_renderer is not None:
+        compact_renderer.render(event=event, payload=payload, job_dir=job_dir)
+        return
+    if event == "stage_heartbeat":
+        detail = str(payload.get("detail") or "").strip() or f"running {stage}"
+        elapsed = _format_duration_ms(int(payload.get("elapsed_ms") or 0))
+        _print_progress_line(f"[{stamp}] {prefix} stage {stage_index}/{total_stages} running: {detail} | {info.get('headline') or stage} [{elapsed}]")
+        return
+    _clear_live_line()
+    if event == "job_prepared":
+        detail = f"prepared {payload.get('job_id')} | {info.get('headline')}"
+    elif event == "pipeline_started":
+        detail = f"pipeline started run_id={payload.get('run_id')} total_stages={payload.get('total_stages')} | {info.get('headline')}"
+    elif event == "stage_start":
+        detail = f"stage {stage_index}/{total_stages} started: {stage} | {info.get('headline')}"
+    elif event == "stage_complete":
+        duration_ms = int(payload.get("execution_duration_ms") or payload.get("stage_duration_ms") or 0)
+        detail = f"stage {stage_index}/{total_stages} complete: {stage} ({duration_ms} ms) | {info.get('headline')}"
+    elif event == "stage_failed":
+        reason = str(payload.get("reason") or "stage_failed")
+        detail = f"stage {stage_index}/{total_stages} failed: {stage} ({reason}) | {info.get('detail') or info.get('headline')}"
+    elif event == "retry_prepared":
+        strategy = str(payload.get("strategy") or "").strip() or "retry"
+        reentry = str(payload.get("reentry_stage") or "").strip()
+        detail = f"retry prepared strategy={strategy} reentry={reentry or 'auto'} | {info.get('detail')}"
+    elif event == "controller_stop":
+        reason = str(payload.get("reason_code") or "").strip() or "controller_stop"
+        detail = f"controller stop reason={reason} | {info.get('detail')}"
+    elif event == "review_render_start":
+        detail = f"rendering review for run_id={payload.get('run_id')} | {info.get('headline')}"
+    elif event == "review_render_complete":
+        detail = f"review rendered for run_id={payload.get('run_id')} | {info.get('headline')}"
+    elif event == "operator_decision_saved":
+        detail = f"operator decision saved: {payload.get('decision') or ''} | {info.get('headline')}"
+    elif event == "summary_persisted":
+        detail = f"summary saved status={payload.get('status') or ''} | {info.get('headline')}"
+    elif event == "pipeline_complete":
+        detail = f"pipeline complete status={payload.get('status') or ''} | {info.get('headline')}"
+    else:
+        detail = f"{event} | {info.get('headline')}"
+    sys.stderr.write(f"[{stamp}] {prefix} {detail}\n")
+    sys.stderr.flush()
+
+
+def main(argv: List[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="go",
+        description="Run deterministic and semantic retrieval profiles back-to-back.",
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=(
+            "semantic provider values:\n"
+            "  none|off   Disable semantic retrieval.\n"
+            "  stub       Local test/dummy embedding provider.\n"
+            "  ollama     Local Ollama embedding provider via semantic.api/embed.\n"
+            "\n"
+            "notes:\n"
+            "  --provider and --model only affect semantic retrieval for the semantic comparison runs.\n"
+            "  They do not change the patch-generation provider/model used by later pipeline stages.\n"
+            "  --semantic-provider and --semantic-model are explicit aliases for the same overrides.\n"
+            "  --mode lets you choose deterministic, rank, retrieve, or all.\n"
+            "  --deterministic-only is kept as a shorthand for --mode deterministic."
+        ),
+    )
+    parser.add_argument("prompt", nargs="*", help="Plain-English job request.")
+    parser.add_argument("--repo-root", default=".")
+    parser.add_argument(
+        "--provider",
+        "--semantic-provider",
+        dest="provider",
+        default="",
+        help="Semantic retrieval provider override: none|off|stub|ollama.",
+    )
+    parser.add_argument(
+        "--model",
+        "--semantic-model",
+        dest="model",
+        default="",
+        help="Semantic retrieval model override. Provider-specific; for ollama this must be a local embedding model name.",
+    )
+    parser.add_argument("--output-dir", default="")
+    parser.add_argument("--zip", action="store_true")
+    parser.add_argument("--json", action="store_true")
+    parser.add_argument("--compact-progress", action="store_true", help="Render a compact 3-line live progress view instead of printing every stage transition.")
+    parser.add_argument("--debug-verbose", action="store_true", help="Print the outgoing stage 8 prompt and rendered 16_job_report.md to stderr at the end of each mode.")
+    parser.add_argument("--preserve-semantic-cache", action="store_true", help="Do not clear semantic cache between comparison modes.")
+    parser.add_argument(
+        "--mode",
+        action="append",
+        default=[],
+        help="Repeatable mode selector: deterministic|rank|retrieve|all.",
+    )
+    parser.add_argument("--deterministic-only", action="store_true", help="Run only deterministic mode and skip semantic modes.")
+    parser.add_argument("--pipeline-step-stop", type=int, default=0, help="Stop the pipeline after the given 1-based stage number.")
+    args = parser.parse_args(argv)
+    if args.prompt:
+        prompt_text = " ".join(args.prompt).strip()
+    elif not sys.stdin.isatty():
+        prompt_text = sys.stdin.read().strip()
+    else:
+        parser.print_help(sys.stderr)
+        return 2
+    if not prompt_text:
+        parser.print_help(sys.stderr)
+        return 2
+    timestamp = utc_now_iso().replace(":", "").replace("T", "-").replace("Z", "")
+    out_dir = Path(args.output_dir or (Path(args.repo_root).resolve() / "reports" / f"go-{timestamp}-{_slugify(prompt_text)}"))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        stop_after_stage = _resolve_stop_stage(args.pipeline_step_stop) if args.pipeline_step_stop else ""
+    except ValueError as exc:
+        parser.error(str(exc))
+    try:
+        selected_modes = _resolve_selected_modes(list(args.mode or []), deterministic_only=bool(args.deterministic_only))
+    except ValueError as exc:
+        parser.error(str(exc))
+    summaries: Dict[str, Dict[str, Any]] = {}
+    interrupted = False
+    total_modes = len(selected_modes)
+    compact_progress = bool(args.compact_progress or str(os.environ.get("PIPELINE_PROGRESS_STYLE") or "").strip().lower() == "compact")
+    interruptor = GracefulInterruptController()
+    previous_handler = signal.getsignal(signal.SIGINT)
+    signal.signal(signal.SIGINT, interruptor.handle_sigint)
+    try:
+        for mode_index, (mode_name, preset) in enumerate(selected_modes, start=1):
+            if interruptor.should_stop() and summaries:
+                break
+            mode_dir = out_dir / mode_name
+            mode_dir.mkdir(parents=True, exist_ok=True)
+            if not args.preserve_semantic_cache:
+                _clear_semantic_cache(args.repo_root)
+            provider = args.provider or preset.get("provider")
+            model = args.model or preset.get("model")
+            prefix = f"go {mode_index}/{total_modes} [{mode_name}]"
+            overrides = semantic_cli_overrides(provider=provider or None, model=model or None, mode=str(preset.get("mode") or "off"))
+            mode_job_id = make_job_id(prompt_text)
+            mode_config = load_pipeline_config(repo_root=args.repo_root, cli_overrides=overrides)
+            mode_job_dir = Path(str(mode_config.get("_derived", {}).get("jobs_root") or "")) / mode_job_id
+            compact_renderer = CompactProgressRenderer(prefix=prefix) if compact_progress else None
+            interruptor.set_context(prefix=prefix, job_dir=mode_job_dir)
+            if not compact_progress:
+                _clear_live_line()
+                sys.stderr.write(
+                    f"[{utc_now_iso()}] {prefix} starting mode={str(preset.get('mode') or 'off')} provider={provider or 'auto'} model={model or 'auto'}\n"
+                )
+                sys.stderr.flush()
+            try:
+                summary = run_full_auto(
+                    repo_root=args.repo_root,
+                    prompt_text=prompt_text,
+                    job_id=mode_job_id,
+                    config_overrides=overrides,
+                    auto_approve=True,
+                    progress_callback=lambda event, payload, _prefix=prefix, _renderer=compact_renderer, _job_dir=mode_job_dir: _emit_cli_progress(
+                        _prefix,
+                        event,
+                        payload,
+                        compact_renderer=_renderer,
+                        job_dir=_job_dir,
+                    ),
+                    stop_after_stage=stop_after_stage,
+                    stop_requested=interruptor.should_stop,
+                    process_handle_callback=interruptor.set_current_proc,
+                )
+            except PipelineError as exc:
+                interruptor.clear_context()
+                if args.debug_verbose:
+                    failed_stage = str(exc.details.get("stage") or "")
+                    failed_run_id = str(exc.details.get("run_id") or "")
+                    if failed_run_id:
+                        _emit_debug_verbose_failure(
+                            prefix,
+                            repo_root=args.repo_root,
+                            job_id=mode_job_id,
+                            run_id=failed_run_id,
+                            failed_stage=failed_stage,
+                            config_overrides=overrides,
+                        )
+                _clear_live_line()
+                sys.stderr.write(f"[{utc_now_iso()}] {prefix} failed code={exc.code} message={exc.message}\n")
+                sys.stderr.flush()
+                return int(exc.exit_code or 1)
+            except KeyboardInterrupt:
+                interrupted = True
+                interruptor.clear_context()
+                break
+            interruptor.clear_context()
+            summaries[mode_name] = summary
+            _write_mode_artifacts(mode_dir, summary)
+            if compact_progress:
+                _emit_compact_terminal_summary(prefix, summary)
+            else:
+                _clear_live_line()
+                sys.stderr.write(
+                    f"[{utc_now_iso()}] {prefix} finished status={summary.get('status') or ''} run_id={summary.get('run_id') or ''} elapsed_ms={summary.get('elapsed_time_ms') or 0}\n"
+                )
+                sys.stderr.flush()
+                _emit_terminal_summary(prefix, summary)
+            if args.debug_verbose:
+                _emit_debug_verbose_prompt(prefix, summary)
+                _emit_debug_verbose_report(prefix, summary)
+            if interruptor.should_stop():
+                _clear_live_line()
+                sys.stderr.write(f"[{utc_now_iso()}] {prefix} stopping after the current mode and returning partial results\n")
+                sys.stderr.flush()
+                interrupted = True
+                break
+    except KeyboardInterrupt:
+        interrupted = True
+    finally:
+        signal.signal(signal.SIGINT, previous_handler)
+        interruptor.clear_context()
+    report = _comparison_report(summaries)
+    save_json_atomic(out_dir / "comparison_report.json", report)
+    save_text_atomic(out_dir / "comparison_report.md", _comparison_markdown(report))
+    archive_path = shutil.make_archive(str(out_dir), "zip", root_dir=str(out_dir)) if args.zip else ""
+    final = {
+        "output_dir": str(out_dir),
+        "comparison_report_json": str(out_dir / "comparison_report.json"),
+        "comparison_report_md": str(out_dir / "comparison_report.md"),
+        "zip_path": archive_path or None,
+        "interrupted": bool(interrupted or interruptor.should_stop()),
+        "runs": {name: {"job_id": summary.get("job_id"), "run_id": summary.get("run_id")} for name, summary in summaries.items()},
+    }
+    _clear_live_line()
+    if args.json:
+        sys.stdout.write(json.dumps(final, indent=2, ensure_ascii=False) + "\n")
+    else:
+        sys.stdout.write(f"output_dir={final['output_dir']}\n")
+        sys.stdout.write(f"comparison_report_json={final['comparison_report_json']}\n")
+        sys.stdout.write(f"comparison_report_md={final['comparison_report_md']}\n")
+        if archive_path:
+            sys.stdout.write(f"zip_path={archive_path}\n")
+    return 130 if final["interrupted"] else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

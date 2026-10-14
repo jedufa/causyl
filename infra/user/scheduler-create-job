@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Description: Create a new scheduled job via the interactive scheduler authoring CLI.
+# Example: bash infra/user/scheduler-create-job
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
+PYTHONPATH=. python infra/bin/scheduler_create_job.py "$@"

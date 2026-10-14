@@ -1,0 +1,8 @@
+Response follows.
+*** Begin Patch
+*** Update File: hello.txt
+@@
+-hello
++hello world
+*** End Patch
+Generated from fixture mode.

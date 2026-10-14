@@ -1,0 +1,107 @@
+{
+  "schema_version": "campaign_record_contract_v1",
+  "uid": "PIS-20260409-121600Z-J8M2",
+  "contract_family": "campaign_identity_phase_graph",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_campaign_record_schema_v1.md",
+  "campaign_lifecycle_states": [
+    "draft",
+    "active",
+    "blocked",
+    "review",
+    "completed",
+    "failed",
+    "cancelled"
+  ],
+  "phase_lifecycle_states": [
+    "declared",
+    "running",
+    "blocked",
+    "succeeded",
+    "failed",
+    "cancelled"
+  ],
+  "terminal_phase_states": [
+    "succeeded",
+    "failed",
+    "cancelled"
+  ],
+  "campaign_required_fields": [
+    "schema_version",
+    "campaign_id",
+    "parent_binding",
+    "campaign_state",
+    "campaign_truth_refs",
+    "record_event_refs",
+    "phases"
+  ],
+  "phase_required_fields": [
+    "phase_id",
+    "label",
+    "job_shape",
+    "state",
+    "depends_on",
+    "output_refs",
+    "truth_refs",
+    "phase_event_refs"
+  ],
+  "truth_ref_fields": [
+    "ledger_uids",
+    "job_ids",
+    "run_ids",
+    "receipt_refs",
+    "continuation_packet_ids",
+    "artifact_refs"
+  ],
+  "evidence_pack_ref_fields": [
+    "pack_id",
+    "pack_schema_version",
+    "pack_artifact_ref",
+    "pack_fingerprint",
+    "summary"
+  ],
+  "append_only_fields": [
+    "record_event_refs",
+    "phase_event_refs"
+  ],
+  "forbidden_inline_truth_fields": {
+    "task_register_snapshot": "Campaign records may not embed mutable task-register snapshots.",
+    "task_records": "Campaign records may not inline task truth that belongs to canonical task storage.",
+    "job_receipts": "Campaign records may not duplicate full job receipts inline.",
+    "receipt_payloads": "Campaign records may not carry receipt bodies instead of durable refs.",
+    "transcript_summary": "Transcript summaries may explain campaign history but never replace durable campaign truth.",
+    "transcript_summaries": "Transcript summaries may explain campaign history but never replace durable campaign truth."
+  },
+  "forbidden_phase_inline_fields": {
+    "task_snapshot": "Phase rows may not embed task snapshots.",
+    "task_record": "Phase rows may not embed full task records.",
+    "receipt_payload": "Phase rows may not embed receipt payload bodies.",
+    "receipt_body": "Phase rows may not embed receipt payload bodies.",
+    "transcript_summary": "Phase rows may not rely on transcript summaries as canonical truth."
+  },
+  "parent_binding_rule": {
+    "binding_type": "ledger_uid",
+    "reason": "The campaign record groups lower-layer truth but does not replace canonical ledger identity."
+  },
+  "phase_graph_rules": [
+    "phase_id values must be unique",
+    "depends_on edges must target declared phase_id values",
+    "self-edges are forbidden",
+    "cycles are forbidden in v1",
+    "phase job_shape must use canonical job-shape names"
+  ],
+  "append_only_expectations": [
+    "campaign record writes append durable event refs instead of mutating hidden state",
+    "phase updates append phase event refs instead of rewriting history",
+    "campaign records group lower-layer truth and do not replace ledger, run, or receipt stores"
+  ],
+  "anti_patterns": [
+    "immortal_coordinator_memory_as_campaign_truth",
+    "phase_graph_reconstructed_from_prompt_or_filenames",
+    "campaign_record_as_shadow_task_register",
+    "embedded_receipt_or_task_snapshots_instead_of_refs"
+  ]
+}

@@ -1,0 +1,58 @@
+pipeline_benchmark:
+  results_root: tests/benchmarks/pipeline/_results
+  baseline_variant: control
+  defaults:
+    go_script: infra/bin/go
+    deterministic_only: false
+    preserve_semantic_cache: true
+  suites:
+    - key: gold_large
+      enabled: true
+      benchmark_root: tests/benchmarks/pipeline/benchmark-gpt/gold_large
+      items_dir: tests/benchmarks/pipeline/benchmark-gpt/gold_large/gold_items_large
+      pis_glob: "*/pis.md"
+      item_kind: pis
+      subset: "1-202"
+      scorer: gold_large
+      compare_previous_run: true
+    - key: promptset
+      enabled: true
+      benchmark_root: tests/benchmarks/pipeline/benchmark-gpt/promptSet
+      items_dir: tests/benchmarks/pipeline/benchmark-gpt/promptSet/prompts
+      reference_dir: gpt_references
+      pis_glob: '*.md'
+      item_kind: prompt
+      scorer: promptset
+      compare_previous_run: true
+    - key: scheduler
+      enabled: true
+      benchmark_root: tests/benchmarks/pipeline/benchmark-gpt/scheduler
+      items_dir: tests/benchmarks/pipeline/benchmark-gpt/scheduler/prompts
+      reference_dir: gpt_references
+      pis_glob: '*.md'
+      item_kind: prompt
+      scorer: reference_trace
+      compare_previous_run: true
+  variants:
+    - key: control
+      description: Baseline control run with repo defaults only.
+    - key: stage4_local_expansion
+      description: Aggressive Stage 4 local structural expansion.
+      config_overlay_files:
+        - config/benchmark_variants/stage4_local_expansion.yaml
+    - key: stage5_hard_gate
+      description: Stronger Stage 5 target eligibility gate and hub caps.
+      config_overlay_files:
+        - config/benchmark_variants/stage5_hard_gate.yaml
+    - key: stage6_bundle_completeness
+      description: Stronger Stage 6 support and witness preservation.
+      config_overlay_files:
+        - config/benchmark_variants/stage6_bundle_completeness.yaml
+    - key: integrated_beta_aggressive
+      description: Combined aggressive Stage 4/5/6 regime.
+      config_overlay_files:
+        - config/benchmark_variants/integrated_beta_aggressive.yaml
+    - key: integrated_crosscutting_safe
+      description: Combined aggressive regime with cross-cutting fallback safeguard.
+      config_overlay_files:
+        - config/benchmark_variants/integrated_crosscutting_safe.yaml

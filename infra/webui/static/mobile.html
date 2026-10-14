@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Causyl Mobile Admin</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <style>
+    /* Mobile admin page tweaks (baseline = mobile app admin). */
+    :root{
+      --terminal-bg:#050505;
+      --terminal-fg:#d7e3d7;
+      --terminal-muted:#8aa08a;
+      --terminal-border:#1d3a23;
+      --terminal-glow:rgba(85, 245, 120, 0.10);
+    }
+    .view-root{
+      padding:10px 10px 14px 10px;
+      max-width:980px;
+    }
+    .card{
+      padding:12px;
+    }
+    .card-header{
+      margin:-12px -12px 10px -12px;
+      padding:10px 12px;
+    }
+    .mono-pre{
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-variant-numeric:tabular-nums;
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    /* Scrollbox for long outputs so the page doesn't become a 10km scroll journey. */
+    .scrollbox{
+      max-height:52vh;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(0,0,0,0.10);
+    }
+    /* Slightly taller for file previews. */
+    .scrollbox-lg{ max-height:68vh; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:8px;
+    }
+    .hidden{ display:none !important; }
+    .row-tight{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .row-big{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .w100{ width:100%; }
+    .small-note{ font-size:12px; color:var(--muted); }
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,0.02);
+      color:var(--muted);
+      max-width:100%;
+    }
+    .file-list{
+      max-height: 42vh;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:14px;
+    }
+    .file-row{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 10px;
+      border-bottom:1px solid rgba(42,53,80,0.55);
+      min-width:0;
+    }
+    .file-row:last-child{ border-bottom:none; }
+    .file-name{ flex:1 1 auto; min-width:0; }
+    .file-name .mono{ font-size:12px; }
+    .file-actions{ display:flex; gap:8px; flex:0 0 auto; }
+    .file-actions a.btn{ display:inline-block; text-decoration:none; }
+    .job-list{ max-height:34vh; overflow:auto; border:1px solid var(--line); border-radius:12px; }
+    .job-row{ padding:10px; border-bottom:1px solid rgba(42,53,80,0.55); }
+    .job-row:last-child{ border-bottom:none; }
+    .btn.big{ min-height:44px; font-size:15px; padding:10px 14px; }
+    textarea.input{
+      min-height: 10lh;
+      resize: vertical;
+      width:100%;
+    }
+    .terminal-surface{
+      background:
+        radial-gradient(circle at top left, rgba(85,245,120,0.08), transparent 36%),
+        linear-gradient(180deg, rgba(19,24,19,0.98), rgba(5,5,5,0.98));
+      color:var(--terminal-fg);
+      border:1px solid var(--terminal-border);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02), 0 0 0 1px rgba(0,0,0,0.35), 0 10px 24px rgba(0,0,0,0.30);
+      text-shadow:0 0 10px var(--terminal-glow);
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      line-height:1.45;
+      caret-color:#9dff9d;
+    }
+    .terminal-surface::placeholder{
+      color:var(--terminal-muted);
+      opacity:1;
+    }
+    .terminal-scroll{
+      min-height:16lh;
+    }
+    .terminal-input{
+      min-height:8lh;
+    }
+    .compact-value{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      color:var(--text);
+    }
+    .pane-label{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:4px;
+    }
+    .shell-toggle.active{
+      border-color:var(--accent, #6fa8ff);
+      background:rgba(111,168,255,0.14);
+      color:var(--text);
+    }
+    .embedded-pane{
+      width:100%;
+      min-height:78vh;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#050505;
+    }
+    body.embedded-shell .topbar{ display:none; }
+    body.embedded-shell .view-root{ padding-top:10px; }
+    @media (max-width: 680px){
+      .topbar{ align-items:flex-start; }
+      .topbar-actions{ flex-wrap:wrap; justify-content:flex-end; }
+      .topbar-actions .btn{ min-height:40px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-title">Causyl Mobile Admin</div>
+      <div class="brand-sub">The plane mobile shell</div>
+    </div>
+
+    <div class="topbar-actions">
+      <button id="btnShowAdmin" class="btn shell-toggle" type="button" title="Admin">Admin</button>
+      <button id="btnShowLedger" class="btn shell-toggle" type="button" title="Ledger">Ledger</button>
+      <a class="btn" href="/" title="Main UI">Main UI</a>
+      <a class="btn" href="/agents" title="Agents">Agents</a>
+      <a class="btn" href="/docs/" target="_blank" rel="noopener" title="Docs">Docs</a>
+    </div>
+  </header>
+
+  <main id="mobileAdminPane" class="view-root">
+    <div class="grid">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Admin</div>
+          <div class="row-tight">
+            <button id="btnCommit" class="btn ok">Commit</button>
+            <button id="btnSendCmd" class="btn ok">Send CMD</button>
+            <button id="btnDeploySite" class="btn">Deploy</button>
+          </div>
+        </div>
+        <textarea id="cmdText" class="input mono-pre terminal-surface terminal-input" placeholder="bash command (default timeout 7000 seconds)"></textarea>
+        <input id="adminToken" type="password" hidden />
+      </section>
+
+      <section class="card" id="cardTerminal">
+        <div class="card-header">
+          <div class="card-title">Terminal</div>
+        </div>
+        <pre id="cmdOutput" class="mono-pre scrollbox terminal-surface terminal-scroll"></pre>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Terminal Pane</div>
+        </div>
+        <div class="row-tight">
+          <button id="btnCmdClearAll" class="btn small">Clear</button>
+          <button id="btnCopyCommand" class="btn small">Copy</button>
+          <button id="btnGitStatusCmd" class="btn small">Git Status</button>
+          <button id="btnCtrlC" class="btn danger small">CTRL-C</button>
+        </div>
+      </section>
+
+      <section class="card" id="cardGit">
+        <div class="card-header">
+          <div class="card-title">Git</div>
+        </div>
+        <div class="pane-label">Branch / worktree</div>
+        <div id="gitBranchWorktree" class="compact-value">-</div>
+        <div class="pane-label" style="margin-top:8px;">Head id</div>
+        <div id="gitHeadId" class="compact-value">-</div>
+        <div class="pane-label" style="margin-top:8px;">Current baseline</div>
+        <div id="gitBaselineName" class="compact-value">-</div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Server</div>
+          <div class="row-tight">
+            <span id="healthBadge" class="badge badge-muted">unknown</span>
+            <button id="btnServerRefresh" class="btn small" title="Apply live prompt/runtime policy changes without restarting">Refresh</button>
+            <button id="btnRestartServer" class="btn danger small" title="Restart the WebUI process (execv)">Restart</button>
+          </div>
+        </div>
+        <div id="serverStatusNote" class="small-note"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <main id="mobileLedgerPane" class="view-root hidden">
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Ledger</div>
+        <div class="small-note">Same shell, no route jump.</div>
+      </div>
+      <iframe
+        id="mobileLedgerFrame"
+        class="embedded-pane"
+        src="/mobile/cockpit?embedded=1"
+        title="The plane mobile cockpit"
+      ></iframe>
+    </section>
+  </main>
+
+  <script src="/static/tooltip.js"></script>
+  <script src="/static/mobile.js"></script>
+  <script>
+    (function(){
+      function byId(id){ return document.getElementById(id); }
+      function normalizePane(value){
+        const v = String(value || "").trim().toLowerCase();
+        return v === "ledger" ? "ledger" : "admin";
+      }
+      function currentRequestedPane(){
+        try{
+          const params = new URLSearchParams(window.location.search || "");
+          const pane = params.get("pane");
+          if(pane) return normalizePane(pane);
+        }catch(_e){}
+        const path = String(window.location.pathname || "");
+        if(path.endsWith("/mobile/backlog")) return "ledger";
+        return "admin";
+      }
+      function renderPane(pane){
+        const admin = byId("mobileAdminPane");
+        const ledger = byId("mobileLedgerPane");
+        const btnAdmin = byId("btnShowAdmin");
+        const btnLedger = byId("btnShowLedger");
+        const next = normalizePane(pane);
+        if(admin) admin.classList.toggle("hidden", next !== "admin");
+        if(ledger) ledger.classList.toggle("hidden", next !== "ledger");
+        if(btnAdmin) btnAdmin.classList.toggle("active", next === "admin");
+        if(btnLedger) btnLedger.classList.toggle("active", next === "ledger");
+        try{
+          const url = new URL(window.location.href);
+          url.searchParams.set("pane", next);
+          const targetPath = String(window.location.pathname || "").endsWith("/mobile/backlog")
+            ? "/mobile"
+            : url.pathname;
+          window.history.replaceState({}, "", targetPath + "?" + url.searchParams.toString());
+        }catch(_e){}
+      }
+      const initial = currentRequestedPane();
+      try{
+        var params = new URLSearchParams(window.location.search || "");
+        if(params.get("embedded") === "1"){
+          document.body.classList.add("embedded-shell");
+        }
+      }catch(_e){}
+      const btnAdmin = byId("btnShowAdmin");
+      const btnLedger = byId("btnShowLedger");
+      if(btnAdmin) btnAdmin.addEventListener("click", function(){ renderPane("admin"); });
+      if(btnLedger) btnLedger.addEventListener("click", function(){ renderPane("ledger"); });
+      renderPane(initial);
+    })();
+  </script>
+
+</body>
+</html>

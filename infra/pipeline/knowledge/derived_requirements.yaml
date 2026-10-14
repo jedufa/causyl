@@ -1,0 +1,525 @@
+version: 1
+phase: 1
+notes: Deterministic Stage 1 derived requirements grouped by task family and written as enforceable safety, observability, and recovery guarantees.
+families:
+  generic:
+    safety_requirements:
+    - validate authoritative preconditions before any state-changing action
+    - reject stale version, stale ownership, or missing lineage during mutation
+    - suppress duplicate execution and duplicate externally visible side effects
+    - protect terminal truth from re-entry without explicit reset semantics
+    - persist committed state before reporting success to callers or orchestrators
+    observability_requirements:
+    - emit durable evidence for accepted, rejected, suppressed, and replayed actions
+    - record actor, owner, lineage, correlation, and target identifiers on every mutation
+    - surface source state, destination state, and guard evaluation outcome for transitions
+    - capture retry, timeout, suppression, and reconciliation reasons in machine-usable form
+    - preserve enough evidence to reconstruct the final truth after partial failure
+    recovery_guarantees:
+    - recovery must be safe to execute repeatedly against the same durable truth
+    - repair must not duplicate already committed side effects or receipts
+    - restart must reload current durable truth before attempting further mutation
+    - partial failure must converge to a known safe, blocked, or terminal state
+    - irrecoverable corruption must surface as explicit failure with preserved evidence
+  scheduler_safety:
+    safety_requirements:
+    - dispatch only when schedule window, eligibility, and ownership are all current and valid
+    - prevent more than one active run per logical job instance
+    - reject restart, resume, cancel, and relaunch transitions that violate lifecycle truth
+    - block dispatch for disabled, paused, blocked, or already-terminal jobs
+    - persist launch claim, due-time lineage, and completion evidence before success reporting
+    observability_requirements:
+    - record every dispatch decision including skipped, suppressed, and rejected due evaluations
+    - capture due time, actual launch time, scheduler identity, and owning claim token
+    - emit lineage linking initial dispatch, retries, restarts, and reconciliations
+    - surface claim acquisition, renewal, expiry, revocation, and reclaim events durably
+    - record operator identity and reason for every manual scheduler intervention
+    recovery_guarantees:
+    - scheduler restart must not create duplicate active runs for the same due slot
+    - stale claims must be fenced before reuse or reassignment
+    - recovery must preserve retry counters, due-time lineage, and ownership history
+    - replay must not reissue already committed external side effects from prior attempts
+    - orphaned scheduler state must converge to blocked, failed, or safely recoverable truth
+  operator_control:
+    safety_requirements:
+    - validate pause, resume, cancel, and restart requests against authoritative lifecycle state before mutation
+    - require authorization, object-level policy, and concurrency preconditions for manual actions
+    - require explicit reason evidence for overrides, force actions, and destructive controls
+    - reject manual transitions that target stale versions or incompatible lifecycle states
+    - fence automated writers before destructive operator intervention when required
+    - ensure manual rollback and replay preserve lineage and auditability
+    observability_requirements:
+    - persist actor identity, reason code, source interface, and ticket reference for each manual action
+    - record target identifier, prior state, requested transition, and final outcome
+    - emit deterministic rejection evidence when manual action is blocked by policy or state
+    - link manual action receipts to resulting repairs, retries, or reconciliations
+    - surface whether a manual action bypassed default automation paths
+    recovery_guarantees:
+    - transport or client retry must not duplicate committed manual actions without idempotency evidence
+    - control-plane restart must preserve or explicitly reject inflight manual intent
+    - failed manual transitions must revalidate current durable truth before retry
+    - recovery must distinguish between original operator action and replay-generated repair
+    - manual rollback must restore only compatible durable truth and preserve newer evidence
+  stateful_workflow:
+    safety_requirements:
+    - advance workflow state only when all entry guards for the destination stage are satisfied
+    - reject parent terminalization while required children remain nonterminal
+    - preserve parent-child lineage across retries, rewinds, and compensations
+    - require explicit compensation semantics before rewinding completed stages
+    - prevent aggregate success when any blocking child outcome remains unresolved
+    observability_requirements:
+    - record guard evaluation results for every workflow stage transition
+    - emit parent-child correlation identifiers and aggregate status computation inputs
+    - surface stage blockers, skipped stages, and operator overrides durably
+    - record fan-out creation, child completion, and compensation events with lineage
+    - preserve stage timing and blocking evidence needed for later diagnosis
+    recovery_guarantees:
+    - workflow restart must reconstruct child truth before advancing parent state
+    - repair must not duplicate already-created downstream work items
+    - reconciliation must account for both parent and child lineage before closing discrepancies
+    - partial compensation must converge to a declared rollback boundary
+    - orphaned workflows must surface explicit blocked or failed status when automatic repair is unsafe
+  queue_dispatch:
+    safety_requirements:
+    - acknowledge messages only after durable processing outcome is committed
+    - preserve deduplication keys across replay, dead-letter, and manual requeue paths
+    - respect visibility, delivery-attempt, and poison-message policies before relaunch
+    - record per-item truth for batched processing outcomes
+    - fence live and replay consumers from processing the same logical message concurrently
+    observability_requirements:
+    - emit durable delivery lineage including attempt count, lease token, and visibility deadlines
+    - record dead-letter cause, replay origin, and original enqueue identifiers
+    - surface whether a handler outcome committed before ack, nack, or visibility extension
+    - capture deduplication decisions and suppression reasons in machine-readable form
+    - preserve per-item outcome evidence even when batch-level summary succeeds
+    recovery_guarantees:
+    - consumer restart must not reprocess messages whose effects are already durably committed
+    - recovery must restore visibility, lease, and attempt information before replay
+    - poison-message handling must not silently reintroduce permanent failures to ready state
+    - dead-letter replay must preserve original lineage and dedupe scope
+    - queue reconciliation must leave each message in exactly one terminal or recoverable bucket
+  api_control_plane:
+    safety_requirements:
+    - validate payload shape, required identifiers, and object version preconditions before mutation
+    - use idempotency or equivalent dedupe semantics for retry-prone externally triggered mutations
+    - reject patch semantics that would overwrite unspecified fields with stale defaults
+    - separate authorization from object-ownership validation and enforce both
+    - persist mutation and receipt evidence before reporting success
+    observability_requirements:
+    - record request identity, actor, object identifier, version precondition, and correlation key
+    - emit durable evidence for validation rejection, policy rejection, and concurrency rejection
+    - surface whether response status was produced before or after durable commit
+    - record partial outcomes for bulk APIs at per-item granularity
+    - link API mutations to downstream reconciliation or callback events
+    recovery_guarantees:
+    - client retry after timeout ambiguity must not duplicate committed mutations
+    - worker restart must preserve request lineage and idempotency scope
+    - bulk-recovery paths must reconcile item-level truth before reporting completion
+    - repair must reconstruct authoritative state from durable store rather than caches
+    - replayed API work must revalidate current object version and policy state
+  retry_timeout_resilience:
+    safety_requirements:
+    - classify failures as transient, retryable, or terminal before relaunch
+    - increment and durably persist attempt counters before retry dispatch
+    - apply backoff, cooldown, and deadline policy consistently across auto and manual retries
+    - fence old attempt ownership before launching replacement attempts
+    - preserve idempotency boundaries for all retry-driven side effects
+    observability_requirements:
+    - record retry reason, failure class, backoff computation, and next-attempt scheduling
+    - emit durable timeout evidence including elapsed time and governing deadline source
+    - surface when a timeout, retry, or manual override modified normal control flow
+    - record attempt lineage linking old and new execution identifiers
+    - preserve evidence showing why retries stopped or were exhausted
+    recovery_guarantees:
+    - recovery must restore attempt counters, timeout lineage, and backoff state before relaunch
+    - restart must not relaunch work until prior attempt outcome ambiguity is resolved or fenced
+    - repair must not convert permanent validation failures into transient retries
+    - timed-out work must require explicit reset or retry transition before success is possible
+    - budget exhaustion must converge to an explicit terminal or blocked state
+  reconciliation_recovery:
+    safety_requirements:
+    - select authoritative truth source explicitly before applying repair
+    - quiesce or fence live writers when repair would otherwise race with production mutation
+    - require discrepancy scope, cause, and intended repair mode before execution
+    - apply repair atomically or leave discrepancy explicitly unresolved
+    - escalate irreconcilable mismatches instead of silently choosing an arbitrary winner
+    observability_requirements:
+    - record discrepancy detector, authoritative source, compared versions, and repair decision
+    - emit evidence for no-op, partial, and successful repair outcomes
+    - preserve linkage between original discrepancy, repair attempt, and follow-up verification
+    - record whether repair was automated or operator-triggered
+    - surface when reconciliation used stale snapshots or incomplete evidence and was blocked
+    recovery_guarantees:
+    - repair replay must not reapply already committed corrections
+    - crash recovery must preserve which discrepancies were safely closed and which remain open
+    - post-repair verification must confirm invariant restoration before closure
+    - partial repair must converge to a replay-safe discrepancy state
+    - recovery must preserve provenance of reconstructed or synthesized records
+  distributed_coordination:
+    safety_requirements:
+    - require fencing token, current term, or equivalent epoch proof before accepting ownership
+    - prevent simultaneous active leadership or lease ownership for the same scope
+    - drain or revoke old owner authority before transferring live work
+    - validate membership and quorum preconditions before activating new coordinator state
+    - persist coordination state durably before allowing owner-controlled side effects
+    observability_requirements:
+    - record leadership term, lease scope, owner identifier, and fencing token on acquisition
+    - emit durable evidence for election, renewal, revocation, and transfer decisions
+    - surface quorum-loss, split-brain detection, and stale-owner suppression events
+    - record membership changes together with affected ownership transitions
+    - preserve monotonic ordering evidence for term and epoch changes
+    recovery_guarantees:
+    - node restart must not resume leadership using stale term or fencing state
+    - recovery must invalidate duplicate leases before admitting new owner actions
+    - repair must reconstruct coordination truth from durable quorum-backed state
+    - old leaders must be prevented from committing after takeover
+    - split-brain remediation must converge to one active owner per scope
+  persistence_integrity:
+    safety_requirements:
+    - commit source-of-truth writes durably before dependent indexes, caches, or receipts
+    - enforce schema, referential, and lifecycle invariants on every write path
+    - protect primary identifiers and migration mappings from ad hoc rewrite
+    - require transactional or equivalent atomic boundaries for multi-record mutations
+    - reject stale-write attempts using compare-and-set, generation, or equivalent fencing
+    observability_requirements:
+    - record transaction outcome, affected identifiers, source version, and destination version
+    - emit durable corruption, constraint-failure, and rollback evidence
+    - surface whether reads came from cache, snapshot, or source of truth when relevant
+    - record checkpoint, snapshot, and restore lineage for persistence repairs
+    - preserve per-record provenance when reconstruction or migration occurs
+    recovery_guarantees:
+    - crash recovery must not replay already committed writes
+    - repair must preserve provenance of reconstructed records and rebuilt indexes
+    - rollback must restore a coherent persistence boundary rather than partial fragments
+    - recovery must detect and escalate silent data loss or corruption
+    - restored state must be verifiable against durable commit lineage
+  execution_lifecycle:
+    safety_requirements:
+    - allow only legal lifecycle transitions from the current durable state
+    - require durable ownership before entering running or claimed states
+    - preserve attempt lineage across retry, reset, replay, and manual rerun paths
+    - forbid terminal success without required outputs and receipts
+    - require explicit reset semantics before re-entering from terminal states
+    observability_requirements:
+    - record every lifecycle transition with source state, destination state, actor, and timestamp
+    - emit durable terminal-cause evidence for failed, cancelled, and timed-out outcomes
+    - surface attempt identifiers, parent lineage, and reclaim decisions
+    - record ambiguity windows when competing terminal transitions are suppressed or fenced
+    - preserve lifecycle evidence needed to reconstruct the final authoritative run state
+    recovery_guarantees:
+    - restart must reconstruct current lifecycle truth before resuming execution
+    - recovery must not create duplicate attempts for the same unresolved execution
+    - stalled or orphaned runs must converge to reclaimed, blocked, or terminal truth
+    - late events from superseded attempts must be prevented from reopening newer state
+    - repair must preserve attempt lineage and artifact associations
+  dependency_gating:
+    safety_requirements:
+    - evaluate all required dependency, approval, and capacity guards before launch
+    - prevent execution while any blocking dependency remains unresolved or failed
+    - require explicit exception evidence for manual gate bypass
+    - detect cycles and invalid dependency graphs before scheduling
+    - persist the exact guard snapshot used for an admit-or-block decision
+    observability_requirements:
+    - record blocking dependency identifiers, guard outcomes, and decision timestamps
+    - emit durable evidence when gates open, close, or are manually overridden
+    - surface which prerequisite changed a blocked item into eligible state
+    - record capacity and approval evidence used in compound gate decisions
+    - preserve dependency-graph lineage when topology changes affect eligibility
+    recovery_guarantees:
+    - restart must not relaunch blocked work without re-evaluating current dependencies
+    - recovery must reconstruct blocked reason and pending prerequisite set
+    - repair must not duplicate downstream fan-out after gate reopening
+    - dependency satisfaction must be revalidated after stale snapshot or rollback events
+    - unresolvable dependency cycles or missing prerequisites must surface explicit blocked truth
+  configuration_versioning:
+    safety_requirements:
+    - advance active configuration only after candidate revision is durably persisted and validated
+    - enforce monotonic generation or revision progression on publish and rollback paths
+    - prevent mixed-field reads across incompatible configuration generations
+    - require compatibility checks before activation of new or restored revisions
+    - preserve activation lineage linking draft, published, rolled-back, and superseded revisions
+    observability_requirements:
+    - record revision identifier, previous active revision, actor, and activation reason
+    - emit durable evidence for validation failures, publish suppression, and rollback events
+    - surface worker reload outcomes and lag relative to active revision changes
+    - record which scope or shard each revision activation applied to
+    - preserve monotonic version history sufficient for forensic reconstruction
+    recovery_guarantees:
+    - restart must load the latest durably active revision rather than stale snapshots
+    - recovery must distinguish full rollout, partial rollout, and failed activation states
+    - rollback replay must not oscillate active revision across crash boundaries
+    - repair must remove orphaned active pointers or superseded revisions safely
+    - mixed-version fleets must converge to an explicit compatible or blocked state
+  audit_evidence:
+    safety_requirements:
+    - require durable audit evidence for every externally visible mutation and protected rejection
+    - append new audit records rather than rewriting prior forensic truth
+    - protect sequence ordering, actor identity, and target lineage from silent omission
+    - forbid evidence retention cleanup while active legal, safety, or reconciliation need remains
+    - mark reconstructed evidence distinctly from original evidence
+    observability_requirements:
+    - record actor, action, target, source interface, correlation, and result status for each receipt
+    - emit evidence for both successful and blocked manual or automated control actions
+    - surface gaps, duplicates, and sequence discontinuities as explicit integrity signals
+    - record retention, export, and redaction operations with their governing policy inputs
+    - preserve linkage between base mutation receipts and subsequent repairs or investigations
+    recovery_guarantees:
+    - recovery must not emit duplicate receipts for already recorded actions
+    - repair must preserve original timestamps while clearly marking replay timestamps
+    - audit-gap detection must escalate unresolved integrity failures rather than suppress them
+    - restored evidence must retain enough lineage to distinguish original and reconstructed truth
+    - receipt replay must preserve ordering and correlation identifiers
+  manual_backfill:
+    safety_requirements:
+    - require explicit range, scope, historical semantics, and dedupe policy for backfill requests
+    - prevent live and historical processing from mutating the same logical records concurrently
+    - mark backfill-generated outputs with replay lineage distinct from live processing
+    - enforce admission, validation, and capacity checks on manual backfill paths
+    - checkpoint progress durably before advancing range boundaries
+    observability_requirements:
+    - record requested range, effective range, historical config revision, and operator identity
+    - emit per-range progress, replay suppression, and completion evidence durably
+    - surface overlap, hole, or duplicate-detection outcomes during backfill execution
+    - record whether backfill emitted live side effects, dry-run outputs, or historical-only artifacts
+    - preserve item-level lineage linking original event to backfill replay outcome
+    recovery_guarantees:
+    - restart must resume from durably checkpointed range boundaries only
+    - recovery must preserve backfill-specific dedupe and ordering state across crashes
+    - repair must not replay already backfilled items after ambiguous failure
+    - historical compatibility rules must be restored before backfill resume
+    - partial backfill must converge to an explicit replay-safe or operator-review state
+  heartbeat_liveness:
+    safety_requirements:
+    - accept heartbeat renewal only from current owner generation or fencing token
+    - reclaim ownership only after grace window and stale-owner fencing are satisfied
+    - tie liveness thresholds to monotonic timing sources and explicit policy revisions
+    - prevent force-reclaim while healthy owner evidence remains current
+    - persist liveness and reclaim decisions durably before reassignment
+    observability_requirements:
+    - record heartbeat timestamp, owner generation, lease scope, and monitoring actor
+    - emit durable expiry, grace-period, reclaim, and suppression decisions
+    - surface ambiguous liveness caused by clock skew, partition, or monitor restart
+    - record linkages between liveness transitions and downstream work reassignment
+    - preserve evidence showing why a worker was considered stale or healthy
+    recovery_guarantees:
+    - monitor restart must reconstruct liveness truth from durable timestamps and generations
+    - recovery must not create duplicate owners while reclaiming stale work
+    - repair must preserve old-owner fencing before assigning replacement owner
+    - heartbeat loss and worker death ambiguity must converge to safe blocked or reclaimed state
+    - stale cached liveness signals must not override newer durable evidence
+  timeout_deadline_control:
+    safety_requirements:
+    - compute deadlines and timeouts from authoritative start time and policy revision
+    - record timeout cause and fence active ownership before replacement attempt launch
+    - distinguish soft-timeout advisory behavior from hard-timeout terminal behavior
+    - require explicit reason and policy checks for manual deadline extensions or resets
+    - prevent success transitions after hard timeout without reset or retry semantics
+    observability_requirements:
+    - record start time, computed deadline, extension history, and governing policy version
+    - emit durable evidence when timeout enforcement is triggered, suppressed, or overridden
+    - surface whether worker stop signal, cancel signal, or reclaim completed successfully
+    - record elapsed time and ambiguity windows when completion races timeout
+    - preserve linkage between timeout decisions and subsequent retries or failures
+    recovery_guarantees:
+    - restart must rebuild deadline calculations from durable timing evidence rather than wall-clock guesses
+    - recovery must not duplicate timeout side effects after ambiguous crash
+    - timed-out work must require explicit reset, retry, or terminalization before further progress
+    - repair must preserve extension history and not silently shorten prior deadline grants
+    - timeout ambiguity must converge to a single fenced attempt truth
+  cleanup_retention:
+    safety_requirements:
+    - purge or archive only records whose references, investigations, and retention policies permit removal
+    - evaluate retention from stable archival eligibility signals rather than mutable business fields
+    - prevent cleanup from deleting evidence still required for recovery or audit reconstruction
+    - require scope validation and durable candidate snapshots before destructive cleanup
+    - record per-item archive or purge truth rather than summary-only completion
+    observability_requirements:
+    - record retention policy version, candidate selection criteria, and execution scope for every run
+    - emit durable evidence for archived, skipped, blocked, and failed cleanup candidates
+    - surface whether cleanup encountered active references, policy exceptions, or reconciliation blockers
+    - record archive lineage linking source object, archive artifact, and deletion decision
+    - preserve enough evidence to restore or explain each destructive cleanup action
+    recovery_guarantees:
+    - restart must resume cleanup from durable cursor and candidate truth only
+    - recovery must not purge records already archived and durably closed
+    - partial archive failures must converge to recoverable or blocked truth without silent loss
+    - rollback must restore both content and retention metadata when cleanup is reversed
+    - irrecoverable cleanup corruption must escalate with preserved object lineage
+  admission_and_validation:
+    safety_requirements:
+    - validate schema, business rules, ownership, and capacity before admitting work
+    - do not mutate durable state until validation outcome is finalized
+    - emit deterministic rejection for unsupported payload versions or missing required identifiers
+    - require explicit exception path for manual admission override
+    - couple dedupe, validation, and admission commit to the same authoritative snapshot when possible
+    observability_requirements:
+    - record validator version, policy inputs, and machine-readable rejection reasons
+    - emit durable evidence for accepted, rejected, quarantined, and override-driven admission decisions
+    - surface which rule, field, or dependency caused rejection
+    - record whether validation used stale cache, current source of truth, or fallback policy
+    - preserve per-item outcome truth in bulk admission flows
+    recovery_guarantees:
+    - restart must not re-admit permanently invalid items without new validation evidence
+    - recovery must preserve original rejection reasons and quarantine lineage
+    - repair must revalidate against current authoritative rules before changing admission state
+    - partially validated items must converge to accepted, rejected, or quarantined truth explicitly
+    - validator rollback or upgrade must not silently reinterpret prior admitted items
+  worker_runtime_safety:
+    safety_requirements:
+    - complete startup validation before accepting owned work
+    - persist final runtime and ownership outcome during graceful and ungraceful shutdown paths
+    - prevent one runtime task from corrupting another tasks durable state or checkpoints
+    - fence old worker generation before handing its work to replacement runtime
+    - require checkpoint or replay-safe semantics before automatic worker restart
+    observability_requirements:
+    - record worker generation, startup validation results, lease scope, and shutdown cause
+    - emit durable evidence for crash, panic, forced restart, and health-check failure events
+    - surface whether runtime exit occurred before or after checkpoint, ack, or side-effect commit
+    - record overlap between reclaim, restart, and late heartbeat events
+    - preserve attempt-local diagnostics needed for safe retry or quarantine decisions
+    recovery_guarantees:
+    - automatic restart must not resume work on superseded input version or ownership token
+    - recovery must not replay already committed side effects from crashed workers
+    - reclaim must verify worker death or stale ownership before reassignment
+    - persistent unrecoverable initialization failures must converge to blocked or quarantined state
+    - runtime recovery must preserve diagnostics and lineage for subsequent repair decisions
+  lab_assistant_memory:
+    safety_requirements:
+    - require explicit truth-boundary checks before promoting derived memory into operator-facing recommendation paths
+    - forbid summaries, projections, and writeback paths from mutating canonical task or runtime truth
+    - preserve contradictory or superseded memory states until correction lineage is durably recorded
+    - require inspectable provenance before cross-project memory can support a recommendation or precedent claim
+    - separate reusable memory records from raw evidence so review can inspect both independently
+    observability_requirements:
+    - record source artifact, transcript, report, ledger, and project identifiers for every derived memory record
+    - surface freshness, confidence, correction history, and contradiction state for memory-backed answers
+    - emit durable evidence for extraction, reconciliation, expiry, and writeback decisions affecting reusable memory
+    - preserve linkage between memory projections and the authoritative evidence they summarize
+    - record when cross-project retrieval reused memory, which sources supported it, and what review boundary applied
+    recovery_guarantees:
+    - restart must not duplicate memory extraction, correction receipts, or reusable knowledge records
+    - rebuild projections from authoritative evidence and recorded correction lineage rather than stale summaries
+    - recovery must preserve contradiction state until reconciliation explicitly resolves or escalates it
+    - partial ingest failures must converge to recoverable, blocked, or explicitly stale memory truth
+    - expiry or freshness policy changes must be replay-safe and leave durable review evidence
+  assistant_truth_and_identity:
+    safety_requirements:
+    - require one stable assistant identity to survive durable reload without transcript or projection override
+    - enforce explicit ledger versus runtime versus chat precedence before any state write is accepted
+    - reject stale writes unless compare-and-set or generation fencing proves authority
+    - preserve blocked and recovery-required states durably instead of optimistic reconstruction
+    observability_requirements:
+    - record append-only audit evidence for accepted and rejected assistant-state writes
+    - preserve replayable mutation lineage for identity, recovery marker, and state transitions
+    - surface precedence conflicts and identity collisions as durable diagnostic evidence
+    recovery_guarantees:
+    - fail closed when assistant-state schema is missing, incompatible, or malformed
+    - preserve recovery markers and blocked state across restart until explicit repair completes
+    - rebuild operator-visible state from durable runtime truth rather than transcript wording or projections
+  lab_assistant_delegation:
+    safety_requirements:
+    - validate typed delegation policy before any request, result, or rebinding mutation
+    - preserve delegation_request_id, result linkage, subsystem identity, and correlation record durably
+    - prevent task truth from being overwritten by delegation projections without explicit truth-boundary rules
+    observability_requirements:
+    - record delegation request type, result type, target subsystem, and correlation identifiers durably
+    - surface delegation rejection, rebinding, and recovery reasons in machine-usable form
+    recovery_guarantees:
+    - restart must rebuild delegation truth from durable bindings and correlation records, not projections
+    - recovery must preserve typed request/result linkage and subsystem ownership evidence
+  governance_ledger_durability:
+    safety_requirements:
+    - persist append-safe governance event evidence before reporting status-changing success
+    - keep ledger status, artifact linkage, and commit traceability mutually reconcilable
+    - prevent route or summary layers from becoming the source of governance truth
+    observability_requirements:
+    - record actor, reason, artifact linkage, and commit correlation for every governance mutation
+    - surface reconciliation evidence when ledger history and summary state disagree
+    recovery_guarantees:
+    - restart must rebuild derived governance state from append-safe event history
+    - recovery must not duplicate governance events or lose commit linkage
+  agent_orchestration_runtime:
+    safety_requirements:
+    - preserve run lineage and owner job state before reporting orchestration success
+    - bias owner job-state modules over orchestration hubs for state-changing work
+    - separate route composition from execution truth
+    observability_requirements:
+    - record runner identity, lineage, orchestration path, and owner state transitions durably
+    - surface divergence between orchestrator views and owner job truth explicitly
+    recovery_guarantees:
+    - restart must preserve run lineage and reload owner job truth before further mutation
+    - recovery must converge hub metadata to owner job state instead of the reverse
+  host_execution_boundary:
+    safety_requirements:
+    - require verification evidence and boundary contract validation before host-bound actions are treated as safe
+    - keep native or mobile execution within declared host and WebUI boundary contracts
+    observability_requirements:
+    - record boundary contract, environment target, verification result, and actor for every host-bound action
+    recovery_guarantees:
+    - restart must preserve verification evidence needed to safely resume host-bound execution
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: derived_requirements.yaml
+    payload:
+      requirements:
+      - id: safety_stop_on_inconsistent_state
+        concern: state_consistency
+        template: System must halt and alert if {entity} state is {state}
+      - id: idempotent_retry_handling
+        concern: idempotency
+        template: Retries of {action} must not create duplicate {resource}
+      - id: concurrency_guard_on_shared_resource
+        concern: concurrency_control
+        template: Concurrent access to {resource} must be serialized via {mechanism}
+      - id: audit_log_on_manual_override
+        concern: operator_safety
+        template: Manual overrides of {process} must be logged to {destination}
+      - id: metric_emission_on_transition
+        concern: observability
+        template: State transition from {start} to {end} must emit {metric}
+      - id: transaction_rollback_on_failure
+        concern: mutation_boundary
+        template: Failure during {operation} must roll back changes to {targets}
+      - id: validation_of_input_schemas
+        concern: validation_rigor
+        template: Input for {endpoint} must strictly adhere to {schema}
+      - id: stale_claim_invalidation
+        concern: claim_integrity
+        template: Claims for {resource} older than {ttl} must be automatically released
+      - id: idempotent_cleanup_operations
+        concern: recovery_integrity
+        template: Cleanup of {resource} must be safe to run multiple times
+      - id: fail_closed_auth_decisions
+        concern: fail_closed_behavior
+        template: Authentication failure for {user} must default to access denied
+      - id: immutable_history_records
+        concern: auditability
+        template: Audit records for {event} must never be modified once written
+      - id: concurrency_safe_state_updates
+        concern: concurrency_control
+        template: Updates to {entity} must use optimistic locking on {version_field}
+      - id: dead_letter_queue_on_max_retries
+        concern: recovery_integrity
+        template: '{message} must be moved to DLQ after {count} failed attempts'
+      - id: idempotent_notification_delivery
+        concern: idempotency
+        template: Notifications for {event} must be delivered at most once to {target}
+      - id: resource_leak_prevention
+        concern: recovery_integrity
+        template: All {resource} handles must be closed in the finally block of {logic}
+      - id: race_condition_protection_on_lease
+        concern: timing_correctness
+        template: Lease acquisition for {resource} must occur before {operation}
+      - id: observability_of_system_latency
+        concern: observability
+        template: Execution time for {process} must be recorded in {histogram}
+      - id: rollback_integrity_check
+        concern: rollback_safety
+        template: Post-rollback state of {entity} must match pre-transaction snapshot
+      - id: operator_confirmation_on_destructive_action
+        concern: operator_safety
+        template: Destructive action {action} requires explicit operator confirmation
+      - id: idempotent_reconciliation_loops
+        concern: reconciliation_correctness
+        template: Reconciliation of {subsystem} must reach the same state regardless of starting point

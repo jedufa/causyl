@@ -1,0 +1,54 @@
+{
+  "name": "patch_failure_explain_fallback",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": true,
+  "seed_target_pis": {
+    "title": "lab cli patch failure explain fallback",
+    "slug": "lab-cli-patch-failure-explain-fallback",
+    "pis_markdown": "# acceptance\n\n- explain patch block honestly\n"
+  },
+  "prompt_variants": [
+    "why did this patch fail",
+    "what should I do with this patch"
+  ],
+  "artifact_inputs": {
+    "patch_file": "artifacts/broken.patch"
+  },
+  "payload": {
+    "cli_args": [
+      "--patch",
+      "{patch_file}",
+      "--target-pis-uid",
+      "{seed_target_pis_uid}",
+      "--allow-fallback"
+    ]
+  },
+  "expected_terminal_status": "proof_gap",
+  "allowed_mutation_prefixes": [
+    "governance/ledger/patch_instruction_sheets/"
+  ],
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "action_id": "patch_apply_chain_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "patch_apply_chain_v1",
+    "authority_class": "repo_mutation",
+    "patch_supplied": true,
+    "allow_fallback": true
+  },
+  "expected_surface": {
+    "fallback_eligible": true
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

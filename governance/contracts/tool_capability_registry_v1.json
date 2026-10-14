@@ -1,0 +1,184 @@
+{
+  "schema_version": "tool_capability_registry_v1",
+  "entries": [
+    {
+      "tool_id": "safe_exec",
+      "title": "safe exec",
+      "summary": "Existing repository CLI; its own argument and authority checks remain required.",
+      "kind": "cli",
+      "executable_path": "infra/bin/safe_exec",
+      "command": [
+        "infra/bin/safe_exec"
+      ],
+      "invocation_contract": "Use the CLI help and explicit target arguments; the registry does not grant execution authority.",
+      "argument_schema": {
+        "kind": "cli_owned"
+      },
+      "read_only": false,
+      "mutates_state": true,
+      "authority_class": "repo_mutation",
+      "operator_eligible": true,
+      "mobile_eligible": false,
+      "status": "active",
+      "descriptive_only": false,
+      "evidence_checks": [
+        "executable_backing",
+        "explicit_validation"
+      ]
+    },
+    {
+      "tool_id": "apply_patch",
+      "title": "apply patch",
+      "summary": "Existing repository CLI; its own argument and authority checks remain required.",
+      "kind": "cli",
+      "executable_path": "infra/bin/apply_patch",
+      "command": [
+        "infra/bin/apply_patch"
+      ],
+      "invocation_contract": "Use the CLI help and explicit target arguments; the registry does not grant execution authority.",
+      "argument_schema": {
+        "kind": "cli_owned"
+      },
+      "read_only": false,
+      "mutates_state": true,
+      "authority_class": "repo_mutation",
+      "operator_eligible": true,
+      "mobile_eligible": false,
+      "status": "active",
+      "descriptive_only": false,
+      "evidence_checks": [
+        "executable_backing",
+        "explicit_validation"
+      ]
+    },
+    {
+      "tool_id": "patch_validation_helper",
+      "title": "patch validation helper",
+      "summary": "Existing repository CLI; its own argument and authority checks remain required.",
+      "kind": "cli",
+      "executable_path": "infra/bin/patch_validation_helper.py",
+      "command": [
+        "python3",
+        "infra/bin/patch_validation_helper.py"
+      ],
+      "invocation_contract": "Use the CLI help and explicit target arguments; the registry does not grant execution authority.",
+      "argument_schema": {
+        "kind": "cli_owned"
+      },
+      "read_only": true,
+      "mutates_state": false,
+      "authority_class": "read_only",
+      "operator_eligible": true,
+      "mobile_eligible": false,
+      "status": "active",
+      "descriptive_only": false,
+      "evidence_checks": [
+        "executable_backing",
+        "explicit_validation"
+      ]
+    },
+    {
+      "tool_id": "scheduler_health_check",
+      "title": "scheduler health check",
+      "summary": "Existing repository CLI; its own argument and authority checks remain required.",
+      "kind": "cli",
+      "executable_path": "infra/bin/scheduler_health_check.sh",
+      "command": [
+        "infra/bin/scheduler_health_check.sh"
+      ],
+      "invocation_contract": "Use the CLI help and explicit target arguments; the registry does not grant execution authority.",
+      "argument_schema": {
+        "kind": "cli_owned"
+      },
+      "read_only": true,
+      "mutates_state": false,
+      "authority_class": "read_only",
+      "operator_eligible": true,
+      "mobile_eligible": false,
+      "status": "active",
+      "descriptive_only": false,
+      "evidence_checks": [
+        "executable_backing",
+        "explicit_validation"
+      ]
+    },
+    {
+      "tool_id": "scheduler_watchdog",
+      "title": "scheduler watchdog",
+      "summary": "Existing repository CLI; its own argument and authority checks remain required.",
+      "kind": "cli",
+      "executable_path": "infra/bin/scheduler_watchdog.py",
+      "command": [
+        "python3",
+        "infra/bin/scheduler_watchdog.py"
+      ],
+      "invocation_contract": "Use the CLI help and explicit target arguments; the registry does not grant execution authority.",
+      "argument_schema": {
+        "kind": "cli_owned"
+      },
+      "read_only": false,
+      "mutates_state": true,
+      "authority_class": "scheduler_mutation",
+      "operator_eligible": true,
+      "mobile_eligible": false,
+      "status": "active",
+      "descriptive_only": false,
+      "evidence_checks": [
+        "executable_backing",
+        "explicit_validation"
+      ]
+    },
+    {
+      "tool_id": "server_status",
+      "title": "server status",
+      "summary": "Existing repository CLI; its own argument and authority checks remain required.",
+      "kind": "cli",
+      "executable_path": "infra/bin/server_status.sh",
+      "command": [
+        "infra/bin/server_status.sh"
+      ],
+      "invocation_contract": "Use the CLI help and explicit target arguments; the registry does not grant execution authority.",
+      "argument_schema": {
+        "kind": "cli_owned"
+      },
+      "read_only": true,
+      "mutates_state": false,
+      "authority_class": "read_only",
+      "operator_eligible": true,
+      "mobile_eligible": false,
+      "status": "active",
+      "descriptive_only": false,
+      "evidence_checks": [
+        "executable_backing",
+        "explicit_validation"
+      ]
+    },
+    {
+      "tool_id": "schedule_job",
+      "title": "schedule job",
+      "summary": "Existing repository CLI; its own argument and authority checks remain required.",
+      "kind": "cli",
+      "executable_path": "infra/bin/schedule_job.py",
+      "command": [
+        "python3",
+        "infra/bin/schedule_job.py"
+      ],
+      "invocation_contract": "Use the CLI help and explicit target arguments; the registry does not grant execution authority.",
+      "argument_schema": {
+        "kind": "cli_owned"
+      },
+      "read_only": false,
+      "mutates_state": true,
+      "authority_class": "scheduler_mutation",
+      "operator_eligible": true,
+      "mobile_eligible": false,
+      "status": "active",
+      "descriptive_only": false,
+      "evidence_checks": [
+        "executable_backing",
+        "explicit_validation"
+      ]
+    }
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

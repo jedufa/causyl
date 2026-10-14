@@ -1,0 +1,9 @@
+# Default: normalize all text files
+* text=auto eol=lf
+
+# Explicit overrides (optional but explicit > implicit)
+*.sh  text eol=lf
+*.py  text eol=lf
+*.md  text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf

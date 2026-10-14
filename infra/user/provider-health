@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/provider-health
+# Description: Run staged provider health checks and write report artifacts.
+# Example: infra/user/provider-health --timeout-s 120
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/provider_staged_health_check.py "$@"

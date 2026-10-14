@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# tools/user/test-lane
+# Description: Run a named pytest execution lane such as regression, smoke, e2e, or integration.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+
+lane="${1:-}"
+if [[ -z "$lane" ]]; then
+  echo "Usage: bash tools/user/test-lane <regression|smoke|e2e|integration|unitish> [pytest args...]" >&2
+  exit 2
+fi
+shift || true
+
+case "$lane" in
+  regression|smoke|e2e|integration)
+    exec pytest -m "$lane" "$@"
+    ;;
+  unitish)
+    exec pytest -m "not regression and not e2e and not integration" "$@"
+    ;;
+  *)
+    echo "Unknown lane: $lane" >&2
+    echo "Expected one of: regression, smoke, e2e, integration, unitish" >&2
+    exit 2
+    ;;
+esac

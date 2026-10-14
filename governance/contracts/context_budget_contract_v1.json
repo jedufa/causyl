@@ -1,0 +1,31 @@
+{
+  "schema_version": "context_budget_contract_v1",
+  "max_context_tokens": 20000,
+  "required_include_sections": [
+    "current_action_or_playbook",
+    "current_objective"
+  ],
+  "allowed_include_sections": [
+    "current_action_or_playbook",
+    "current_objective",
+    "target_artifacts",
+    "validation_contract",
+    "bounded_failure_evidence",
+    "authority_boundary"
+  ],
+  "allowed_context_bundle_ids": [
+    "lab_core_v1",
+    "lab_delivery_safety_v1"
+  ],
+  "forbidden_ref_substrings": [
+    "full transcript",
+    "full_transcript",
+    "chat transcript",
+    "chat_transcript",
+    "unrelated ledger",
+    "unrelated_ledger",
+    "legacy replay",
+    "legacy_replay"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

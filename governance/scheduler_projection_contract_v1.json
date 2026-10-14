@@ -1,0 +1,72 @@
+{
+  "schema_version": "scheduler_projection_contract_v1",
+  "uid": "PIS-20260408-181100Z-D1E1",
+  "contract_family": "scheduler_projection",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_scheduler_projection_v1.md",
+  "status_vocabulary": {
+    "active": {
+      "description": "Durable active-run truth says the job is currently executing or mid-loop."
+    },
+    "blocked": {
+      "description": "Durable dependency or nonlaunch truth says the job is not safely runnable yet."
+    },
+    "queued": {
+      "description": "Durable scheduler eligibility says the job is runnable now, including explicit run-now requests."
+    },
+    "idle": {
+      "description": "The job is enabled but neither runnable now nor terminally complete/failed/ambiguous."
+    },
+    "completed_once": {
+      "description": "A once job already completed for its durable slot and must not be surfaced as next work unless a new run-now request exists."
+    },
+    "failed": {
+      "description": "Durable terminal truth says the job ended unsuccessfully or with a proof-bearing failure outcome."
+    },
+    "ambiguous": {
+      "description": "Durable scheduler signals disagree, so operator surfaces must fail closed instead of guessing."
+    }
+  },
+  "consumer_surfaces": [
+    "watch",
+    "api_list",
+    "api_detail",
+    "next_job_summary"
+  ],
+  "provenance_requirements": {
+    "required_fields": [
+      "source_path",
+      "value",
+      "strength",
+      "reason_code"
+    ],
+    "rule": "Every derived operator-facing scheduler classification must preserve the durable source signal that caused it."
+  },
+  "next_candidate_buckets": [
+    "runnable_now",
+    "scheduled_future",
+    "none"
+  ],
+  "next_selection_policy": {
+    "runnable_priority_order": [
+      "run_now_requested",
+      "due",
+      "due_failed_slot_reusable"
+    ],
+    "future_priority_order": [
+      "retry_backoff",
+      "not_due_yet"
+    ],
+    "excluded_statuses": [
+      "active",
+      "blocked",
+      "completed_once",
+      "failed",
+      "ambiguous"
+    ],
+    "rule": "What's next must select the earliest runnable durable candidate first, and only fall back to future scheduled candidates after non-runnable statuses are excluded."
+  }
+}

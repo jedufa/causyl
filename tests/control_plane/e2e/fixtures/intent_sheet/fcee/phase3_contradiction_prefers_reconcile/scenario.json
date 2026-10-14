@@ -1,0 +1,50 @@
+{
+  "name": "phase3_contradiction_prefers_reconcile",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_phase3_blocked_chain_explain_and_recommend_v1",
+  "git_repo": false,
+  "payload": {
+    "report": {
+      "chain_id": "patch_apply_chain_v1::phase3-contradiction",
+      "playbook_id": "patch_apply_chain_v1",
+      "action_family": "patch_apply",
+      "final_chain_outcome": "blocked",
+      "final_verifier_verdict": "",
+      "terminal_reason": "patch_contract_invalid",
+      "step_records": [
+        {
+          "node_id": "patch_ingest",
+          "step_outcome": "failed_known",
+          "proof_gaps": [
+            "missing_validation_commands"
+          ],
+          "decision": "block"
+        }
+      ],
+      "failure_escalation_log": []
+    },
+    "snapshot": {
+      "status": "completed_with_pass",
+      "freshness": "fresh"
+    },
+    "receipts": [
+      {
+        "status": "blocked",
+        "freshness": "stale"
+      }
+    ]
+  },
+  "expected_terminal_status": "proof_gap",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "operator_state": "degraded"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

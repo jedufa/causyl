@@ -1,0 +1,47 @@
+{
+  "schema_version": "experiment_repo_split_criteria_checklist_v1",
+  "checklist_id": "experiment-repo-split-criteria",
+  "checklist_version": "1.0.0",
+  "source_intent_uid": "IS-20260403-212914Z-1260",
+  "decision_rule": "A split is justified only when at least one mandatory reason is true and all required pre-split checks are complete.",
+  "mandatory_reason_keys": [
+    "dependency_divergence",
+    "access_boundary",
+    "release_boundary",
+    "compliance_or_legal_isolation",
+    "tracked_truth_growth_exceeds_thresholds_after_pruning"
+  ],
+  "required_pre_split_checks": [
+    {
+      "key": "external_artifact_roots_enforced",
+      "description": "Heavy runtime outputs are already fenced outside tracked repo truth."
+    },
+    {
+      "key": "tracked_growth_measured",
+      "description": "Tracked file count and tracked size were measured from git-tracked files, not runtime directories."
+    },
+    {
+      "key": "shared_contracts_identified",
+      "description": "Shared schemas, contracts, and operator policy surfaces were identified and kept centralized unless isolation is mandatory."
+    },
+    {
+      "key": "central_index_preserved",
+      "description": "The operator can still discover experiments, artifact roots, and policy class from one central index."
+    },
+    {
+      "key": "decision_record_written",
+      "description": "The split rationale and rejected alternatives were written into durable governance evidence."
+    }
+  ],
+  "non_justifications": [
+    "runtime directory growth by itself",
+    "checkpoint or dataset size by itself",
+    "generated logs or receipts by themselves",
+    "desire for one repo per experiment as default style",
+    "organizational theater"
+  ],
+  "close_rule": {
+    "approve_only_if": "all required_pre_split_checks are true and at least one mandatory_reason_key is true",
+    "otherwise": "keep_monorepo_and_repair_boundary"
+  }
+}

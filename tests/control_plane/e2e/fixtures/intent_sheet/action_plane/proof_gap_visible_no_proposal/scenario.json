@@ -1,0 +1,43 @@
+{
+  "name": "proof_gap_visible_no_proposal",
+  "entrypoint": "build_action_plane_all_phases_report_v1",
+  "payload": {
+    "report": {
+      "action_family": "patch_apply",
+      "chain_id": "patch_apply_chain_v1::e2e-proof-gap",
+      "failure_escalation_log": [],
+      "final_chain_outcome": "blocked",
+      "final_verifier_verdict": "",
+      "playbook_id": "patch_apply_chain_v1",
+      "step_records": [
+        {
+          "checklist_complete": true,
+          "decision": "block",
+          "node_id": "patch_ingest",
+          "proof_gaps": [
+            "missing_validation_commands"
+          ],
+          "step_outcome": "failed_known"
+        }
+      ],
+      "terminal_reason": "patch_contract_invalid"
+    }
+  },
+  "expected_terminal_status": "proof_gap",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "operator_state": "blocked",
+    "phase4_decision": "rejected",
+    "proposal_created": false
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot"
+  ],
+  "forbidden_effects": [
+    "sibling_item_mutation"
+  ]
+}

@@ -1,0 +1,13 @@
+*** Begin Patch
+*** Update File: hello.txt
+@@
+-hello
++hello world
+*** End Patch
+
+*** Begin Patch
+*** Update File: missing.txt
+@@
+-old
++new
+*** End Patch

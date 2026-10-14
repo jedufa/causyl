@@ -1,0 +1,44 @@
+{
+  "name": "economic_stop_no_new_signal",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_build_verify_loop_v1",
+  "git_repo": false,
+  "payload": {
+    "request": {
+      "task_id": "fcee_economic_stop_no_new_signal",
+      "action_family": "build_verify",
+      "execution_mode": "deterministic_then_codex",
+      "context_bundle_id": "lab_core_v1",
+      "requested_by": "scheduler",
+      "source_event": "scheduler",
+      "authority_scope": "read_only",
+      "iterations": [
+        {
+          "builder_summary": "no meaningful new signal",
+          "evidence_artifacts": [
+            "candidate_report_v1"
+          ],
+          "validation_commands": [],
+          "verifier_verdict": "",
+          "confidence_delta": 0.0,
+          "stagnant_iterations": 2,
+          "expected_gain": 0.0,
+          "cost_per_iteration": 30.0
+        }
+      ]
+    }
+  },
+  "expected_terminal_status": "economic_stop_no_new_signal",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "terminal_reason": "economic_stop"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

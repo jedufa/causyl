@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# infra/bin/scheduler-delete-jobs
+# Description: Delete one or more scheduled jobs by job id or numeric selection.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/scheduler_delete_jobs.py "$@"

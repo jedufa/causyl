@@ -1,0 +1,37 @@
+{
+  "schema_version": "compiled_work_order_envelope_v1",
+  "uid": "PIS-20260411-144241Z-154B",
+  "contract_family": "compiled_work_order_envelope",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_compiled_work_order_envelope_v1.md",
+  "context_resolution_rule": "bundle_plus_delta_minus_forbidden",
+  "compiled_precedence_rule": "compiled_envelope_authoritative_when_present",
+  "required_fields": [
+    "schema_version",
+    "work_order_id",
+    "source_binding",
+    "handoff_kind",
+    "scope_fence",
+    "required_context_bundle",
+    "additional_context_refs",
+    "forbidden_context_refs",
+    "expected_outputs",
+    "validation_expectations"
+  ],
+  "optional_fields": [
+    "execution_family",
+    "continuation_packet_ref"
+  ],
+  "prose_coexistence_modes": [
+    "compiled_only",
+    "fallback_prose_allowed"
+  ],
+  "failure_classes": [
+    "compiled_work_order_validation_failed",
+    "compiled_work_order_context_resolution_blocked",
+    "compiled_work_order_coexistence_blocked"
+  ]
+}

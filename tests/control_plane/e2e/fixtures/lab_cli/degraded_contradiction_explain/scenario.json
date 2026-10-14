@@ -1,0 +1,48 @@
+{
+  "name": "degraded_contradiction_explain",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "lab_cli",
+  "git_repo": false,
+  "verbose_human_output": true,
+  "prompt_variants": [
+    "why is the system degraded",
+    "explain the current state"
+  ],
+  "artifact_inputs": {
+    "report_file": "artifacts/report.json",
+    "snapshot_file": "artifacts/snapshot.json",
+    "receipts_file": "artifacts/receipts.json"
+  },
+  "payload": {
+    "cli_args": [
+      "--report-file",
+      "{report_file}",
+      "--snapshot-file",
+      "{snapshot_file}",
+      "--receipts-file",
+      "{receipts_file}"
+    ]
+  },
+  "expected_terminal_status": "proof_gap",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "action_id": "blocked_chain_explain_and_recommend_v1",
+    "mode": "execute"
+  },
+  "expected_normalization": {
+    "mode": "execute",
+    "action_id": "blocked_chain_explain_and_recommend_v1",
+    "authority_class": "read_only"
+  },
+  "expected_surface": {
+    "primary_action_id": "status_reconcile_v1"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

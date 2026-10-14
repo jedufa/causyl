@@ -1,0 +1,169 @@
+version: 1
+phase: 2
+notes: Deterministic uncertainty trigger rules for Stage 2 and Stage 4. Triggers should
+  fire only when required evidence is missing or contradictory enough to weaken planning
+  confidence.
+triggers:
+- id: unc_001
+  name: no_family_activated
+  condition: active_family_count == 0 AND subsystem_key_match_count == 0
+  severity: high
+  uncertainty_question: No task family or subsystem key was activated. What concrete
+    behavior or subsystem owns this change?
+  widening_action: force_generic_family_and_broad_retrieval
+  block_plan: false
+- id: unc_002
+  name: ambiguous_multi_family
+  condition: active_family_count >= 4 AND top_family_score_gap < 0.10
+  severity: medium
+  uncertainty_question: Multiple families remain near-tied after scoring. Which family
+    should control retrieval bias and patch contract selection?
+  widening_action: expand_query_diversity
+  block_plan: false
+- id: unc_003
+  name: low_confidence_score
+  condition: classifier_confidence < 0.35 AND subsystem_hypothesis_confidence < 0.45
+  severity: high
+  uncertainty_question: Classification confidence is below safe planning thresholds.
+    Which missing detail would separate the intended target from generic fallback
+    behavior?
+  widening_action: request_clarification_or_use_generic
+  block_plan: false
+- id: unc_004
+  name: passive_only_bundle
+  condition: bundle_file_count > 0 AND all_bundle_files_are_passive
+  severity: high
+  uncertainty_question: The retrieved bundle contains only passive or downstream files.
+    Which logic-owner subsystem should be queried instead?
+  widening_action: reject_bundle_and_re_query
+  block_plan: true
+- id: unc_005
+  name: required_subsystem_missing
+  condition: required_subsystem_count > 0 AND missing_required_subsystem_count > 0
+  severity: high
+  uncertainty_question: One or more required subsystems are absent from the bundle.
+    Which missing subsystem owns the active invariant or failure mode?
+  widening_action: expand_retrieval_for_missing_subsystem
+  block_plan: false
+- id: unc_006
+  name: stale_state_concern_unresolved
+  condition: flag_stale_state_handling_active AND no_version_check_file_in_bundle
+  severity: medium
+  uncertainty_question: Stale-state handling is active, but no version, generation,
+    or compare-and-swap enforcement file was found. Where is stale write rejection
+    implemented?
+  widening_action: add_version_check_subsystem_query
+  block_plan: false
+- id: unc_007
+  name: ownership_concern_unresolved
+  condition: flag_ownership_control_active AND no_claim_file_in_bundle AND no_fencing_file_in_bundle
+  severity: medium
+  uncertainty_question: Ownership control is active, but the bundle has no claim,
+    lease, or fencing logic. Which file serializes exclusive mutation?
+  widening_action: add_lease_claims_subsystem_query
+  block_plan: false
+- id: unc_008
+  name: idempotency_concern_unresolved
+  condition: flag_idempotency_active AND no_dedup_or_idempotency_file_in_bundle
+  severity: medium
+  uncertainty_question: Idempotency is active, but no duplicate suppression or idempotency-key
+    logic was retrieved. Where is replay safety enforced?
+  widening_action: add_idempotency_subsystem_query
+  block_plan: false
+- id: unc_009
+  name: recovery_concern_no_repair_file
+  condition: flag_recovery_integrity_active AND no_recovery_file_in_bundle
+  severity: medium
+  uncertainty_question: Recovery integrity is active, but no reconciliation, orphan
+    cleanup, or recovery file was retrieved. Which file converges failed state back
+    to truth?
+  widening_action: add_recovery_mechanisms_subsystem_query
+  block_plan: false
+- id: unc_010
+  name: high_risk_no_tests
+  condition: risk_level == high AND no_test_files_in_bundle
+  severity: medium
+  uncertainty_question: The task is high-risk, but no test files were retrieved. Which
+    invariants or regressions should be covered by tests?
+  widening_action: add_test_subsystem_query
+  block_plan: false
+- id: unc_011
+  name: concurrency_concern_unresolved
+  condition: flag_concurrency_control_active AND no_locking_file_in_bundle AND no_atomicity_file_in_bundle
+  severity: medium
+  uncertainty_question: Concurrency control is active, but no lock, fence, or atomic
+    mutation file is present. Where is concurrent mutation prevented?
+  widening_action: add_concurrency_control_subsystem_query
+  block_plan: false
+- id: unc_012
+  name: operator_action_no_audit_file
+  condition: operator_action_family_active AND no_audit_receipt_file_in_bundle
+  severity: medium
+  uncertainty_question: Operator-triggered behavior is active, but no durable evidence
+    path was found. Where are manual actions recorded for later review?
+  widening_action: add_audit_receipts_subsystem_query
+  block_plan: false
+- id: unc_013
+  name: persistence_without_schema
+  condition: family_persistence_integrity_active AND no_schema_or_migration_file_in_bundle
+  severity: low
+  uncertainty_question: Persistence integrity is active, but no schema or compatibility
+    file is present. Where is record-shape compatibility enforced?
+  widening_action: add_schema_subsystem_query
+  block_plan: false
+- id: unc_014
+  name: config_task_no_config_file
+  condition: family_configuration_versioning_active AND no_config_file_in_bundle
+  severity: medium
+  uncertainty_question: Configuration versioning is active, but no config, revision,
+    or settings source was retrieved. Which file owns versioned configuration truth?
+  widening_action: add_configuration_subsystem_query
+  block_plan: false
+- id: unc_015
+  name: design_mode_no_planning_context
+  condition: task_mode == planning_only AND bundle_file_count == 0
+  severity: high
+  uncertainty_question: Planning mode is active, but no design context files were
+    retrieved. Which existing subsystems should bound the design?
+  widening_action: broad_design_context_retrieval
+  block_plan: false
+- id: unc_016
+  name: heartbeat_task_no_liveness_file
+  condition: family_heartbeat_liveness_active AND no_heartbeat_file_in_bundle
+  severity: medium
+  uncertainty_question: Heartbeat or liveness is active, but no heartbeat ownership
+    file was retrieved. Where is liveness state updated and reclaimed?
+  widening_action: add_heartbeat_subsystem_query
+  block_plan: false
+- id: unc_017
+  name: deadline_task_no_timeout_file
+  condition: flag_timing_correctness_active AND no_timeout_file_in_bundle
+  severity: medium
+  uncertainty_question: Timing correctness is active, but no timeout, deadline, or
+    expiry logic was found. Where are deadlines computed and enforced?
+  widening_action: add_timeouts_deadlines_subsystem_query
+  block_plan: false
+- id: unc_018
+  name: mutation_without_validation
+  condition: mutation_signal_terms_present AND no_validation_file_in_bundle
+  severity: medium
+  uncertainty_question: Mutation signals were detected, but no guard or validator
+    file was retrieved. Where are preconditions enforced before mutation?
+  widening_action: add_validation_subsystem_query
+  block_plan: false
+- id: unc_019
+  name: side_effect_without_idempotency
+  condition: side_effect_signal_present AND NOT flag_idempotency_active AND retry_or_recovery_term_present
+  severity: low
+  uncertainty_question: A retryable side effect is present without explicit idempotency
+    coverage. Should duplicate suppression be added to the task scope?
+  widening_action: add_idempotency_subsystem_query
+  block_plan: false
+- id: unc_020
+  name: cross_cutting_flags_no_implementation_signal
+  condition: cross_cutting_flag_count >= 3 AND no_primary_implementation_file
+  severity: high
+  uncertainty_question: Several cross-cutting concerns are active, but no implementation
+    owner file was retrieved. Which subsystem contains the actual write path?
+  widening_action: reject_bundle_and_re_query
+  block_plan: true

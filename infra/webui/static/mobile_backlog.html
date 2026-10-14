@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>The Plane Mobile Cockpit</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+  <style>
+    :root{
+      --terminal-bg:#050505;
+      --terminal-fg:#d7e3d7;
+      --terminal-muted:#8aa08a;
+      --terminal-border:#1d3a23;
+      --terminal-glow:rgba(85, 245, 120, 0.10);
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+    }
+    .row-tight{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .w100{ width:100%; }
+    .w48{ width:calc(50% - 6px); min-width:140px; }
+    .small-note{ font-size:12px; color:var(--muted); }
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 10px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,0.02);
+      color:var(--muted);
+      max-width:100%;
+    }
+    .meta-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .meta-box{
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:rgba(255,255,255,0.02);
+    }
+    .meta-label{
+      font-size:11px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .terminal-surface{
+      background:
+        radial-gradient(circle at top left, rgba(85,245,120,0.08), transparent 36%),
+        linear-gradient(180deg, rgba(19,24,19,0.98), rgba(5,5,5,0.98));
+      color:var(--terminal-fg);
+      border:1px solid var(--terminal-border);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02), 0 0 0 1px rgba(0,0,0,0.35), 0 10px 24px rgba(0,0,0,0.30);
+      text-shadow:0 0 10px var(--terminal-glow);
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      line-height:1.45;
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      border-radius:12px;
+      padding:12px;
+      min-height:18lh;
+      max-height:68vh;
+      overflow:auto;
+    }
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.02em;
+      border:1px solid rgba(255,255,255,0.12);
+      text-transform:lowercase;
+    }
+    .status-draft{ background:rgba(120, 140, 170, 0.18); color:#d8e4ff; }
+    .status-ready{ background:rgba(121, 224, 179, 0.14); color:#b9ffd7; }
+    .status-other{ background:rgba(255,255,255,0.08); color:var(--text); }
+    .headline{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .selector-tall{
+      min-height:220px;
+    }
+    body.embedded-shell .topbar{
+      display:none;
+    }
+    body.embedded-shell .view-root{
+      padding-top:10px;
+    }
+    @media (max-width: 680px){
+      .topbar{ align-items:flex-start; }
+      .topbar-actions{ flex-wrap:wrap; justify-content:flex-end; }
+      .topbar-actions .btn{ min-height:40px; }
+      .selector-tall{ min-height:180px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-title">The Plane</div>
+      <div class="brand-sub">Mobile build cockpit</div>
+    </div>
+
+    <div class="topbar-actions">
+      <a class="btn" href="/mobile" title="Admin">Admin</a>
+      <a class="btn" href="/" title="Main UI">Main UI</a>
+      <a class="btn" href="/docs/" target="_blank" rel="noopener" title="Docs">Docs</a>
+    </div>
+  </header>
+
+  <main class="view-root">
+    <div class="grid">
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Select backlog work for the plane</div>
+          <div class="row-tight">
+            <span id="backlogLoadState" class="badge badge-muted">idle</span>
+            <button id="btnBacklogRefresh" class="btn small">Refresh</button>
+          </div>
+        </div>
+
+        <div class="row-tight">
+          <label class="pill">
+            Admin token (optional)
+            <input id="adminToken" class="input small" type="password" placeholder="empty = no token"/>
+          </label>
+        </div>
+
+        <div class="small-note" style="margin-top:10px;">
+          Showing open PIS work plus active idea notes. Multi-select campaign launch still applies only to PIS items.
+        </div>
+
+        <div class="row-tight" style="margin-top:10px;">
+          <select id="topicFilterSelect" class="input w48" aria-label="Topic filter">
+            <option value="">All topics</option>
+          </select>
+          <select id="groupModeSelect" class="input w48" aria-label="Group mode">
+            <option value="status">Group: status</option>
+            <option value="topic">Group: topic</option>
+          </select>
+        </div>
+
+        <div class="small-note" id="topicFilterHint" style="margin-top:8px;">
+          Topic filter off.
+        </div>
+
+        <div class="small-note" id="selectionSummary" style="margin-top:8px;">
+          No PIS selected.
+        </div>
+
+        <div class="row-tight" style="margin-top:10px;">
+          <select id="pisSelect" class="input w100 selector-tall" aria-label="Backlog selector" multiple size="10">
+            <option value="">Loading...</option>
+          </select>
+        </div>
+
+        <div class="row-tight" style="margin-top:10px;">
+          <select id="dependencyModeSelect" class="input w48" aria-label="Dependency mode">
+            <option value="selected_order">Launch: selected order</option>
+            <option value="priority_order">Launch: priority order</option>
+          </select>
+          <button id="btnLaunchCampaign" class="btn w48">Launch selected campaign</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="headline">
+          <div>
+            <div class="card-title" id="pisTitle">No backlog item selected</div>
+            <div class="small-note mono" id="pisUid">Select one or more items above.</div>
+          </div>
+          <div class="row-tight">
+            <span id="pisStatusBadge" class="status-badge status-other">status unknown</span>
+            <span id="pisNextStatus" class="pill">Next: -</span>
+          </div>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-box">
+            <div class="meta-label">Slug</div>
+            <div id="pisSlug">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Release</div>
+            <div id="pisRelease">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Updated</div>
+            <div id="pisUpdated">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Created</div>
+            <div id="pisCreated">-</div>
+          </div>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-box">
+            <div class="meta-label">Group Snapshot</div>
+            <div id="groupSummary">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Tags</div>
+            <div id="pisTags">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Changesets</div>
+            <div id="pisChangesets">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Why Now / Priority</div>
+            <div id="ideaWhyNow">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Resume Context / Blockers</div>
+            <div id="ideaResume">-</div>
+          </div>
+        </div>
+
+        <div class="meta-label" style="margin-top:16px;">Backlog markdown</div>
+        <pre id="pisMarkdown" class="terminal-surface">Loading...</pre>
+      </section>
+
+      <section class="card" id="ideaActionCard" hidden>
+        <div class="card-header">
+          <div class="card-title">Idea actions</div>
+          <div class="small-note">Resume, park, or discard the selected idea note through the canonical ledger surface.</div>
+        </div>
+        <div class="row-tight">
+          <input id="ideaWhyNowInput" class="input w48" type="text" placeholder="Why now"/>
+          <input id="ideaPriorityInput" class="input w48" type="text" placeholder="Priority signal"/>
+        </div>
+        <div class="row-tight" style="margin-top:10px;">
+          <input id="ideaResumeContextInput" class="input w48" type="text" placeholder="Resume context"/>
+          <input id="ideaResumeBlockersInput" class="input w48" type="text" placeholder="Blockers, comma separated"/>
+        </div>
+        <div class="row-tight" style="margin-top:10px;">
+          <input id="ideaActionNoteInput" class="input w100" type="text" placeholder="Operator note (optional)"/>
+        </div>
+        <div class="row-tight" style="margin-top:10px;">
+          <button id="btnIdeaResume" class="btn w48">Resume idea</button>
+          <button id="btnIdeaPark" class="btn w48">Park idea</button>
+          <button id="btnIdeaDiscard" class="btn w48">Discard idea</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Campaign and queue</div>
+          <div class="small-note">Shared launch and projection contract for the plane.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-box">
+            <div class="meta-label">Latest campaign</div>
+            <div id="campaignId">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Launch outcome</div>
+            <div id="campaignOutcome">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Queue status</div>
+            <div id="queueSummary">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Contract check</div>
+            <div id="contractSummary">-</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Shell status</div>
+          <div class="small-note">Low-trust summary and fallback actions for the plane.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-box">
+            <div class="meta-label">Shell</div>
+            <div id="shellSummary">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Executor</div>
+            <div id="executorSummary">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Fallback actions</div>
+            <div id="fallbackActions">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Warnings</div>
+            <div id="shellWarnings">-</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Artifacts, liveness, economics, archives</div>
+          <div class="small-note">Next four cockpit slices through the same shared contract.</div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-box">
+            <div class="meta-label">Artifacts</div>
+            <div id="artifactSummary">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Run Triage</div>
+            <div id="runTriageSummary">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Economics</div>
+            <div id="economicsSummary">-</div>
+          </div>
+          <div class="meta-box">
+            <div class="meta-label">Archive Safety</div>
+            <div id="archiveSummary">-</div>
+          </div>
+        </div>
+        <div class="row-tight" style="margin-top:10px;">
+          <button id="btnExportHandoff" class="btn w48">Export handoff</button>
+          <button id="btnCreateArchive" class="btn w48">Create archive snapshot</button>
+        </div>
+        <div class="meta-label" style="margin-top:16px;">Artifact preview</div>
+        <pre id="artifactPreview" class="terminal-surface">No artifact preview available.</pre>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div class="card-title">Chronicle</div>
+          <div class="small-note">One mixed-source history across campaign, run, artifact, and archive surfaces.</div>
+        </div>
+        <pre id="chroniclePreview" class="terminal-surface">No chronicle entries available.</pre>
+      </section>
+    </div>
+  </main>
+
+  <script src="/static/mobile_backlog.js"></script>
+  <script>
+    (function(){
+      try{
+        var params = new URLSearchParams(window.location.search || "");
+        if(params.get("embedded") === "1"){
+          document.body.classList.add("embedded-shell");
+        }
+      }catch(_e){}
+    })();
+  </script>
+</body>
+</html>

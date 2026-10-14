@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/server-start
+# Description: Start the WebUI server + scheduler helper stack.
+# Example: bash infra/user/server-start --foreground
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash infra/bin/server_start.sh "$@"

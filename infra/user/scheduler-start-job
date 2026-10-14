@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-start-job
+# Description: List recent scheduled jobs and start one or more selected jobs.
+# Example: bash infra/user/scheduler-start-job 1,2,5-7
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/scheduler_start_job.py "$@"

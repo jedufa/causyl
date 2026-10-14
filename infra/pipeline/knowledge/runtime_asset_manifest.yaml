@@ -1,0 +1,32 @@
+version: 1
+notes: Canonical/draft/reference boundary for this knowledge pack. Canonical runtime files may contain supplemental provenance sections, but loaders should consume only the canonical top-level structures and ignore supplemental bundle payloads unless explicitly requested for provenance.
+canonical_runtime_files:
+- task_families.yaml
+- task_family_lifecycle.yaml
+- task_profile_rules.yaml
+- invariant_templates.yaml
+- retrieval_bias_rules.yaml
+- retrieval_virtual_buckets.yaml
+- failure_taxonomy.yaml
+- subsystem_map.yaml
+- subsystem_aliases.yaml
+- lexical_clue_terms.yaml
+- responsibility_terms.yaml
+- domain_map.yaml
+- cross_cutting_flags.yaml
+- role_assignment_rules.yaml
+- negative_targets.yaml
+- passive_relevance_patterns.yaml
+draft_files: []
+legacy_reference_files:
+- pipeline_knowledge.yaml
+- retrieval_bias.yaml
+retired_files:
+- task_families.additions.yaml
+- task_families.fixed.yaml
+rules:
+- Canonical runtime files are the only source of truth for live classification and retrieval behavior.
+- Draft files must live outside the canonical runtime set and must declare non-runtime status explicitly.
+- Legacy/reference files may remain for provenance or migration history, but loaders should ignore them.
+- 'Task families require explicit lifecycle status: active, draft, deprecated, or merged_into.'
+- Retrieval rules must separate canonical subsystem keys from virtual retrieval buckets.

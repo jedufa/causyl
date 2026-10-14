@@ -1,0 +1,92 @@
+{
+  "name": "full_stack_blocked_chain_with_upgrade_pressure",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "build_action_plane_all_phases_report_v1",
+  "git_repo": true,
+  "artifact_inputs": {
+    "patch_file": "artifacts/broken.patch"
+  },
+  "payload": {
+    "phase2_entrypoint": "execute_patch_apply_chain_v1",
+    "phase2_request": {
+      "task_id": "fcee_full_stack_blocked_chain",
+      "action_family": "patch_apply",
+      "execution_mode": "deterministic_then_codex",
+      "context_bundle_id": "lab_delivery_safety_v1",
+      "requested_by": "operator",
+      "source_event": "api",
+      "authority_scope": "repo_mutation",
+      "pis_markdown": "# acceptance\\n\\n- prove patch chain\\n",
+      "evidence_artifacts": [
+        "patch_input"
+      ]
+    },
+    "fallback_events": [
+      {
+        "action_family": "patch_apply",
+        "intent": "apply incoming patch",
+        "failure_class": "semantic_conflict",
+        "deterministic_steps_attempted": [
+          "patch_ingest_repair_v1",
+          "validation_subset_v1"
+        ],
+        "fallback_reason": "semantic_merge_required",
+        "pre_escalation_checklist": {
+          "evidence_gathered": true,
+          "failure_class_recorded": true,
+          "deterministic_recovery_exhausted_or_inapplicable": true,
+          "downstream_validation_contract_prepared": true
+        },
+        "codex_action_summary": "manual merge",
+        "post_fallback_outcome": "success_after_codex_fallback",
+        "solution_path_signature": "semantic_merge_then_validate",
+        "bounded_authority_safe": true,
+        "validator_path_clear": true,
+        "expected_future_codex_cost": 25.0,
+        "operator_friction_cost": 1.0,
+        "estimated_build_cost": 5.0,
+        "estimated_maintenance_cost": 1.0
+      },
+      {
+        "action_family": "patch_apply",
+        "intent": "apply incoming patch",
+        "failure_class": "semantic_conflict",
+        "deterministic_steps_attempted": [
+          "patch_ingest_repair_v1",
+          "validation_subset_v1"
+        ],
+        "fallback_reason": "semantic_merge_required",
+        "pre_escalation_checklist": {
+          "evidence_gathered": true,
+          "failure_class_recorded": true,
+          "deterministic_recovery_exhausted_or_inapplicable": true,
+          "downstream_validation_contract_prepared": true
+        },
+        "codex_action_summary": "manual merge",
+        "post_fallback_outcome": "success_after_codex_fallback",
+        "solution_path_signature": "semantic_merge_then_validate",
+        "bounded_authority_safe": true,
+        "validator_path_clear": true,
+        "expected_future_codex_cost": 24.0,
+        "operator_friction_cost": 1.0,
+        "estimated_build_cost": 5.0,
+        "estimated_maintenance_cost": 1.0
+      }
+    ]
+  },
+  "expected_terminal_status": "proof_gap",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "operator_state": "degraded",
+    "phase4_decision": "approved",
+    "proposal_created": true
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

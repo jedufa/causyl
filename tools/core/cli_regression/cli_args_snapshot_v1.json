@@ -1,0 +1,257 @@
+{
+  "generated_at_utc": "2026-02-14T12:38:10.656158Z",
+  "modules": [
+    {
+      "module": "tools.entrypoints.run_registry_case",
+      "options": [
+        "--batch_tag",
+        "--dry_run",
+        "--help",
+        "--only_run_id",
+        "--overwrite",
+        "--perf",
+        "--print_cmds",
+        "--registry",
+        "-h"
+      ]
+    },
+    {
+      "module": "experiments.runs.debug_decision_fail_usage",
+      "options": [
+        "--help",
+        "--required",
+        "-h"
+      ]
+    },
+    {
+      "module": "experiments.runs.smoke_regression",
+      "options": [
+        "--baseline",
+        "--gen",
+        "--help",
+        "--runs_dir",
+        "--seed",
+        "--seeds",
+        "--steps",
+        "--update_baseline",
+        "-h"
+      ]
+    },
+    {
+      "module": "scripts.utils.failure_notify",
+      "options": [
+        "--attach",
+        "--context",
+        "--help",
+        "--log",
+        "--title",
+        "-h"
+      ]
+    },
+    {
+      "module": "scripts.utils.run_module_with_capture",
+      "options": [
+        "--help",
+        "--label",
+        "--module",
+        "--python",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools._core.run_job",
+      "options": [
+        "--device",
+        "--dry_run",
+        "--git_ref",
+        "--help",
+        "--job_id",
+        "--job_spec",
+        "--module",
+        "--seed",
+        "--timeout_sec",
+        "--wrapper_root",
+        "-h",
+        "-m"
+      ]
+    },
+    {
+      "module": "tools.aggregate_bundle",
+      "options": [
+        "--bundle_id",
+        "--help",
+        "--manifest",
+        "--out_dir",
+        "--wrapper_root",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.analyze_torch_trace",
+      "options": [
+        "--help",
+        "--min-ms",
+        "--top",
+        "--trace",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.cli_regression.verify_cli_args",
+      "options": [
+        "--cwd",
+        "--help",
+        "--python",
+        "--update-snapshot",
+        "--verbose",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.debug_review",
+      "options": [
+        "--exact_run_id",
+        "--help",
+        "--max_manifest",
+        "--max_wrapper",
+        "--out_dir",
+        "--repo_root",
+        "--run_id_contains",
+        "--silent",
+        "--since_minutes",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.expand_registry",
+      "options": [
+        "--append-to",
+        "--dedupe",
+        "--entry-module",
+        "--help",
+        "--out-jobs",
+        "--registry",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.gen_repo_context",
+      "options": [
+        "--help",
+        "--out",
+        "--root",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.generate_manifest",
+      "options": [
+        "--also_json",
+        "--help",
+        "--no-verify",
+        "--out",
+        "--spec",
+        "--verify-lax",
+        "--verify-quiet",
+        "--verify-report",
+        "--verify-strict",
+        "--verify-verbose",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.manifest_runner",
+      "options": [
+        "--allow_3_per_gpu",
+        "--concurrency",
+        "--dry_run",
+        "--env_output_root_key",
+        "--follow",
+        "--follow_job",
+        "--help",
+        "--log",
+        "--log_level",
+        "--manifest",
+        "--node_id",
+        "--output_root",
+        "--packing_degradation_threshold",
+        "--packing_devices",
+        "--packing_disable_degradation_backoff",
+        "--progress-mode",
+        "--report_dir",
+        "--sims_per_gpu",
+        "--timeout_sec",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.run_job",
+      "options": [
+        "--device",
+        "--dry_run",
+        "--git_ref",
+        "--help",
+        "--job_id",
+        "--job_spec",
+        "--module",
+        "--seed",
+        "--timeout_sec",
+        "--wrapper_root",
+        "-h",
+        "-m"
+      ]
+    },
+    {
+      "module": "tools.run_manifest",
+      "options": [
+        "--allow_3_per_gpu",
+        "--concurrency",
+        "--dry_run",
+        "--env_output_root_key",
+        "--follow",
+        "--follow_job",
+        "--help",
+        "--log",
+        "--log_level",
+        "--manifest",
+        "--node_id",
+        "--output_root",
+        "--packing_degradation_threshold",
+        "--packing_devices",
+        "--packing_disable_degradation_backoff",
+        "--progress-mode",
+        "--report_dir",
+        "--sims_per_gpu",
+        "--timeout_sec",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.verify_manifest",
+      "options": [
+        "--help",
+        "--manifest",
+        "--report",
+        "--strict",
+        "--summary-json",
+        "--verbose",
+        "-h"
+      ]
+    },
+    {
+      "module": "tools.verify_phase3",
+      "options": [
+        "--expect-packing",
+        "--help",
+        "--manifest",
+        "--out",
+        "--run-dir",
+        "--runs-root",
+        "--watch",
+        "--wrapper-root",
+        "-h"
+      ]
+    }
+  ],
+  "schema_version": "v1"
+}

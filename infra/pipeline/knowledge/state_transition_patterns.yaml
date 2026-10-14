@@ -1,0 +1,1421 @@
+version: 1
+phase: 1
+notes: "Deterministic legal and illegal state transition patterns for execution lifecycle, workflow, and scheduler contexts."
+legal_transitions:
+  execution_lifecycle:
+    - from: pending
+      to: running
+      guard: "ownership_acquired AND eligibility_validated"
+    - from: running
+      to: completed
+      guard: "output_committed AND receipt_persisted"
+    - from: running
+      to: failed
+      guard: terminal_cause_recorded
+    - from: running
+      to: cancelled
+      guard: cancellation_evidence_emitted
+    - from: failed
+      to: retrying
+      guard: "retry_budget_not_exhausted AND attempt_incremented"
+    - from: retrying
+      to: running
+      guard: new_claim_acquired
+    - from: running
+      to: timed_out
+      guard: "deadline_exceeded AND timeout_evidence_recorded"
+    - from: timed_out
+      to: retrying
+      guard: retry_budget_not_exhausted
+    - from: pending
+      to: blocked
+      guard: dependency_unsatisfied
+    - from: blocked
+      to: pending
+      guard: "dependency_satisfied AND evidence_recorded"
+    - from: pending
+      to: cancelled
+      guard: cancellation_before_start_evidence_emitted
+    - from: failed
+      to: pending
+      guard: explicit_reset_with_evidence
+    - from: completed
+      to: archived
+      guard: "retention_period_elapsed AND archive_evidence_emitted"
+  workflow_stages:
+    - from: initialized
+      to: running
+      guard: preconditions_validated
+    - from: running
+      to: checkpoint_saved
+      guard: stage_output_committed
+    - from: checkpoint_saved
+      to: running
+      guard: resume_from_latest_checkpoint
+    - from: running
+      to: stage_complete
+      guard: "all_outputs_committed AND stage_evidence_persisted"
+    - from: stage_complete
+      to: next_stage_running
+      guard: downstream_eligibility_verified
+    - from: running
+      to: stage_failed
+      guard: failure_cause_recorded
+    - from: stage_failed
+      to: running
+      guard: "retry_eligible AND retry_from_last_checkpoint"
+    - from: stage_complete
+      to: workflow_complete
+      guard: "all_stages_complete AND completion_receipt_emitted"
+  scheduler_run:
+    - from: scheduled
+      to: dispatching
+      guard: "due_time_reached AND window_open AND job_enabled"
+    - from: dispatching
+      to: claimed
+      guard: claim_acquired_exclusively
+    - from: claimed
+      to: executing
+      guard: worker_started_and_heartbeat_active
+    - from: executing
+      to: succeeded
+      guard: "output_durable AND receipt_emitted"
+    - from: executing
+      to: failed
+      guard: worker_terminal_cause_recorded
+    - from: failed
+      to: scheduled
+      guard: "backoff_elapsed AND retry_budget_available"
+    - from: dispatching
+      to: suppressed
+      guard: duplicate_active_run_detected
+    - from: scheduled
+      to: skipped
+      guard: "job_disabled OR dependency_failed"
+  operator_control:
+    - from: idle
+      to: requested
+      guard: "operator_identity_present AND request_valid"
+    - from: requested
+      to: approved
+      guard: approval_required_and_recorded
+    - from: requested
+      to: rejected
+      guard: "validation_failed OR authorization_failed"
+    - from: approved
+      to: executing
+      guard: exclusive_claim_acquired
+    - from: executing
+      to: paused
+      guard: pause_request_valid_and_checkpoint_committed
+    - from: paused
+      to: executing
+      guard: resume_request_valid_and_claim_restored
+    - from: executing
+      to: cancel_requested
+      guard: cancel_request_recorded
+    - from: cancel_requested
+      to: cancelled
+      guard: worker_stop_confirmed
+    - from: executing
+      to: completed
+      guard: result_committed_and_receipt_emitted
+    - from: executing
+      to: failed
+      guard: terminal_failure_recorded
+  queue_dispatch:
+    - from: queued
+      to: reserved
+      guard: reservation_acquired_exclusively
+    - from: reserved
+      to: inflight
+      guard: consumer_started_and_visibility_extended
+    - from: inflight
+      to: acked
+      guard: work_completed_and_receipt_emitted
+    - from: inflight
+      to: nacked
+      guard: retryable_failure_recorded
+    - from: nacked
+      to: queued
+      guard: backoff_elapsed_and_retry_budget_available
+    - from: reserved
+      to: released
+      guard: consumer_failed_before_start
+    - from: released
+      to: queued
+      guard: reservation_cleared
+    - from: queued
+      to: dead_lettered
+      guard: retry_budget_exhausted
+    - from: inflight
+      to: timed_out
+      guard: visibility_timeout_expired
+    - from: timed_out
+      to: queued
+      guard: redelivery_allowed
+  recovery_flow:
+    - from: unknown
+      to: diagnosing
+      guard: inconsistency_detected
+    - from: diagnosing
+      to: repairing
+      guard: repair_strategy_selected
+    - from: repairing
+      to: repaired
+      guard: state_truth_restored
+    - from: repairing
+      to: failed_repair
+      guard: repair_attempt_exhausted
+    - from: repaired
+      to: verified
+      guard: post_repair_validation_passed
+    - from: verified
+      to: resumed
+      guard: resume_conditions_satisfied
+    - from: verified
+      to: terminalized
+      guard: resume_not_allowed
+    - from: failed_repair
+      to: escalated
+      guard: manual_intervention_required
+    - from: diagnosing
+      to: terminalized
+      guard: unrecoverable_corruption_detected
+    - from: resumed
+      to: completed
+      guard: normal_execution_finishes
+  configuration_rollout:
+    - from: draft
+      to: validated
+      guard: config_schema_valid_and_dependencies_checked
+    - from: validated
+      to: staged
+      guard: rollout_window_open
+    - from: staged
+      to: active
+      guard: activation_confirmed_and_receipt_emitted
+    - from: active
+      to: superseded
+      guard: newer_version_activated
+    - from: active
+      to: rollback_pending
+      guard: rollback_requested
+    - from: rollback_pending
+      to: rolled_back
+      guard: prior_version_restored
+    - from: rolled_back
+      to: superseded
+      guard: replacement_version_selected
+    - from: validated
+      to: rejected
+      guard: policy_check_failed
+    - from: draft
+      to: archived
+      guard: draft_abandoned
+    - from: active
+      to: disabled
+      guard: manual_disable_recorded
+  lease_lifecycle:
+    - from: unclaimed
+      to: claimed
+      guard: exclusive_owner_selected
+    - from: claimed
+      to: renewed
+      guard: current_owner_renews_before_expiry
+    - from: renewed
+      to: claimed
+      guard: renewal_window_cycles
+    - from: claimed
+      to: expired
+      guard: lease_deadline_passed
+    - from: expired
+      to: reclaimed
+      guard: new_owner_acquires_with_generation_check
+    - from: reclaimed
+      to: claimed
+      guard: ownership_normalized
+    - from: claimed
+      to: released
+      guard: owner_releases_cleanly
+    - from: released
+      to: unclaimed
+      guard: release_persisted
+    - from: claimed
+      to: revoked
+      guard: fencing_or_admin_revoke
+    - from: revoked
+      to: unclaimed
+      guard: revocation_persisted
+  admission_flow:
+    - from: received
+      to: validated
+      guard: schema_and_policy_checks_pass
+    - from: validated
+      to: admitted
+      guard: capacity_and_quota_available
+    - from: validated
+      to: rejected
+      guard: policy_or_constraint_failure
+    - from: admitted
+      to: scheduled
+      guard: execution_slot_assigned
+    - from: scheduled
+      to: expired
+      guard: request_deadline_elapsed
+    - from: expired
+      to: archived
+      guard: retention_policy_applied
+    - from: rejected
+      to: archived
+      guard: retention_policy_applied
+    - from: admitted
+      to: cancelled
+      guard: operator_cancel_recorded
+    - from: scheduled
+      to: cancelled
+      guard: cancel_before_dispatch
+    - from: cancelled
+      to: archived
+      guard: retention_policy_applied
+  worker_lifecycle:
+    - from: stopped
+      to: starting
+      guard: start_command_accepted
+    - from: starting
+      to: healthy
+      guard: heartbeat_and_readiness_ok
+    - from: healthy
+      to: draining
+      guard: graceful_shutdown_requested
+    - from: draining
+      to: stopped
+      guard: inflight_work_completed
+    - from: healthy
+      to: unhealthy
+      guard: liveness_check_failed
+    - from: unhealthy
+      to: restarting
+      guard: restart_policy_allows
+    - from: restarting
+      to: starting
+      guard: process_recreated
+    - from: healthy
+      to: stopped
+      guard: forced_stop_confirmed
+    - from: starting
+      to: failed_start
+      guard: startup_error_recorded
+    - from: failed_start
+      to: restarting
+      guard: retry_budget_available
+  pipeline_stage:
+    - from: planned
+      to: retrieving
+      guard: query_plan_validated
+    - from: retrieving
+      to: ranking
+      guard: candidate_set_collected
+    - from: ranking
+      to: bundled
+      guard: role_assignment_complete
+    - from: bundled
+      to: contract_ready
+      guard: coverage_requirements_met
+    - from: contract_ready
+      to: executed
+      guard: downstream_executor_acknowledged
+    - from: retrieving
+      to: widening
+      guard: coverage_too_weak
+    - from: widening
+      to: retrieving
+      guard: query_plan_expanded
+    - from: bundled
+      to: blocked
+      guard: bundle_gap_warning_present
+    - from: blocked
+      to: retrieving
+      guard: gap_resolution_requested
+    - from: executed
+      to: verified
+      guard: tests_and_checks_pass
+  audit_receipt:
+    - from: pending
+      to: writing
+      guard: terminal_event_detected
+    - from: writing
+      to: written
+      guard: receipt_persisted
+    - from: written
+      to: verified
+      guard: receipt_matches_state_truth
+    - from: writing
+      to: failed
+      guard: persistence_error_recorded
+    - from: failed
+      to: retrying
+      guard: retry_budget_available
+    - from: retrying
+      to: writing
+      guard: retry_delay_elapsed
+    - from: verified
+      to: archived
+      guard: retention_policy_elapsed
+    - from: pending
+      to: suppressed
+      guard: receipt_not_required
+    - from: suppressed
+      to: pending
+      guard: requirement_reactivated
+    - from: verified
+      to: exported
+      guard: downstream_export_allowed
+  heartbeat_monitor:
+    - from: unknown
+      to: healthy
+      guard: heartbeat_within_window
+    - from: healthy
+      to: suspect
+      guard: heartbeat_delay_detected
+    - from: suspect
+      to: stale
+      guard: delay_exceeds_threshold
+    - from: stale
+      to: recovering
+      guard: repair_flow_started
+    - from: recovering
+      to: healthy
+      guard: heartbeat_restored
+    - from: recovering
+      to: dead
+      guard: recovery_failed
+    - from: dead
+      to: reclaimed
+      guard: ownership_transferred
+    - from: reclaimed
+      to: healthy
+      guard: new_owner_heartbeat_present
+    - from: healthy
+      to: draining
+      guard: planned_shutdown_recorded
+    - from: draining
+      to: dead
+      guard: shutdown_complete
+  message_visibility:
+    - from: visible
+      to: reserved
+      guard: consumer_reservation_created
+    - from: reserved
+      to: hidden
+      guard: visibility_timeout_started
+    - from: hidden
+      to: visible
+      guard: timeout_elapsed_without_ack
+    - from: hidden
+      to: acked
+      guard: ack_persisted
+    - from: hidden
+      to: dead_lettered
+      guard: retry_budget_exhausted
+    - from: visible
+      to: deleted
+      guard: operator_delete_confirmed
+    - from: dead_lettered
+      to: replayed
+      guard: manual_replay_approved
+    - from: replayed
+      to: visible
+      guard: replay_persisted
+    - from: reserved
+      to: visible
+      guard: reservation_released
+    - from: acked
+      to: archived
+      guard: retention_policy_applied
+  leadership_term:
+    - from: follower
+      to: candidate
+      guard: election_timeout_elapsed
+    - from: candidate
+      to: leader
+      guard: quorum_obtained
+    - from: candidate
+      to: follower
+      guard: higher_term_observed
+    - from: leader
+      to: follower
+      guard: higher_term_or_resign
+    - from: leader
+      to: draining
+      guard: handoff_requested
+    - from: draining
+      to: follower
+      guard: handoff_completed
+    - from: follower
+      to: observer
+      guard: observer_mode_enabled
+    - from: observer
+      to: follower
+      guard: observer_mode_disabled
+    - from: leader
+      to: isolated
+      guard: quorum_lost
+    - from: isolated
+      to: candidate
+      guard: rejoin_attempt_allowed
+  configuration_sync:
+    - from: pending_sync
+      to: syncing
+      guard: new_version_detected
+    - from: syncing
+      to: synced
+      guard: version_applied_and_verified
+    - from: syncing
+      to: failed_sync
+      guard: apply_error_recorded
+    - from: failed_sync
+      to: retrying_sync
+      guard: retry_policy_allows
+    - from: retrying_sync
+      to: syncing
+      guard: retry_delay_elapsed
+    - from: synced
+      to: stale
+      guard: newer_version_detected
+    - from: stale
+      to: syncing
+      guard: sync_restart_requested
+    - from: synced
+      to: disabled
+      guard: sync_disabled
+    - from: disabled
+      to: pending_sync
+      guard: sync_reenabled
+    - from: failed_sync
+      to: escalated
+      guard: retry_budget_exhausted
+  artifact_retention:
+    - from: active
+      to: eligible_for_archive
+      guard: retention_window_elapsed
+    - from: eligible_for_archive
+      to: archived
+      guard: archive_write_verified
+    - from: archived
+      to: purge_pending
+      guard: purge_window_elapsed
+    - from: purge_pending
+      to: purged
+      guard: purge_completed_with_receipt
+    - from: active
+      to: legal_hold
+      guard: hold_request_recorded
+    - from: legal_hold
+      to: active
+      guard: hold_removed
+    - from: archived
+      to: restored
+      guard: restore_request_verified
+    - from: restored
+      to: active
+      guard: restore_completed
+    - from: eligible_for_archive
+      to: active
+      guard: retention_extended
+    - from: purged
+      to: restored
+      guard: forbidden
+  deployment_rollout:
+    - from: planned
+      to: deploying
+      guard: deployment_window_open
+    - from: deploying
+      to: deployed
+      guard: artifact_applied_and_verified
+    - from: deploying
+      to: failed_deploy
+      guard: deployment_error_recorded
+    - from: failed_deploy
+      to: rollback_pending
+      guard: rollback_policy_allows
+    - from: rollback_pending
+      to: rolled_back
+      guard: prior_release_restored
+    - from: rolled_back
+      to: verified
+      guard: post_rollback_checks_pass
+    - from: deployed
+      to: superseded
+      guard: new_release_activated
+    - from: planned
+      to: cancelled
+      guard: deployment_cancelled_before_start
+    - from: verified
+      to: archived
+      guard: release_retired
+    - from: failed_deploy
+      to: escalated
+      guard: manual_intervention_required
+  approval_lifecycle:
+    - from: draft
+      to: submitted
+      guard: request_has_required_fields
+    - from: submitted
+      to: under_review
+      guard: reviewer_assigned
+    - from: under_review
+      to: approved
+      guard: approval_recorded
+    - from: under_review
+      to: rejected
+      guard: rejection_reason_recorded
+    - from: approved
+      to: executed
+      guard: execution_started
+    - from: executed
+      to: verified
+      guard: post_execution_checks_pass
+    - from: verified
+      to: closed
+      guard: closure_recorded
+    - from: submitted
+      to: withdrawn
+      guard: submitter_withdraws
+    - from: rejected
+      to: resubmitted
+      guard: new_revision_uploaded
+    - from: resubmitted
+      to: under_review
+      guard: review_restarted
+  capacity_allocation:
+    - from: available
+      to: reserved
+      guard: capacity_request_accepted
+    - from: reserved
+      to: allocated
+      guard: owner_claims_capacity
+    - from: allocated
+      to: released
+      guard: work_completed_or_cancelled
+    - from: released
+      to: available
+      guard: release_persisted
+    - from: allocated
+      to: exhausted
+      guard: capacity_consumed_fully
+    - from: exhausted
+      to: replenishing
+      guard: replenishment_started
+    - from: replenishing
+      to: available
+      guard: replenishment_completed
+    - from: reserved
+      to: expired
+      guard: reservation_timeout_elapsed
+    - from: expired
+      to: available
+      guard: expiry_persisted
+    - from: allocated
+      to: stolen
+      guard: fencing_detects_wrong_owner
+illegal_transitions:
+  universal:
+    - from: completed
+      to: running
+      reason: "re-entry into completed terminal state without explicit reset"
+    - from: cancelled
+      to: running
+      reason: "re-entry into cancelled terminal state without explicit reset"
+    - from: failed
+      to: completed
+      reason: "skipping retry or reset step"
+    - from: archived
+      to: running
+      reason: "archived state must not be reactivated"
+    - from: timed_out
+      to: completed
+      reason: "timed-out state must not self-resolve to success"
+    - from: running
+      to: running
+      reason: "self-loop is not a valid lifecycle transition"
+    - from: completed
+      to: failed
+      reason: "retroactive failure mutation of committed truth"
+    - from: skipped
+      to: running
+      reason: "skipped runs must be explicitly re-dispatched"
+    - from: suppressed
+      to: running
+      reason: "suppressed runs require explicit operator intervention"
+  scheduler_run:
+    - from: claimed
+      to: claimed
+      reason: "duplicate claim acquisition for already-claimed run"
+    - from: succeeded
+      to: dispatching
+      reason: "successful run must not be automatically redispatched"
+  operator_control:
+    - from: approved
+      to: completed
+      reason: "cannot skip execution and evidence emission"
+    - from: paused
+      to: completed
+      reason: "paused work must resume or cancel before completion"
+    - from: rejected
+      to: executing
+      reason: "rejected request must not execute"
+    - from: cancelled
+      to: executing
+      reason: "cancelled action requires explicit reset"
+    - from: requested
+      to: paused
+      reason: "cannot pause before execution begins"
+    - from: completed
+      to: cancel_requested
+      reason: "terminal completion blocks cancel"
+    - from: failed
+      to: approved
+      reason: "failed action requires retry or reset"
+    - from: idle
+      to: completed
+      reason: "cannot complete without request"
+    - from: executing
+      to: approved
+      reason: "cannot move backward to approval"
+    - from: rejected
+      to: approved
+      reason: "rejected flow requires new request"
+  queue_dispatch:
+    - from: queued
+      to: acked
+      reason: "cannot acknowledge without inflight work"
+    - from: dead_lettered
+      to: inflight
+      reason: "dead-letter requires explicit replay"
+    - from: reserved
+      to: acked
+      reason: "reservation alone is not completion"
+    - from: acked
+      to: queued
+      reason: "acked message must not requeue automatically"
+    - from: released
+      to: acked
+      reason: "released reservation cannot acknowledge work"
+    - from: timed_out
+      to: acked
+      reason: "timed out work requires redelivery or terminalization"
+    - from: nacked
+      to: acked
+      reason: "nack must flow through requeue or dead letter"
+    - from: dead_lettered
+      to: queued
+      reason: "dead-letter replay must be explicit"
+    - from: inflight
+      to: reserved
+      reason: "cannot regress to reserved while work is inflight"
+    - from: acked
+      to: inflight
+      reason: "acked terminal state must not reopen"
+  worker_lifecycle:
+    - from: stopped
+      to: healthy
+      reason: "worker must start before becoming healthy"
+    - from: failed_start
+      to: healthy
+      reason: "failed start requires restart path"
+    - from: draining
+      to: starting
+      reason: "must stop before restart"
+    - from: healthy
+      to: starting
+      reason: "already started worker cannot restart in place"
+    - from: dead
+      to: healthy
+      reason: "dead worker requires explicit reclaim or restart"
+    - from: stopped
+      to: draining
+      reason: "cannot drain when already stopped"
+    - from: starting
+      to: draining
+      reason: "startup must resolve first"
+    - from: unhealthy
+      to: healthy
+      reason: "health restoration must be evidenced"
+    - from: restarting
+      to: healthy
+      reason: "restart must flow through starting"
+    - from: failed_start
+      to: stopped
+      reason: "failure must be acknowledged or repaired"
+  leadership_term:
+    - from: follower
+      to: leader
+      reason: "must win election before leadership"
+    - from: leader
+      to: candidate
+      reason: "leader cannot self-reenter election without step-down"
+    - from: observer
+      to: leader
+      reason: "observer must first become follower or candidate"
+    - from: isolated
+      to: leader
+      reason: "isolated node must rejoin before leadership"
+    - from: draining
+      to: leader
+      reason: "handoff must complete before renewed leadership"
+    - from: candidate
+      to: observer
+      reason: "candidate must resolve election first"
+    - from: leader
+      to: observer
+      reason: "leader must step down through follower"
+    - from: observer
+      to: candidate
+      reason: "observer must transition to follower first"
+    - from: follower
+      to: draining
+      reason: "only current leader can drain leadership"
+    - from: isolated
+      to: follower
+      reason: "rejoin path must be explicit"
+  artifact_retention:
+    - from: purged
+      to: active
+      reason: "purged artifact cannot return directly to active"
+    - from: active
+      to: purged
+      reason: "purge must respect archive workflow"
+    - from: legal_hold
+      to: purged
+      reason: "legal hold blocks purge"
+    - from: archived
+      to: active
+      reason: "restoration must be explicit"
+    - from: eligible_for_archive
+      to: purged
+      reason: "archive eligibility is not purge approval"
+    - from: purge_pending
+      to: active
+      reason: "purge pending must resolve or cancel explicitly"
+    - from: restored
+      to: archived
+      reason: "restored artifacts return to active first"
+    - from: purged
+      to: archived
+      reason: "purged artifact has no archive state"
+    - from: legal_hold
+      to: eligible_for_archive
+      reason: "hold must be removed first"
+    - from: archived
+      to: purged
+      reason: "purge must go through purge_pending"
+  configuration_sync:
+    - from: pending_sync
+      to: synced
+      reason: "sync must perform apply step"
+    - from: failed_sync
+      to: synced
+      reason: "failed sync requires retry or manual repair"
+    - from: disabled
+      to: synced
+      reason: "disabled sync must be re-enabled first"
+    - from: synced
+      to: failed_sync
+      reason: "failure must occur during sync attempt"
+    - from: retrying_sync
+      to: synced
+      reason: "retrying must re-enter syncing first"
+    - from: stale
+      to: synced
+      reason: "stale state requires new sync"
+    - from: escalated
+      to: synced
+      reason: "escalation requires explicit repair path"
+    - from: pending_sync
+      to: failed_sync
+      reason: "failure only exists after sync attempt begins"
+    - from: disabled
+      to: retrying_sync
+      reason: "disabled sync cannot retry"
+    - from: synced
+      to: pending_sync
+      reason: "pending_sync indicates newer version, not current sync state"
+  approval_lifecycle:
+    - from: draft
+      to: approved
+      reason: "approval requires submission and review"
+    - from: approved
+      to: draft
+      reason: "approved request cannot revert to draft"
+    - from: rejected
+      to: approved
+      reason: "rejected request requires resubmission"
+    - from: closed
+      to: under_review
+      reason: "closed lifecycle must restart separately"
+    - from: executed
+      to: submitted
+      reason: "execution cannot revert to submission"
+    - from: verified
+      to: approved
+      reason: "verified state is downstream of approval"
+    - from: withdrawn
+      to: approved
+      reason: "withdrawn request must resubmit first"
+    - from: rejected
+      to: executed
+      reason: "rejected request must not execute"
+    - from: submitted
+      to: executed
+      reason: "execution requires approval"
+    - from: closed
+      to: executed
+      reason: "closed lifecycle must not reopen"
+  deployment_rollout:
+    - from: planned
+      to: deployed
+      reason: "deployment must execute before deployed state"
+    - from: deployed
+      to: planned
+      reason: "deployed release cannot revert to planning"
+    - from: failed_deploy
+      to: deployed
+      reason: "failed deployment requires retry or rollback"
+    - from: rolled_back
+      to: deploying
+      reason: "rolled back release requires new plan"
+    - from: cancelled
+      to: deploying
+      reason: "cancelled rollout must restart explicitly"
+    - from: archived
+      to: deployed
+      reason: "archived release cannot become active again"
+    - from: superseded
+      to: deployed
+      reason: "superseded release cannot regain activity directly"
+    - from: verified
+      to: deploying
+      reason: "verified release requires new rollout cycle"
+    - from: escalated
+      to: deployed
+      reason: "escalated state requires manual resolution"
+    - from: rollback_pending
+      to: deployed
+      reason: "pending rollback must resolve first"
+  capacity_allocation:
+    - from: available
+      to: allocated
+      reason: "allocation requires reservation"
+    - from: released
+      to: allocated
+      reason: "released capacity must become available first"
+    - from: expired
+      to: allocated
+      reason: "expired reservation cannot allocate directly"
+    - from: stolen
+      to: allocated
+      reason: "ownership conflict requires reconciliation first"
+    - from: exhausted
+      to: allocated
+      reason: "exhausted capacity must replenish first"
+    - from: replenishing
+      to: allocated
+      reason: "replenishment must complete before allocation"
+    - from: reserved
+      to: available
+      reason: "reservation must release or expire explicitly"
+    - from: allocated
+      to: available
+      reason: "allocated capacity must release explicitly"
+    - from: stolen
+      to: available
+      reason: "stolen state requires ownership repair first"
+    - from: expired
+      to: released
+      reason: "expired reservation never allocated work"
+  admission_flow:
+    - from: received
+      to: admitted
+      reason: "must validate before admission"
+    - from: rejected
+      to: admitted
+      reason: "rejected request requires new submission"
+    - from: expired
+      to: admitted
+      reason: "expired request cannot revive directly"
+    - from: cancelled
+      to: scheduled
+      reason: "cancelled request must not schedule"
+    - from: archived
+      to: received
+      reason: "archived request cannot reopen"
+    - from: admitted
+      to: received
+      reason: "admitted state cannot revert to received"
+    - from: scheduled
+      to: validated
+      reason: "scheduled work cannot move backward to validation"
+    - from: validated
+      to: expired
+      reason: "validation alone does not imply expiry"
+    - from: rejected
+      to: scheduled
+      reason: "rejected request must not schedule"
+    - from: cancelled
+      to: admitted
+      reason: "cancelled request must restart externally"
+  audit_receipt:
+    - from: pending
+      to: verified
+      reason: "receipt must be written before verification"
+    - from: failed
+      to: verified
+      reason: "failed receipt write must repair first"
+    - from: exported
+      to: writing
+      reason: "exported receipt must not re-enter write path"
+    - from: archived
+      to: pending
+      reason: "archived receipt must not reopen"
+    - from: suppressed
+      to: verified
+      reason: "suppressed receipt has no written evidence"
+    - from: written
+      to: pending
+      reason: "written receipt cannot revert to pending"
+    - from: retrying
+      to: verified
+      reason: "retrying must write successfully first"
+    - from: failed
+      to: exported
+      reason: "failed receipt cannot export"
+    - from: verified
+      to: failed
+      reason: "verified receipt must not retroactively fail"
+    - from: suppressed
+      to: exported
+      reason: "suppressed receipt has no artifact to export"
+  message_visibility:
+    - from: visible
+      to: acked
+      reason: "must be reserved or inflight before ack"
+    - from: deleted
+      to: visible
+      reason: "deleted message cannot reappear directly"
+    - from: dead_lettered
+      to: acked
+      reason: "dead-lettered message is not inflight"
+    - from: replayed
+      to: acked
+      reason: "replayed message must become visible or hidden first"
+    - from: hidden
+      to: deleted
+      reason: "hidden message requires explicit operator delete path"
+    - from: acked
+      to: visible
+      reason: "acked message must remain terminal"
+    - from: reserved
+      to: dead_lettered
+      reason: "reservation alone cannot dead-letter"
+    - from: visible
+      to: replayed
+      reason: "replay only applies after dead-letter"
+    - from: deleted
+      to: acked
+      reason: "deleted message cannot be acknowledged"
+    - from: acked
+      to: replayed
+      reason: "acked message requires explicit replay policy"
+  pipeline_stage:
+    - from: planned
+      to: ranking
+      reason: "retrieval must occur before ranking"
+    - from: retrieving
+      to: contract_ready
+      reason: "ranking and bundling are required first"
+    - from: blocked
+      to: executed
+      reason: "blocked pipeline cannot execute"
+    - from: verified
+      to: bundled
+      reason: "verified execution must not regress"
+    - from: executed
+      to: retrieving
+      reason: "execution restart requires new plan"
+    - from: contract_ready
+      to: planned
+      reason: "ready contract must not revert to planning"
+    - from: widening
+      to: bundled
+      reason: "widening must retrieve again first"
+    - from: blocked
+      to: contract_ready
+      reason: "gaps must be resolved before readiness"
+    - from: verified
+      to: executed
+      reason: "verified state is downstream of executed"
+    - from: ranking
+      to: planned
+      reason: "ranking cannot revert to initial plan directly"
+  heartbeat_monitor:
+    - from: unknown
+      to: stale
+      reason: "staleness requires observed delay evidence"
+    - from: dead
+      to: healthy
+      reason: "dead monitor requires reclaim or restart"
+    - from: draining
+      to: healthy
+      reason: "draining must complete or restart explicitly"
+    - from: suspect
+      to: dead
+      reason: "must pass through stale or recovery evidence"
+    - from: reclaimed
+      to: suspect
+      reason: "reclaimed ownership should produce fresh heartbeat"
+    - from: healthy
+      to: dead
+      reason: "death must be evidenced through stale or forced stop"
+    - from: unknown
+      to: recovered
+      reason: "recovered is not a valid direct state"
+    - from: dead
+      to: draining
+      reason: "dead worker cannot drain gracefully"
+    - from: reclaimed
+      to: dead
+      reason: "reclaimed state requires new evidence path"
+    - from: draining
+      to: suspect
+      reason: "planned drain should not become suspect"
+  lease_lifecycle:
+    - from: unclaimed
+      to: renewed
+      reason: "renewal requires existing claim"
+    - from: released
+      to: claimed
+      reason: "released lease must normalize to unclaimed first"
+    - from: revoked
+      to: claimed
+      reason: "revoked lease requires explicit reclaim"
+    - from: expired
+      to: claimed
+      reason: "expired lease requires reclaim path"
+    - from: claimed
+      to: unclaimed
+      reason: "claimed lease must release or expire explicitly"
+    - from: renewed
+      to: released
+      reason: "renewed lease remains claimed until release"
+    - from: reclaimed
+      to: revoked
+      reason: "reclaimed lease must stabilize before revoke"
+    - from: unclaimed
+      to: released
+      reason: "nothing to release when unclaimed"
+    - from: revoked
+      to: renewed
+      reason: "revoked lease cannot renew"
+    - from: expired
+      to: released
+      reason: "expired lease is no longer owned to release"
+  recovery_flow:
+    - from: unknown
+      to: repaired
+      reason: "must diagnose before repair"
+    - from: diagnosing
+      to: verified
+      reason: "verification follows repair"
+    - from: failed_repair
+      to: resumed
+      reason: "failed repair cannot resume execution"
+    - from: terminalized
+      to: resumed
+      reason: "terminalized recovery requires explicit reset"
+    - from: repaired
+      to: completed
+      reason: "must verify or resume before completion"
+    - from: escalated
+      to: repaired
+      reason: "escalation requires explicit intervention step"
+    - from: resumed
+      to: repairing
+      reason: "resumed execution cannot jump back without new incident"
+    - from: diagnosing
+      to: resumed
+      reason: "resume requires repair or validation"
+    - from: verified
+      to: repairing
+      reason: "verified state should not regress without new diagnosis"
+    - from: failed_repair
+      to: verified
+      reason: "failed repair has no verified truth"
+  operator_control_existing:
+    - from: idle
+      to: approved
+      reason: "approval requires a request"
+    - from: requested
+      to: completed
+      reason: "must approve and execute before completion"
+    - from: cancel_requested
+      to: approved
+      reason: "cancel path must resolve first"
+    - from: completed
+      to: paused
+      reason: "completed flow is terminal"
+    - from: failed
+      to: executing
+      reason: "failed flow requires retry or reset"
+    - from: paused
+      to: requested
+      reason: "paused flow cannot return to initial request"
+    - from: approved
+      to: cancelled
+      reason: "cancellation requires execution or explicit cancel path"
+    - from: withdrawn
+      to: executing
+      reason: "withdrawn flow must not execute"
+    - from: idle
+      to: cancelled
+      reason: "cannot cancel nonexistent work"
+    - from: cancelled
+      to: approved
+      reason: "cancelled flow requires new request"
+  scheduler_run_existing:
+    - from: scheduled
+      to: executing
+      reason: "must dispatch and claim before execution"
+    - from: dispatching
+      to: succeeded
+      reason: "dispatch alone is not terminal success"
+    - from: claimed
+      to: succeeded
+      reason: "claimed state must execute before success"
+    - from: failed
+      to: dispatching
+      reason: "failed run must reschedule first"
+    - from: suppressed
+      to: succeeded
+      reason: "suppressed run never executed"
+    - from: skipped
+      to: executing
+      reason: "skipped run requires explicit redispatch"
+    - from: executing
+      to: scheduled
+      reason: "executing run must fail, succeed, or cancel first"
+    - from: succeeded
+      to: failed
+      reason: "successful run must not retroactively fail"
+    - from: dispatching
+      to: scheduled
+      reason: "dispatching must either claim, suppress, or skip"
+    - from: claimed
+      to: suppressed
+      reason: "claimed work cannot become suppressed retroactively"
+transition_evidence_requirements:
+  - transition: any_to_terminal
+    required_evidence:
+      - terminal_cause
+      - actor_or_system_identifier
+      - timestamp
+      - run_lineage_identifier
+  - transition: any_to_retrying
+    required_evidence:
+      - attempt_count_incremented
+      - retry_reason
+      - backoff_window_computed
+  - transition: any_manual_transition
+    required_evidence:
+      - operator_identity
+      - reason_code
+      - target_identifier
+      - timestamp
+  - transition: any_to_claimed
+    required_evidence:
+      - owner_identifier
+      - generation_or_epoch
+      - claim_timestamp
+      - claim_scope
+  - transition: any_to_paused
+    required_evidence:
+      - operator_or_system_actor
+      - pause_reason
+      - checkpoint_reference
+      - timestamp
+  - transition: any_to_cancelled
+    required_evidence:
+      - cancellation_reason
+      - actor_or_system_identifier
+      - timestamp
+      - final_state_confirmation
+  - transition: any_to_succeeded
+    required_evidence:
+      - result_reference
+      - receipt_identifier
+      - completion_timestamp
+      - lineage_identifier
+  - transition: any_to_failed
+    required_evidence:
+      - failure_cause
+      - failure_classification
+      - timestamp
+      - actor_or_component
+  - transition: any_to_timed_out
+    required_evidence:
+      - deadline_timestamp
+      - timeout_detector
+      - last_heartbeat_or_progress
+      - timestamp
+  - transition: any_to_dead_lettered
+    required_evidence:
+      - retry_budget_state
+      - dead_letter_reason
+      - message_identifier
+      - timestamp
+  - transition: any_to_repaired
+    required_evidence:
+      - repair_strategy
+      - repaired_fields
+      - validator_identity
+      - timestamp
+  - transition: any_to_active_config
+    required_evidence:
+      - config_version
+      - activation_actor
+      - activation_timestamp
+      - receipt_identifier
+  - transition: any_to_reclaimed
+    required_evidence:
+      - new_owner_identifier
+      - prior_owner_state
+      - generation_check
+      - timestamp
+  - transition: any_disable_transition
+    required_evidence:
+      - actor_identity
+      - disable_reason
+      - timestamp
+      - affected_target
+  - transition: any_reset_transition
+    required_evidence:
+      - reset_reason
+      - approval_or_policy_basis
+      - timestamp
+      - previous_terminal_state
+  - transition: custom_transition_16
+    required_evidence:
+      - actor_identifier
+      - timestamp
+      - pre_state
+      - post_state
+  - transition: custom_transition_17
+    required_evidence:
+      - actor_identifier
+      - timestamp
+      - pre_state
+      - post_state
+  - transition: custom_transition_18
+    required_evidence:
+      - actor_identifier
+      - timestamp
+      - pre_state
+      - post_state
+  - transition: custom_transition_19
+    required_evidence:
+      - actor_identifier
+      - timestamp
+      - pre_state
+      - post_state
+  - transition: custom_transition_20
+    required_evidence:
+      - actor_identifier
+      - timestamp
+      - pre_state
+      - post_state
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: state_transition_patterns.yaml
+    payload:
+      patterns:
+        - id: pending_to_running
+          trigger: claim_task
+          invariants:
+            - at_most_one_active_execution
+        - id: running_to_success
+          trigger: complete_task
+          invariants:
+            - persisted_state_reflects_committed_ownership
+        - id: running_to_failed
+          trigger: handle_error
+          invariants:
+            - recovery_actions_must_be_idempotent
+        - id: failed_to_pending
+          trigger: retry_logic
+          invariants:
+            - exponential_backoff_on_retry
+        - id: any_to_cancelled
+          trigger: operator_cancel
+          invariants:
+            - idempotent_cleanup_on_cancel
+        - id: pending_to_expired
+          trigger: timeout_guard
+          invariants:
+            - all_resource_allocations_have_timeouts
+        - id: running_to_stale
+          trigger: heartbeat_failure
+          invariants:
+            - worker_claims_must_be_heartbeated
+        - id: stale_to_pending
+          trigger: reclaim_logic
+          invariants:
+            - no_orphaned_claims
+        - id: expired_to_deleted
+          trigger: cleanup_task
+          invariants:
+            - idempotent_cleanup_operations
+        - id: created_to_pending
+          trigger: schedule_launch
+          invariants:
+            - pre_launch_validation
+        - id: running_to_retrying
+          trigger: transient_failure
+          invariants:
+            - retries_do_not_duplicate_external_side_effects
+        - id: retrying_to_failed
+          trigger: max_retries_reached
+          invariants:
+            - max_retry_limit_enforced
+        - id: any_to_error
+          trigger: system_panic
+          invariants:
+            - fail_closed_on_auth_service_error
+        - id: active_to_paused
+          trigger: operator_pause
+          invariants:
+            - operator_override_actions_emit_audit_evidence
+        - id: paused_to_active
+          trigger: operator_resume
+          invariants:
+            - operator_override_actions_emit_audit_evidence
+        - id: draft_to_created
+          trigger: validate_config
+          invariants:
+            - input_sanitization_at_ingress_boundary
+        - id: running_to_waiting
+          trigger: external_dependency_wait
+          invariants:
+            - observability_spans_must_cover_entire_pipeline
+        - id: waiting_to_running
+          trigger: callback_received
+          invariants:
+            - idempotency_keys_are_unique_per_request
+        - id: any_to_audit_entry
+          trigger: state_log
+          invariants:
+            - database_transactions_include_audit_records
+        - id: reconciling_to_synced
+          trigger: sync_complete
+          invariants:
+            - idempotent_reconciliation_loops

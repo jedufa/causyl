@@ -1,0 +1,31 @@
+{
+  "schema_version": "absorption_candidate_v1",
+  "required_fields": [
+    "candidates",
+    "schema_version"
+  ],
+  "allowed_upgrade_types": [
+    "classifier_refinement",
+    "recovery_rule_addition",
+    "wrapper_helper_addition",
+    "playbook_refinement",
+    "proof_extraction_improvement"
+  ],
+  "required_candidate_fields": [
+    "candidate_id",
+    "cluster_id",
+    "target_action_family",
+    "target_playbook_id",
+    "proposed_upgrade_type",
+    "validator_clarity_class",
+    "authority_risk_class",
+    "recurrence_count",
+    "stability_class",
+    "expected_future_codex_cost_total",
+    "operator_friction_cost_total",
+    "estimated_build_cost_max",
+    "estimated_maintenance_cost_max",
+    "evidence_references"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

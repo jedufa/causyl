@@ -1,0 +1,95 @@
+{
+  "name": "economic_stop_rejected_upgrade",
+  "entrypoint": "build_action_plane_all_phases_report_v1",
+  "payload": {
+    "fallback_events": [
+      {
+        "action_family": "patch_apply",
+        "bounded_authority_safe": true,
+        "codex_action_summary": "manual merge",
+        "deterministic_steps_attempted": [
+          "patch_ingest_repair_v1",
+          "validation_subset_v1"
+        ],
+        "estimated_build_cost": 50.0,
+        "estimated_maintenance_cost": 10.0,
+        "expected_future_codex_cost": 1.0,
+        "failure_class": "semantic_conflict",
+        "fallback_reason": "semantic_merge_required",
+        "intent": "apply incoming patch",
+        "operator_friction_cost": 1.0,
+        "post_fallback_outcome": "success_after_codex_fallback",
+        "pre_escalation_checklist": {
+          "deterministic_recovery_exhausted_or_inapplicable": true,
+          "downstream_validation_contract_prepared": true,
+          "evidence_gathered": true,
+          "failure_class_recorded": true
+        },
+        "solution_path_signature": "semantic_merge_then_validate",
+        "validator_path_clear": true
+      },
+      {
+        "action_family": "patch_apply",
+        "bounded_authority_safe": true,
+        "codex_action_summary": "manual merge",
+        "deterministic_steps_attempted": [
+          "patch_ingest_repair_v1",
+          "validation_subset_v1"
+        ],
+        "estimated_build_cost": 50.0,
+        "estimated_maintenance_cost": 10.0,
+        "expected_future_codex_cost": 1.5,
+        "failure_class": "semantic_conflict",
+        "fallback_reason": "semantic_merge_required",
+        "intent": "apply incoming patch",
+        "operator_friction_cost": 1.0,
+        "post_fallback_outcome": "success_after_codex_fallback",
+        "pre_escalation_checklist": {
+          "deterministic_recovery_exhausted_or_inapplicable": true,
+          "downstream_validation_contract_prepared": true,
+          "evidence_gathered": true,
+          "failure_class_recorded": true
+        },
+        "solution_path_signature": "semantic_merge_then_validate",
+        "validator_path_clear": true
+      }
+    ],
+    "report": {
+      "action_family": "patch_apply",
+      "chain_id": "patch_apply_chain_v1::e2e-economic-stop",
+      "failure_escalation_log": [],
+      "final_chain_outcome": "blocked",
+      "final_verifier_verdict": "",
+      "playbook_id": "patch_apply_chain_v1",
+      "step_records": [
+        {
+          "checklist_complete": true,
+          "decision": "block",
+          "node_id": "patch_ingest",
+          "proof_gaps": [
+            "missing_validation_commands"
+          ],
+          "step_outcome": "failed_known"
+        }
+      ],
+      "terminal_reason": "patch_contract_invalid"
+    }
+  },
+  "expected_terminal_status": "economic_stop_no_new_signal",
+  "expected_receipt": {
+    "proof_gap": true
+  },
+  "expected_snapshot": {
+    "operator_state": "blocked",
+    "phase4_decision": "rejected",
+    "proposal_created": false
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot"
+  ],
+  "forbidden_effects": [
+    "sibling_item_mutation"
+  ]
+}

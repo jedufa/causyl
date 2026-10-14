@@ -1,0 +1,57 @@
+{
+  "name": "build_verify_recovery_to_pass",
+  "intent_sheet_uid": "IS-20260405-120500Z-UAP1",
+  "entrypoint": "execute_build_verify_loop_v1",
+  "git_repo": false,
+  "payload": {
+    "request": {
+      "task_id": "fcee_build_verify_recovery_to_pass",
+      "action_family": "build_verify",
+      "execution_mode": "deterministic_then_codex",
+      "context_bundle_id": "lab_core_v1",
+      "requested_by": "scheduler",
+      "source_event": "scheduler",
+      "authority_scope": "read_only",
+      "iterations": [
+        {
+          "builder_summary": "first iteration incomplete",
+          "evidence_artifacts": [
+            "candidate_report_v1"
+          ],
+          "validation_commands": [],
+          "verifier_verdict": "",
+          "expected_gain": 0.5,
+          "cost_per_iteration": 1.0
+        },
+        {
+          "builder_summary": "second iteration complete",
+          "evidence_artifacts": [
+            "candidate_report_v2"
+          ],
+          "validation_commands": [
+            "python -c \"print('ok')\""
+          ],
+          "verifier_verdict": "PASS",
+          "expected_gain": 0.5,
+          "cost_per_iteration": 1.0
+        }
+      ]
+    }
+  },
+  "expected_terminal_status": "ok",
+  "expected_receipt": {
+    "proof_gap": false,
+    "recovery_used": true
+  },
+  "expected_snapshot": {
+    "iteration_count": 2,
+    "recovery_used": true,
+    "final_chain_outcome": "completed_with_pass"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot",
+    "stimulus"
+  ]
+}

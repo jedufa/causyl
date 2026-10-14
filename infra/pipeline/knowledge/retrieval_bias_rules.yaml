@@ -1,0 +1,582 @@
+version: 1
+phase: 2
+notes: Deterministic retrieval bias rules that map active families and flags to canonical subsystem keys plus documented virtual retrieval buckets. Used to constrain and focus Stage 3 retrieval without conflating ownership subsystems with bucket-style surfaces.
+rules:
+- id: rbr_001
+  name: scheduler_safety_core_bias
+  activation: family == scheduler_safety
+  include_subsystems:
+  - scheduler_core
+  - schedule_calculation
+  - lease_claims
+  - state_persistence
+  - validation
+  - audit_receipts
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+  - runtime
+  - snapshots
+- id: rbr_002
+  name: operator_control_core_bias
+  activation: family == operator_control
+  include_subsystems:
+  - operator_entrypoints
+  - validation
+  - state_persistence
+  - audit_receipts
+  - observability
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_003
+  name: queue_dispatch_core_bias
+  activation: family == queue_dispatch
+  include_subsystems:
+  - queue_dispatch
+  - lease_claims
+  - state_persistence
+  - worker_runtime
+  - retry_backoff
+  - idempotency_store
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - snapshots
+- id: rbr_004
+  name: distributed_coordination_core_bias
+  activation: family == distributed_coordination
+  include_subsystems:
+  - leadership_coordination
+  - lease_claims
+  - heartbeat_liveness
+  - observability
+  - concurrency_control
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_005
+  name: recovery_repair_core_bias
+  activation: family == reconciliation_recovery
+  include_subsystems:
+  - recovery_mechanisms
+  - state_persistence
+  - audit_receipts
+  - observability
+  - checkpoint_resume
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_006
+  name: concurrency_control_flag_bias
+  activation: flag == concurrency_control
+  include_subsystems:
+  - lease_claims
+  - leadership_coordination
+  - concurrency_control
+  - state_persistence
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_007
+  name: idempotency_flag_bias
+  activation: flag == idempotency
+  include_subsystems:
+  - idempotency_store
+  - queue_dispatch
+  - retry_backoff
+  - state_persistence
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_008
+  name: auditability_flag_bias
+  activation: flag == auditability
+  include_subsystems:
+  - audit_receipts
+  - observability
+  - state_persistence
+  - cleanup_retention
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_009
+  name: rollback_safety_flag_bias
+  activation: flag == rollback_safety
+  include_subsystems:
+  - recovery_mechanisms
+  - checkpoint_resume
+  - state_persistence
+  - configuration_versioning
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_010
+  name: ownership_control_flag_bias
+  activation: flag == ownership_control
+  include_subsystems:
+  - lease_claims
+  - leadership_coordination
+  - heartbeat_liveness
+  - state_persistence
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_011
+  name: timing_correctness_flag_bias
+  activation: flag == timing_correctness
+  include_subsystems:
+  - timeouts_deadlines
+  - retry_backoff
+  - heartbeat_liveness
+  - schedule_calculation
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_012
+  name: validation_rigor_flag_bias
+  activation: flag == validation_rigor
+  include_subsystems:
+  - validation
+  - admission_control
+  - operator_entrypoints
+  - state_persistence
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_013
+  name: side_effect_control_flag_bias
+  activation: flag == side_effect_control
+  include_subsystems:
+  - worker_runtime
+  - queue_dispatch
+  - retry_backoff
+  - idempotency_store
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_014
+  name: stale_state_flag_bias
+  activation: flag == stale_state_handling
+  include_subsystems:
+  - state_persistence
+  - configuration_versioning
+  - recovery_mechanisms
+  - checkpoint_resume
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_015
+  name: test_always_included
+  activation: risk_level == high
+  exclude_subsystems: []
+  priority: low
+  include_virtual_buckets:
+  - tests
+- id: rbr_016
+  name: persistence_integrity_core_bias
+  activation: family == persistence_integrity
+  include_subsystems:
+  - state_persistence
+  - audit_receipts
+  - configuration_versioning
+  - validation
+  - checkpoint_resume
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_017
+  name: worker_runtime_core_bias
+  activation: family == worker_runtime_safety
+  include_subsystems:
+  - worker_runtime
+  - heartbeat_liveness
+  - state_persistence
+  - audit_receipts
+  - concurrency_control
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_018
+  name: dependency_gating_core_bias
+  activation: family == dependency_gating
+  include_subsystems:
+  - dependency_gating
+  - validation
+  - state_persistence
+  - scheduler_core
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_019
+  name: heartbeat_liveness_core_bias
+  activation: family == heartbeat_liveness
+  include_subsystems:
+  - heartbeat_liveness
+  - lease_claims
+  - worker_runtime
+  - recovery_mechanisms
+  - concurrency_control
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_020
+  name: admission_validation_core_bias
+  activation: family == admission_and_validation
+  include_subsystems:
+  - validation
+  - admission_control
+  - operator_entrypoints
+  - state_persistence
+  - observability
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_021
+  name: configuration_versioning_core_bias
+  activation: family == configuration_versioning
+  include_subsystems:
+  - configuration_versioning
+  - state_persistence
+  - audit_receipts
+  - validation
+  - checkpoint_resume
+  priority: high
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+- id: rbr_022
+  name: duplicate_suppression_flag_bias
+  activation: flag == duplicate_suppression
+  include_subsystems:
+  - idempotency_store
+  - queue_dispatch
+  - scheduler_core
+  - state_persistence
+  exclude_subsystems: []
+  priority: medium
+- id: rbr_add_001
+  name: lab_assistant_delegation_bias
+  activation: family == lab_assistant_delegation
+  include_subsystems:
+  - lab_assistant_delegation
+  - lab_assistant_correlation
+  - host_verification
+  - validation
+  - observability
+  priority: high
+  exclude_virtual_buckets:
+  - generated_artifacts
+  - reports
+  - runtime
+  - temporary_outputs
+  - snapshots
+- id: rbr_add_002
+  name: governance_ledger_durability_bias
+  activation: family == governance_ledger_durability
+  include_subsystems:
+  - governance_ledger
+  - commit_traceability
+  - state_persistence
+  - observability
+  priority: high
+  exclude_virtual_buckets:
+  - generated_artifacts
+  - reports
+  - runtime
+  - temporary_outputs
+  - snapshots
+- id: rbr_add_003
+  name: agent_orchestration_runtime_bias
+  activation: family == agent_orchestration_runtime
+  include_subsystems:
+  - agent_orchestration
+  - route_surface
+  - state_persistence
+  - observability
+  priority: high
+  exclude_virtual_buckets:
+  - generated_artifacts
+  - reports
+  - temporary_outputs
+  - snapshots
+- id: rbr_add_004
+  name: host_execution_boundary_bias
+  activation: family == host_execution_boundary
+  include_subsystems:
+  - host_verification
+  - mobile_runtime
+  - validation
+  priority: medium
+  include_virtual_buckets:
+  - docs
+  exclude_virtual_buckets:
+  - generated_artifacts
+  - reports
+  - runtime
+  - temporary_outputs
+  - snapshots
+- id: rbr_add_005
+  name: owner_over_route_hub_bias
+  activation: owner_specific_responsibility_hits >= 1 AND route_hub_only_lexical_overlap == true
+  include_subsystems: []
+  exclude_subsystems:
+  - route_surface
+  priority: high
+- id: rbr_add_006
+  name: allow_docs_for_boundary_contract_tasks
+  activation: family in [lab_assistant_delegation, governance_ledger_durability, host_execution_boundary] OR prompt_mentions_boundary_contract == true
+  exclude_subsystems: []
+  priority: medium
+  include_virtual_buckets:
+  - docs
+- id: rbr_101
+  name: pipeline_internal_modification_bias
+  activation: family == pipeline_internal_modification
+  include_subsystems:
+  - intake_and_profile
+  - retrieval_runtime
+  - policy_assets
+  exclude_subsystems:
+  - benchmark_harnesses
+  - broad_orchestration_hubs
+  priority: high
+- id: rbr_102
+  name: knowledge_and_retrieval_policy_bias
+  activation: family == knowledge_and_retrieval_policy
+  include_subsystems:
+  - knowledge_retrieval
+  - validation
+  - configuration_versioning
+  priority: high
+  include_virtual_buckets:
+  - tests
+  exclude_virtual_buckets:
+  - generated_artifacts
+  - reports
+  - runtime
+  - snapshots
+- id: rbr_103
+  name: scheduler_or_control_plane_bias
+  activation: family == scheduler_or_control_plane
+  include_subsystems:
+  - scheduler_core
+  - runtime_policy
+  - recovery_mechanisms
+  - operator_entrypoints
+  exclude_subsystems:
+  - benchmark_harnesses
+  - broad_orchestration_hubs
+  priority: high
+  exclude_virtual_buckets:
+  - explicit_non_goal_surfaces
+- id: rbr_104
+  name: ui_local_changes_bias
+  activation: family == ui_local_changes
+  include_subsystems:
+  - ui_shell_and_mobile
+  - page_handlers
+  - local_validation
+  exclude_subsystems:
+  - benchmark_harnesses
+  - broad_orchestration_hubs
+  - planner_hubs
+  - scheduler_core
+  priority: high
+- id: rbr_105
+  name: audit_and_integrity_bias
+  activation: family == audit_and_integrity
+  include_subsystems:
+  - ledger_actions
+  - audit_log
+  - state_registry
+  - verification_surfaces
+  exclude_subsystems:
+  - benchmark_harnesses
+  - broad_orchestration_hubs
+  priority: high
+  exclude_virtual_buckets:
+  - explicit_non_goal_surfaces
+- id: rbr_106
+  name: operator_review_and_repair_bias
+  activation: family == operator_review_and_repair
+  include_subsystems:
+  - operator_entrypoints
+  - recovery_mechanisms
+  - audit_receipts
+  - state_persistence
+  priority: high
+  include_virtual_buckets:
+  - tests
+  exclude_virtual_buckets:
+  - docs
+  - generated_artifacts
+  - reports
+  - runtime
+  - snapshots
+- id: rbr_107
+  name: experiment_or_run_validation_bias
+  activation: family == experiment_or_run_validation
+  include_subsystems:
+  - validation_harnesses
+  - checkpoint_and_replay
+  - run_comparison
+  exclude_subsystems:
+  - benchmark_harnesses
+  - broad_orchestration_hubs
+  - planner_hubs
+  - ui_shell_and_mobile
+  priority: high
+- id: rbr_100
+  name: assistant_truth_and_identity_bias
+  activation: family == assistant_truth_and_identity
+  include_subsystems:
+  - assistant_runtime_state
+  - truth_registry
+  - audit_log
+  - serialization_replay
+  - recovery_markers
+  - operator_visible_state
+  exclude_subsystems:
+  - benchmark_harnesses
+  - broad_orchestration_hubs
+  - chat_projection_only
+  - ui_render_only
+  priority: high
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: retrieval_bias_rules.yaml
+    payload:
+      rules:
+      - id: bias_persistence_on_state_task
+        condition: task_family == state_transition_update
+        bias:
+        - persistence
+        - models
+        - db
+      - id: bias_handlers_on_api_task
+        condition: task_family == api_endpoint_change
+        bias:
+        - handlers
+        - controllers
+        - routes
+      - id: bias_recovery_on_retry_task
+        condition: task_family == recovery_logic_fix
+        bias:
+        - recovery
+        - retry
+        - failure_handlers
+      - id: bias_cli_on_operator_task
+        condition: task_family == operator_action_add
+        bias:
+        - cli
+        - commands
+        - admin
+      - id: bias_validators_on_schema_task
+        condition: task_family == validation_enhancement
+        bias:
+        - validation
+        - schemas
+        - guards
+      - id: bias_telemetry_on_logging_task
+        condition: task_family == observability_update
+        bias:
+        - telemetry
+        - logging
+        - monitoring
+      - id: bias_locks_on_race_task
+        condition: task_family == concurrency_guard_fix
+        bias:
+        - concurrency
+        - locks
+        - sync
+      - id: bias_queues_on_dispatch_task
+        condition: task_family == dispatch_logic_change
+        bias:
+        - queue
+        - dispatch
+        - events
+      - id: bias_auth_on_policy_task
+        condition: task_family == auth_policy_update
+        bias:
+        - auth
+        - security
+        - permissions
+      - id: bias_workers_on_task_fix
+        condition: task_family == worker_logic_fix
+        bias:
+        - workers
+        - tasks
+        - jobs
+      - id: bias_sync_on_reconcile_task
+        condition: task_family == reconciliation_loop_fix
+        bias:
+        - sync
+        - reconciliation
+        - drift
+      - id: bias_audit_on_history_task
+        condition: task_family == audit_trail_addition
+        bias:
+        - audit
+        - history
+        - journal
+      - id: bias_timers_on_timeout_task
+        condition: task_family == timeout_handling_fix
+        bias:
+        - timers
+        - deadline
+        - timeouts
+      - id: bias_cleanup_on_leak_task
+        condition: task_family == resource_cleanup_fix
+        bias:
+        - cleanup
+        - janitor
+        - resource_management
+      - id: bias_idempotency_on_dedupe_task
+        condition: task_family == idempotency_key_addition
+        bias:
+        - middleware
+        - utils
+        - idempotency
+      - id: bias_config_on_settings_task
+        condition: task_family == configuration_update
+        bias:
+        - config
+        - settings
+        - env
+      - id: bias_error_on_fault_task
+        condition: task_family == error_mapping_update
+        bias:
+        - error_handlers
+        - exceptions
+      - id: bias_workflow_on_orchestration_task
+        condition: task_family == orchestration_change
+        bias:
+        - workflow
+        - pipeline
+        - orchestrator
+      - id: bias_ingress_on_input_task
+        condition: triggers include 'ingress'
+        bias:
+        - parsers
+        - ingress
+        - decoders
+      - id: bias_egress_on_output_task
+        condition: triggers include 'egress'
+        bias:
+        - formatters
+        - egress
+        - clients
+virtual_bucket_registry_file: retrieval_virtual_buckets.yaml

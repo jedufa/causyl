@@ -1,0 +1,18 @@
+{
+  "schema_version": "phase3_operator_flow_registry_v1",
+  "flows": [
+    {
+      "flow_id": "blocked_chain_explain_and_recommend_v1",
+      "steps": [
+        "derived_state_view",
+        "uncertainty_surface",
+        "explanation_output",
+        "codex_usage_output",
+        "recommendation_output",
+        "operator_surface"
+      ],
+      "descriptive_only": true
+    }
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/server-status
+# Description: Show the current WebUI/scheduler status.
+# Example: bash infra/user/server-status
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash infra/bin/server_status.sh "$@"

@@ -1,0 +1,79 @@
+version: 1
+phase: 0
+notes: Minimal domain registry retained for deterministic asset integrity checks and future domain-specific routing.
+domains:
+  generic:
+    task_families:
+    - generic
+    default_subsystems:
+    - validation
+    - state_persistence
+    - observability
+  scheduler:
+    task_families:
+    - scheduler_safety
+    - scheduler_hardening
+    - reconciliation_recovery
+    default_subsystems:
+    - scheduler_core
+    - state_persistence
+    - recovery_mechanisms
+    - validation
+  lab_assistant:
+    task_families:
+    - lab_assistant_memory
+    default_subsystems:
+    - knowledge_retrieval
+    - ledger_evidence
+    - truth_ownership
+    - execution_reconciliation
+    - task_register
+  ui_application:
+    task_families:
+    - ui_local_changes
+    - api_control_plane
+    default_subsystems:
+    - ui_shell_and_mobile
+    - page_handlers
+    - local_validation
+  data_ingestion:
+    task_families:
+    - generic
+    - experiment_or_run_validation
+    default_subsystems:
+    - data_ingestion
+    - archive_handling
+    - schema_validation
+  data_processing:
+    task_families:
+    - generic
+    - pipeline_internal_modification
+    default_subsystems:
+    - parsing_and_normalization
+    - transformation_pipeline
+    - state_persistence
+  artifact_generation:
+    task_families:
+    - generic
+    - experiment_or_run_validation
+    default_subsystems:
+    - export_generation
+    - report_generation
+    - verification_surfaces
+  modular_application_platform:
+    task_families:
+    - generic
+    - ui_local_changes
+    - api_control_plane
+    default_subsystems:
+    - plugin_extension
+    - provider_integration
+    - hook_extension_points
+    - serialization_marshalling
+    - session_state
+    - service_actions
+    - application_components
+    - integration_surfaces
+    - entity_model
+    - frontend_ui
+    - backend_services

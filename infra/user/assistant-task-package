@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# infra/user/assistant-task-package
+# Description: Mint a short-lived assistant bridge token and print a copy-ready ChatGPT web task package.
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/assistant_task_package.py "$@"

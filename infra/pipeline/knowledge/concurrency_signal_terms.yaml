@@ -1,0 +1,144 @@
+version: 1
+phase: 0
+notes: Deterministic concurrency signal catalog. Terms are high-precision coordination patterns that should bias retrieval toward code controlling ownership, races, ordering, and distributed execution safety.
+signals:
+- id: locking_primitives
+  terms:
+  - acquire_lock_before_state_mutation
+  - release_lock_after_commit_only
+  - try_lock_for_manual_override_path
+  - reentrant_lock_guard_for_scheduler_tick
+  - lock_scope_covers_claim_update
+- id: atomic_ops
+  terms:
+  - compare_and_swap_generation_on_commit
+  - atomic_increment_attempt_counter
+  - set_if_absent_claim_token
+  - atomic_visibility_timeout_extend
+  - conditional_update_on_owner_match
+- id: thread_management
+  terms:
+  - bounded_worker_pool_for_dispatch
+  - join_worker_before_cleanup
+  - spawn_repair_worker_with_context
+  - limit_max_workers_per_partition
+  - daemon_thread_for_health_probe_only
+- id: async_await
+  terms:
+  - await_claim_commit_before_dispatch
+  - create_task_for_followup_repair
+  - gather_subtask_results_with_timeout
+  - cancel_scope_on_deadline_exceeded
+  - async_retry_path_preserves_context
+- id: event_loop
+  terms:
+  - run_scheduler_tick_on_single_event_loop
+  - call_soon_for_nonmutating_followup
+  - run_until_complete_for_control_plane_action
+  - event_loop_shutdown_waits_for_commit
+  - selector_drives_nonblocking_ack_path
+- id: synchronization_barriers
+  terms:
+  - wait_for_all_claim_releases_before_shutdown
+  - notify_all_after_pause_state_change
+  - barrier_before_batch_commit
+  - condition_variable_for_repair_handoff
+  - latch_on_subtask_completion
+- id: distributed_coordination
+  terms:
+  - leader_election_for_single_scheduler
+  - lease_based_partition_ownership
+  - fencing_token_for_distributed_claim
+  - session_ttl_guards_owner_liveness
+  - redis_lock_for_cross_process_backfill
+- id: race_prevention
+  terms:
+  - single_flight_duplicate_dispatch_guard
+  - serialize_manual_and_automatic_transitions
+  - double_check_generation_before_commit
+  - prevent_cleanup_during_active_execution
+  - suppress_stale_observer_overwrite
+- id: non_blocking_io
+  terms:
+  - nonblocking_queue_ack_after_commit
+  - async_socket_timeout_guard
+  - stream_read_without_worker_starvation
+  - epoll_driven_control_plane_listener
+  - backpressure_aware_event_publish
+- id: resource_contention
+  terms:
+  - detect_lock_contention_hotspot
+  - throttle_parallel_reconciliation_on_conflict
+  - bound_shared_resource_usage
+  - queue_when_execution_slots_exhausted
+  - track_claim_store_contention_rate
+- id: concurrency_policy
+  terms:
+  - single_owner_per_logical_job_policy
+  - limit_parallel_backfill_window
+  - forbid_concurrent_manual_override_on_same_target
+  - require_serial_commit_on_shared_record
+  - worker_partition_exclusivity_rule
+- id: thread_safety
+  terms:
+  - protect_shared_cache_mutation
+  - guard_global_scheduler_state
+  - thread_safe_metrics_increment
+  - immutable_snapshot_for_readers
+  - avoid_shared_mutable_retry_context
+- id: queueing_theory
+  terms:
+  - visibility_timeout_exceeds_max_processing_time
+  - ack_only_after_authoritative_commit
+  - redelivery_after_owner_timeout
+  - bounded_queue_prevents_unlimited_retry_growth
+  - dead_letter_after_exhausted_attempts
+- id: concurrency_testing
+  terms:
+  - race_condition_regression_test
+  - simulate_duplicate_dispatch_contest
+  - test_stale_claim_reclamation_under_load
+  - inject_parallel_manual_override_and_tick
+  - stress_atomic_generation_guard
+- id: transactional_memory
+  terms:
+  - transaction_boundary_covers_claim_and_state
+  - rollback_on_conflicting_generation
+  - commit_receipt_and_state_atomically
+  - snapshot_isolation_for_read_modify_write
+  - write_skew_guard_on_shared_record
+- id: actor_model
+  terms:
+  - single_actor_owns_partition_state
+  - mailbox_orders_mutating_commands
+  - actor_handoff_preserves_lineage
+  - supervisor_restarts_actor_without_duplicate_commit
+  - message_processing_is_sequential_per_identity
+- id: concurrency_tuning
+  terms:
+  - tune_max_parallelism_for_claim_store
+  - adapt_backoff_under_contention
+  - reduce_batch_size_on_conflict_spike
+  - raise_worker_limit_only_for_read_paths
+  - configure_lock_timeout_per_operation
+- id: wait_strategies
+  terms:
+  - exponential_backoff_on_claim_conflict
+  - bounded_wait_for_lock_acquisition
+  - yield_before_retrying_same_record
+  - sleep_until_next_due_window
+  - poll_with_jitter_for_dependency_recovery
+- id: context_switching
+  terms:
+  - preserve_lineage_context_across_worker_handoff
+  - avoid_context_loss_during_retry_task_switch
+  - carry_deadline_through_async_boundary
+  - restore_operator_context_after_callback
+  - record_owner_identity_on_thread_switch
+- id: scheduling_priority
+  terms:
+  - prioritize_recovery_over_new_dispatch_when_conflicted
+  - elevate_manual_cancel_above_background_scan
+  - lower_priority_for_nonurgent_cleanup
+  - reserve_slots_for_deadline_imminent_work
+  - fair_queue_across_partitions

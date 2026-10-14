@@ -1,0 +1,29 @@
+{
+  "schema_version": "operator_derived_state_view_v1",
+  "required_fields": [
+    "action_family",
+    "codex_used",
+    "contradiction_present",
+    "evidence_provenance",
+    "final_verifier_verdict",
+    "freshness_by_source",
+    "primary_reason_hint",
+    "proof_gap_present",
+    "schema_version",
+    "source_statuses",
+    "stale_evidence_present",
+    "state_class",
+    "subject_kind",
+    "unresolved_proof_gaps",
+    "view_id"
+  ],
+  "allowed_state_classes": [
+    "degraded",
+    "pass",
+    "blocked",
+    "failed",
+    "running",
+    "unknown"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

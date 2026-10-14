@@ -1,0 +1,19 @@
+{
+  "schema_version": "composed_action_report_schema_v1",
+  "required_fields": [
+    "schema_version",
+    "chain_id",
+    "playbook_id",
+    "action_family",
+    "request_classification",
+    "executor",
+    "verification_owner",
+    "step_records",
+    "produced_artifacts",
+    "failure_escalation_log",
+    "final_verifier_verdict",
+    "final_chain_outcome",
+    "terminal_reason"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

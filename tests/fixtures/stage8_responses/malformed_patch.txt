@@ -1,0 +1,4 @@
+diff --git a/hello.txt b/hello.txt
+--- a/hello.txt
++++ b/hello.txt
++missing hunk body

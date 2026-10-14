@@ -1,0 +1,8 @@
+retrieval_policy:
+  target_requires_subsystem_fit: true
+  owner_promotion_strength: 1.35
+  duplicate_family_cap: 1
+  hub_family_caps:
+    broad_planner: 0
+    broad_orchestrator: 0
+    generic_control_plane_hub: 0

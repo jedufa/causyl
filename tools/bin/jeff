@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import os
+import runpy
+import sys
+from pathlib import Path
+from typing import List, Sequence
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+GO_PATH = REPO_ROOT / "infra" / "bin" / "go"
+ARCHIVED_JEFF_DIR = REPO_ROOT / "archives" / "agents" / "jeff"
+LEGACY_SUBCOMMANDS = {"chat", "run", "resume", "diff", "undo"}
+LEGACY_ONLY_FLAGS = {
+    "--repo",
+    "--approval",
+    "--max-retries",
+    "--max-context-chars",
+    "--llm-timeout",
+    "--run-id",
+    "--verbose",
+}
+GO_MODE_FLAGS = {"--deterministic-only", "--provider", "--semantic-provider", "--model", "--semantic-model"}
+
+
+def _read_stdin_prompt() -> str:
+    if sys.stdin.isatty():
+        return ""
+    return sys.stdin.read().strip()
+
+
+def _first_non_option(argv: Sequence[str]) -> str:
+    skip_next = False
+    for token in argv:
+        if skip_next:
+            skip_next = False
+            continue
+        text = str(token or "")
+        if text in {"--repo", "--approval", "--max-retries", "--max-context-chars", "--llm-timeout", "--run-id", "--model"}:
+            skip_next = True
+            continue
+        if text.startswith("-"):
+            continue
+        return text
+    return ""
+
+
+def _wants_wrapper_help(argv: Sequence[str]) -> bool:
+    return len(argv) == 1 and argv[0] in {"-h", "--help"}
+
+
+def _is_legacy_invocation(argv: Sequence[str]) -> bool:
+    if not argv:
+        return False
+    first_non_option = _first_non_option(argv)
+    if first_non_option in LEGACY_SUBCOMMANDS:
+        return True
+    return any(token in LEGACY_ONLY_FLAGS for token in argv)
+
+
+def _print_help() -> None:
+    sys.stdout.write(
+        "\n".join(
+            [
+                "usage:",
+                "  infra/bin/jeff [go-options] [prompt ...]",
+                "  infra/bin/jeff [go-options] <<'EOF'",
+                "",
+                "default mode:",
+                "  Treats plain text or stdin as a pipeline prompt and forwards to infra/bin/go.",
+                "  By default Jeff uses deterministic-only mode and the compact 3-line progress view.",
+                "",
+                "examples:",
+                "  infra/bin/jeff Fix normalize_text so None returns an empty string.",
+                "  infra/bin/jeff --repo-root /tmp/disposable_repo --json <<'EOF'",
+                "  Fix normalize_text so None returns an empty string.",
+                "  EOF",
+                "",
+                "legacy Jeff:",
+                f"  Archived at {ARCHIVED_JEFF_DIR}",
+                "  Legacy chat/run/resume/diff/undo are no longer routed by this wrapper.",
+                "",
+                "notes:",
+                "  - Plain prompt text and stdin use infra/bin/go.",
+                "  - infra/bin/jeff with no prompt prints this help.",
+                "  - Use infra/bin/go directly if you want the raw pipeline CLI.",
+            ]
+        )
+        + "\n"
+    )
+
+
+def _print_legacy_archived_notice(argv: Sequence[str]) -> int:
+    text = " ".join(str(item or "") for item in argv).strip()
+    sys.stderr.write(
+        "\n".join(
+            [
+                "legacy Jeff has been archived.",
+                f"archived_location={ARCHIVED_JEFF_DIR}",
+                f"requested_legacy_args={text or '(none)'}",
+                "use infra/bin/jeff <prompt> or infra/bin/jeff <<'EOF' ... EOF for the pipeline wrapper.",
+                "use infra/bin/go directly if you want the raw pipeline command.",
+            ]
+        )
+        + "\n"
+    )
+    return 2
+
+
+def _dispatch_agents_jeff(argv: Sequence[str]) -> int:
+    from agents.jeff import cli as jeff_cli
+
+    args = list(argv)
+    if args and args[0] == "diff":
+        sys.stderr.write("jeff diff is not implemented in the MVP; use chat/run/resume/undo.\n")
+        return 2
+    return jeff_cli.main(args)
+
+
+def _exec_go(argv: Sequence[str]) -> int:
+    stdin_prompt = _read_stdin_prompt()
+    forwarded: List[str] = list(argv)
+    if "--compact-progress" not in forwarded:
+        forwarded.insert(0, "--compact-progress")
+    if not any(flag in forwarded for flag in GO_MODE_FLAGS):
+        forwarded.insert(0, "--deterministic-only")
+    if stdin_prompt:
+        forwarded.append(stdin_prompt)
+    if not forwarded:
+        _print_help()
+        return 2
+    env = dict(os.environ)
+    env.setdefault("PIPELINE_PROGRESS_STYLE", "compact")
+    os.execve(str(GO_PATH), [str(GO_PATH), *forwarded], env)
+    return 127
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = list(argv if argv is not None else sys.argv[1:])
+    if _wants_wrapper_help(args):
+        _print_help()
+        return 0
+    if not args:
+        if sys.stdin.isatty():
+            return _dispatch_agents_jeff(["chat"])
+        return _exec_go(args)
+    if _is_legacy_invocation(args):
+        return _dispatch_agents_jeff(args)
+    return _exec_go(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

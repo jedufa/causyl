@@ -1,0 +1,10 @@
+retrieval_policy:
+  support_lane_allowance: 3
+  task_archetype_specific_bundle_policies:
+    implementation_change:
+      support_cap: 3
+      reference_cap: 2
+      witness_cap: 2
+      min_bundle_files: 4
+      min_support_if_owner: 1
+      prefer_witness_with_owner: true

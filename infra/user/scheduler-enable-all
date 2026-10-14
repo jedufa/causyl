@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-enable-all
+# Description: Enable all scheduled jobs (respecting dry-run when asked).
+# Example: bash infra/user/scheduler-enable-all --dry-run
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+bash infra/bin/enable_all_scheduled_jobs.sh "$@"

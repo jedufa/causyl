@@ -1,0 +1,483 @@
+version: 1
+phase: 0
+notes: "Structured patch contract templates for deterministic planning and later machine use."
+templates:
+  default:
+    invariants:
+      - "state-changing paths must validate current ownership and lifecycle truth"
+      - "duplicate side effects must be prevented across retry, replay, and restart"
+      - "durable evidence must exist for every externally visible mutation"
+    validation_rules:
+      - "reject stale version or stale generation writes"
+      - "reject illegal state transitions"
+      - "reject missing required identifiers or correlation keys"
+    retry_policy:
+      - "retry only transient failures"
+      - "persist attempt counters before relaunch"
+      - "stop retry when terminal validation failure is detected"
+    operator_safety:
+      - "manual overrides require actor and reason evidence"
+      - "force actions must preserve invariant checks"
+      - "destructive controls must reconcile active ownership first"
+    observability_guarantees:
+      - "emit durable receipts for accepted and rejected operations"
+      - "preserve lineage and correlation identifiers"
+      - "record source state and destination state for protected transitions"
+    consistency_guarantees:
+      - "committed state must remain reconstructable"
+      - "late events must not overwrite newer truth"
+      - "recovery must converge to a safe stable state"
+    must_not_change:
+      - "public identifiers used for lineage and ownership"
+      - "existing terminal-state semantics"
+      - "durable receipt schema relied on by recovery"
+    test_implications:
+      - "add idempotency coverage"
+      - "add stale-state rejection coverage"
+      - "add crash-recovery or replay coverage"
+  scheduler_dispatch:
+    invariants:
+      - "scheduler_dispatch must preserve ownership truth"
+      - "scheduler_dispatch must not duplicate committed side effects"
+    validation_rules:
+      - "scheduler_dispatch must reject stale state"
+      - "scheduler_dispatch must validate required identifiers"
+    retry_policy:
+      - "scheduler_dispatch retries only transient failures"
+      - "scheduler_dispatch preserves attempt lineage across replay"
+    operator_safety:
+      - "scheduler_dispatch manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "scheduler_dispatch emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "scheduler_dispatch converges to a single durable truth after recovery"
+    must_not_change:
+      - "scheduler_dispatch must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for scheduler_dispatch replay and stale-state cases"
+  scheduler_restart:
+    invariants:
+      - "scheduler_restart must preserve ownership truth"
+      - "scheduler_restart must not duplicate committed side effects"
+    validation_rules:
+      - "scheduler_restart must reject stale state"
+      - "scheduler_restart must validate required identifiers"
+    retry_policy:
+      - "scheduler_restart retries only transient failures"
+      - "scheduler_restart preserves attempt lineage across replay"
+    operator_safety:
+      - "scheduler_restart manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "scheduler_restart emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "scheduler_restart converges to a single durable truth after recovery"
+    must_not_change:
+      - "scheduler_restart must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for scheduler_restart replay and stale-state cases"
+  manual_control:
+    invariants:
+      - "manual_control must preserve ownership truth"
+      - "manual_control must not duplicate committed side effects"
+    validation_rules:
+      - "manual_control must reject stale state"
+      - "manual_control must validate required identifiers"
+    retry_policy:
+      - "manual_control retries only transient failures"
+      - "manual_control preserves attempt lineage across replay"
+    operator_safety:
+      - "manual_control manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "manual_control emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "manual_control converges to a single durable truth after recovery"
+    must_not_change:
+      - "manual_control must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for manual_control replay and stale-state cases"
+  state_transition:
+    invariants:
+      - "state_transition must preserve ownership truth"
+      - "state_transition must not duplicate committed side effects"
+    validation_rules:
+      - "state_transition must reject stale state"
+      - "state_transition must validate required identifiers"
+    retry_policy:
+      - "state_transition retries only transient failures"
+      - "state_transition preserves attempt lineage across replay"
+    operator_safety:
+      - "state_transition manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "state_transition emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "state_transition converges to a single durable truth after recovery"
+    must_not_change:
+      - "state_transition must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for state_transition replay and stale-state cases"
+  queue_consumer:
+    invariants:
+      - "queue_consumer must preserve ownership truth"
+      - "queue_consumer must not duplicate committed side effects"
+    validation_rules:
+      - "queue_consumer must reject stale state"
+      - "queue_consumer must validate required identifiers"
+    retry_policy:
+      - "queue_consumer retries only transient failures"
+      - "queue_consumer preserves attempt lineage across replay"
+    operator_safety:
+      - "queue_consumer manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "queue_consumer emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "queue_consumer converges to a single durable truth after recovery"
+    must_not_change:
+      - "queue_consumer must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for queue_consumer replay and stale-state cases"
+  api_reconcile:
+    invariants:
+      - "api_reconcile must preserve ownership truth"
+      - "api_reconcile must not duplicate committed side effects"
+    validation_rules:
+      - "api_reconcile must reject stale state"
+      - "api_reconcile must validate required identifiers"
+    retry_policy:
+      - "api_reconcile retries only transient failures"
+      - "api_reconcile preserves attempt lineage across replay"
+    operator_safety:
+      - "api_reconcile manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "api_reconcile emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "api_reconcile converges to a single durable truth after recovery"
+    must_not_change:
+      - "api_reconcile must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for api_reconcile replay and stale-state cases"
+  retry_timeout:
+    invariants:
+      - "retry_timeout must preserve ownership truth"
+      - "retry_timeout must not duplicate committed side effects"
+    validation_rules:
+      - "retry_timeout must reject stale state"
+      - "retry_timeout must validate required identifiers"
+    retry_policy:
+      - "retry_timeout retries only transient failures"
+      - "retry_timeout preserves attempt lineage across replay"
+    operator_safety:
+      - "retry_timeout manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "retry_timeout emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "retry_timeout converges to a single durable truth after recovery"
+    must_not_change:
+      - "retry_timeout must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for retry_timeout replay and stale-state cases"
+  recovery_repair:
+    invariants:
+      - "recovery_repair must preserve ownership truth"
+      - "recovery_repair must not duplicate committed side effects"
+    validation_rules:
+      - "recovery_repair must reject stale state"
+      - "recovery_repair must validate required identifiers"
+    retry_policy:
+      - "recovery_repair retries only transient failures"
+      - "recovery_repair preserves attempt lineage across replay"
+    operator_safety:
+      - "recovery_repair manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "recovery_repair emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "recovery_repair converges to a single durable truth after recovery"
+    must_not_change:
+      - "recovery_repair must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for recovery_repair replay and stale-state cases"
+  leader_failover:
+    invariants:
+      - "leader_failover must preserve ownership truth"
+      - "leader_failover must not duplicate committed side effects"
+    validation_rules:
+      - "leader_failover must reject stale state"
+      - "leader_failover must validate required identifiers"
+    retry_policy:
+      - "leader_failover retries only transient failures"
+      - "leader_failover preserves attempt lineage across replay"
+    operator_safety:
+      - "leader_failover manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "leader_failover emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "leader_failover converges to a single durable truth after recovery"
+    must_not_change:
+      - "leader_failover must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for leader_failover replay and stale-state cases"
+  persistence_write:
+    invariants:
+      - "persistence_write must preserve ownership truth"
+      - "persistence_write must not duplicate committed side effects"
+    validation_rules:
+      - "persistence_write must reject stale state"
+      - "persistence_write must validate required identifiers"
+    retry_policy:
+      - "persistence_write retries only transient failures"
+      - "persistence_write preserves attempt lineage across replay"
+    operator_safety:
+      - "persistence_write manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "persistence_write emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "persistence_write converges to a single durable truth after recovery"
+    must_not_change:
+      - "persistence_write must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for persistence_write replay and stale-state cases"
+  execution_completion:
+    invariants:
+      - "execution_completion must preserve ownership truth"
+      - "execution_completion must not duplicate committed side effects"
+    validation_rules:
+      - "execution_completion must reject stale state"
+      - "execution_completion must validate required identifiers"
+    retry_policy:
+      - "execution_completion retries only transient failures"
+      - "execution_completion preserves attempt lineage across replay"
+    operator_safety:
+      - "execution_completion manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "execution_completion emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "execution_completion converges to a single durable truth after recovery"
+    must_not_change:
+      - "execution_completion must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for execution_completion replay and stale-state cases"
+  dependency_gate:
+    invariants:
+      - "dependency_gate must preserve ownership truth"
+      - "dependency_gate must not duplicate committed side effects"
+    validation_rules:
+      - "dependency_gate must reject stale state"
+      - "dependency_gate must validate required identifiers"
+    retry_policy:
+      - "dependency_gate retries only transient failures"
+      - "dependency_gate preserves attempt lineage across replay"
+    operator_safety:
+      - "dependency_gate manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "dependency_gate emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "dependency_gate converges to a single durable truth after recovery"
+    must_not_change:
+      - "dependency_gate must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for dependency_gate replay and stale-state cases"
+  config_snapshot:
+    invariants:
+      - "config_snapshot must preserve ownership truth"
+      - "config_snapshot must not duplicate committed side effects"
+    validation_rules:
+      - "config_snapshot must reject stale state"
+      - "config_snapshot must validate required identifiers"
+    retry_policy:
+      - "config_snapshot retries only transient failures"
+      - "config_snapshot preserves attempt lineage across replay"
+    operator_safety:
+      - "config_snapshot manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "config_snapshot emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "config_snapshot converges to a single durable truth after recovery"
+    must_not_change:
+      - "config_snapshot must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for config_snapshot replay and stale-state cases"
+  audit_receipt:
+    invariants:
+      - "audit_receipt must preserve ownership truth"
+      - "audit_receipt must not duplicate committed side effects"
+    validation_rules:
+      - "audit_receipt must reject stale state"
+      - "audit_receipt must validate required identifiers"
+    retry_policy:
+      - "audit_receipt retries only transient failures"
+      - "audit_receipt preserves attempt lineage across replay"
+    operator_safety:
+      - "audit_receipt manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "audit_receipt emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "audit_receipt converges to a single durable truth after recovery"
+    must_not_change:
+      - "audit_receipt must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for audit_receipt replay and stale-state cases"
+  manual_backfill:
+    invariants:
+      - "manual_backfill must preserve ownership truth"
+      - "manual_backfill must not duplicate committed side effects"
+    validation_rules:
+      - "manual_backfill must reject stale state"
+      - "manual_backfill must validate required identifiers"
+    retry_policy:
+      - "manual_backfill retries only transient failures"
+      - "manual_backfill preserves attempt lineage across replay"
+    operator_safety:
+      - "manual_backfill manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "manual_backfill emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "manual_backfill converges to a single durable truth after recovery"
+    must_not_change:
+      - "manual_backfill must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for manual_backfill replay and stale-state cases"
+  heartbeat_reclaim:
+    invariants:
+      - "heartbeat_reclaim must preserve ownership truth"
+      - "heartbeat_reclaim must not duplicate committed side effects"
+    validation_rules:
+      - "heartbeat_reclaim must reject stale state"
+      - "heartbeat_reclaim must validate required identifiers"
+    retry_policy:
+      - "heartbeat_reclaim retries only transient failures"
+      - "heartbeat_reclaim preserves attempt lineage across replay"
+    operator_safety:
+      - "heartbeat_reclaim manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "heartbeat_reclaim emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "heartbeat_reclaim converges to a single durable truth after recovery"
+    must_not_change:
+      - "heartbeat_reclaim must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for heartbeat_reclaim replay and stale-state cases"
+  deadline_timeout:
+    invariants:
+      - "deadline_timeout must preserve ownership truth"
+      - "deadline_timeout must not duplicate committed side effects"
+    validation_rules:
+      - "deadline_timeout must reject stale state"
+      - "deadline_timeout must validate required identifiers"
+    retry_policy:
+      - "deadline_timeout retries only transient failures"
+      - "deadline_timeout preserves attempt lineage across replay"
+    operator_safety:
+      - "deadline_timeout manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "deadline_timeout emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "deadline_timeout converges to a single durable truth after recovery"
+    must_not_change:
+      - "deadline_timeout must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for deadline_timeout replay and stale-state cases"
+  cleanup_retention:
+    invariants:
+      - "cleanup_retention must preserve ownership truth"
+      - "cleanup_retention must not duplicate committed side effects"
+    validation_rules:
+      - "cleanup_retention must reject stale state"
+      - "cleanup_retention must validate required identifiers"
+    retry_policy:
+      - "cleanup_retention retries only transient failures"
+      - "cleanup_retention preserves attempt lineage across replay"
+    operator_safety:
+      - "cleanup_retention manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "cleanup_retention emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "cleanup_retention converges to a single durable truth after recovery"
+    must_not_change:
+      - "cleanup_retention must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for cleanup_retention replay and stale-state cases"
+  worker_restart:
+    invariants:
+      - "worker_restart must preserve ownership truth"
+      - "worker_restart must not duplicate committed side effects"
+    validation_rules:
+      - "worker_restart must reject stale state"
+      - "worker_restart must validate required identifiers"
+    retry_policy:
+      - "worker_restart retries only transient failures"
+      - "worker_restart preserves attempt lineage across replay"
+    operator_safety:
+      - "worker_restart manual actions require actor and reason evidence"
+    observability_guarantees:
+      - "worker_restart emits durable evidence for decisions and outcomes"
+    consistency_guarantees:
+      - "worker_restart converges to a single durable truth after recovery"
+    must_not_change:
+      - "worker_restart must not alter external identifiers without migration"
+    test_implications:
+      - "add deterministic coverage for worker_restart replay and stale-state cases"
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: patch_contract_templates.yaml
+    payload:
+      sections:
+        - id: invariants
+          required: true
+          description: "List of system invariants that must be maintained."
+        - id: failure_mappings
+          required: true
+          description: "Mapping of specific failure modes to their mitigation logic."
+        - id: validation_rules
+          required: true
+          description: "New or modified validation logic to be implemented."
+        - id: retry_policy
+          required: true
+          description: "Backoff and retry behavior for the modified code."
+        - id: operator_safety
+          required: true
+          description: "Safety checks for manual or triggered operations."
+        - id: observability_guarantees
+          required: false
+          description: "Logs and metrics that must be emitted by the patch."
+        - id: consistency_guarantees
+          required: true
+          description: "Guarantees regarding data and state consistency."
+        - id: must_not_change
+          required: true
+          description: "Specific behaviors or code sections that are frozen."
+        - id: test_implications
+          required: true
+          description: "Required test updates or new test cases."
+        - id: unresolved_uncertainties
+          required: false
+          description: "Potential risks that need manual review."
+        - id: audit_requirements
+          required: true
+          description: "Specific audit logging required for this patch."
+        - id: idempotency_keys
+          required: false
+          description: "Names and sources for required idempotency keys."
+        - id: state_transition_map
+          required: false
+          description: "Formal map of allowed state changes."
+        - id: dependency_impact
+          required: false
+          description: "Effects on downstream systems."
+        - id: performance_bounds
+          required: false
+          description: "Latencey or throughput requirements."
+        - id: concurrency_model
+          required: true
+          description: "Locks or patterns used for thread safety."
+        - id: rollback_strategy
+          required: true
+          description: "How to revert these changes safely."
+        - id: side_effect_inventory
+          required: true
+          description: "List of all external calls made."
+        - id: ownership_handover
+          required: false
+          description: "How resource claims are passed."
+        - id: fail_closed_logic
+          required: true
+          description: "Behavior when critical dependencies fail."

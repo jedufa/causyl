@@ -1,0 +1,129 @@
+{
+  "schema_version": "intent_family_v2_workflow_definition_contract_v1",
+  "uid": "PIS-20260409-195200Z-A7V1",
+  "contract_family": "intent_family_v2_workflow_definition",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_intent_family_v2_workflow_definition_v1.md",
+  "workflow_kind": "intent_family_v2",
+  "workflow_shape_policy": {
+    "single_parent_family": true,
+    "single_final_stage": "closeout",
+    "single_final_node_kind": "intent_family_closeout",
+    "required_final_owner": "closeout"
+  },
+  "forbidden_schema_capabilities": [
+    "retry_policy",
+    "recovery_policy",
+    "projection_policy",
+    "runtime_logic",
+    "business_logic",
+    "prompt_defined_execution_rules"
+  ],
+  "node_kinds": {
+    "source_intent": {
+      "stage": "intent",
+      "cardinality": "exactly_one",
+      "promotable_targets": []
+    },
+    "family_parent": {
+      "stage": "parent",
+      "cardinality": "exactly_one",
+      "promotable_targets": []
+    },
+    "execution_child": {
+      "stage": "children",
+      "cardinality": "one_or_more",
+      "promotable_targets": []
+    },
+    "intent_validation_suite": {
+      "stage": "intent_validation",
+      "cardinality": "at_most_one",
+      "promotable_targets": []
+    },
+    "intent_family_closeout": {
+      "stage": "closeout",
+      "cardinality": "exactly_one",
+      "promotable_targets": [
+        "family_parent",
+        "source_intent"
+      ]
+    }
+  },
+  "stages": [
+    {
+      "stage_id": "intent",
+      "sequence_index": 1,
+      "allowed_node_kinds": [
+        "source_intent"
+      ],
+      "depends_on_stages": []
+    },
+    {
+      "stage_id": "parent",
+      "sequence_index": 2,
+      "allowed_node_kinds": [
+        "family_parent"
+      ],
+      "depends_on_stages": [
+        "intent"
+      ]
+    },
+    {
+      "stage_id": "children",
+      "sequence_index": 3,
+      "allowed_node_kinds": [
+        "execution_child"
+      ],
+      "depends_on_stages": [
+        "parent"
+      ]
+    },
+    {
+      "stage_id": "implement",
+      "sequence_index": 4,
+      "allowed_node_kinds": [
+        "execution_child"
+      ],
+      "depends_on_stages": [
+        "children"
+      ]
+    },
+    {
+      "stage_id": "intent_validation",
+      "sequence_index": 5,
+      "allowed_node_kinds": [
+        "intent_validation_suite"
+      ],
+      "depends_on_stages": [
+        "implement"
+      ]
+    },
+    {
+      "stage_id": "closeout",
+      "sequence_index": 6,
+      "allowed_node_kinds": [
+        "intent_family_closeout"
+      ],
+      "depends_on_stages": [
+        "intent_validation"
+      ]
+    }
+  ],
+  "family_tail_contract": {
+    "required_validation_child_kind": "intent_validation_suite",
+    "required_final_child_kind": "intent_family_closeout",
+    "tail_stage_order": [
+      "intent_validation",
+      "closeout"
+    ]
+  },
+  "promotion_law": {
+    "parent_and_intent_owner_stage": "closeout",
+    "parent_and_intent_owner_node_kind": "intent_family_closeout",
+    "validation_may_promote_parent": false,
+    "validation_may_promote_source_intent": false
+  }
+}

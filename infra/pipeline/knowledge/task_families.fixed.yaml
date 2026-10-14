@@ -1,0 +1,603 @@
+version: 1
+phase: 1
+notes: Deterministic Stage 1 task-family activation rules. Canonical file with additive
+  repo/domain families merged in.
+families:
+  generic:
+    fallback_only: true
+    triggers: []
+  scheduler_safety:
+    triggers:
+    - scheduler
+    - schedule
+    - cron
+    - job
+    - dispatch
+    - launch
+    - run
+    - trigger
+    - tick
+    - misfire
+  operator_control:
+    triggers:
+    - operator
+    - manual
+    - pause
+    - resume
+    - cancel
+    - restart
+    - override
+    - force
+    - control
+    - admin
+  stateful_workflow:
+    triggers:
+    - workflow
+    - state
+    - transition
+    - step
+    - stage
+    - checkpoint
+    - status
+    - lifecycle
+    - resume
+    - progress
+  queue_dispatch:
+    triggers:
+    - queue
+    - enqueue
+    - dequeue
+    - ack
+    - lease
+    - claim
+    - consumer
+    - worker
+    - broker
+    - message
+  api_control_plane:
+    triggers:
+    - api
+    - request
+    - resource
+    - controller
+    - spec
+    - status
+    - admission
+    - reconcile
+    - endpoint
+    - handler
+  retry_timeout_resilience:
+    triggers:
+    - retry
+    - timeout
+    - backoff
+    - deadline
+    - circuit
+    - breaker
+    - throttle
+    - limit
+    - attempt
+    - ttl
+  reconciliation_recovery:
+    triggers:
+    - reconcile
+    - recover
+    - repair
+    - heal
+    - restart
+    - replay
+    - bootstrap
+    - resync
+    - orphan
+    - repair
+  distributed_coordination:
+    triggers:
+    - leader
+    - lock
+    - lease
+    - quorum
+    - election
+    - consensus
+    - ownership
+    - fencing
+    - epoch
+    - coordinator
+  persistence_integrity:
+    triggers:
+    - persist
+    - persistence
+    - database
+    - store
+    - commit
+    - transaction
+    - record
+    - snapshot
+    - write
+    - durable
+  execution_lifecycle:
+    triggers:
+    - execute
+    - execution
+    - start
+    - complete
+    - fail
+    - terminal
+    - running
+    - pending
+    - lineage
+    - finish
+  dependency_gating:
+    triggers:
+    - dependency
+    - prerequisite
+    - eligible
+    - gate
+    - ready
+    - blocked
+    - upstream
+    - downstream
+    - precondition
+    - readiness
+  configuration_versioning:
+    triggers:
+    - config
+    - configuration
+    - version
+    - revision
+    - snapshot
+    - spec
+    - parameters
+    - settings
+    - drift
+    - reload
+  audit_evidence:
+    triggers:
+    - audit
+    - receipt
+    - evidence
+    - ledger
+    - event
+    - trace
+    - log
+    - history
+    - correlation
+    - forensics
+  manual_backfill:
+    triggers:
+    - backfill
+    - replay
+    - historical
+    - catchup
+    - manual run
+    - retroactive
+    - rerun
+    - date range
+    - window
+    - retro
+  heartbeat_liveness:
+    triggers:
+    - heartbeat
+    - liveness
+    - keepalive
+    - health
+    - stale
+    - alive
+    - dead
+    - worker health
+    - pulse
+    - watchdog
+  timeout_deadline_control:
+    triggers:
+    - deadline
+    - timeout
+    - ttl
+    - expiry
+    - window
+    - max duration
+    - time limit
+    - sla
+    - duration
+    - clock
+  cleanup_retention:
+    triggers:
+    - cleanup
+    - retention
+    - garbage
+    - prune
+    - archive
+    - delete
+    - expire
+    - history
+    - sweep
+    - vacuum
+  admission_and_validation:
+    triggers:
+    - validate
+    - validation
+    - admission
+    - schema
+    - guard
+    - reject
+    - legal
+    - invalid
+    - input
+    - normalize
+  worker_runtime_safety:
+    triggers:
+    - worker
+    - runner
+    - executor
+    - runtime
+    - sandbox
+    - process
+    - spawn
+    - shutdown
+    - heartbeat
+    - task
+  lab_assistant_memory:
+    triggers:
+    - lab assistant
+    - research memory
+    - memory-backed
+    - cross-project
+    - provenance
+    - freshness
+    - correction history
+    - contradiction
+    - task register
+    - truth ownership
+    - execution reconciliation
+    - transcript
+    - ledger
+    - prior projects
+    - canonical source
+  lab_assistant_delegation:
+    triggers:
+    - typed delegation
+    - delegation policy
+    - delegation binding
+    - delegation request
+    - delegation result
+    - subsystem correlation
+    - correlation record
+    - routing policy
+    - host boundary
+    - delegation status
+  governance_ledger_durability:
+    triggers:
+    - governance ledger
+    - ledger storage
+    - ledger manager
+    - ledger action
+    - artifact linkage
+    - commit journal
+    - commit traceability
+    - governance event
+    - status history
+    - append-safe history
+  agent_orchestration_runtime:
+    triggers:
+    - projflow
+    - agent orchestrator
+    - agent orchestration
+    - runner state
+    - swarm coordination
+    - job lineage
+    - flow state
+    - orchestrator restart
+    - agent runtime
+    - job state owner
+  host_execution_boundary:
+    triggers:
+    - host verification
+    - verification contract
+    - native app boundary
+    - webui boundary
+    - mobile boundary
+    - device install
+    - host action
+    - boundary contract
+    - native/web boundary
+    - verification runner
+  pipeline_internal_modification:
+    triggers:
+    - pipeline internals
+    - pipeline stage
+    - search plan
+    - repo retriever
+    - context ranker
+    - context bundle
+    - patch plan
+    - planning.py
+    - retrieval scoring
+    - bundle selection
+  knowledge_and_retrieval_policy:
+    triggers:
+    - knowledge asset
+    - retrieval bias
+    - role assignment
+    - task family
+    - subsystem map
+    - negative targets
+    - passive relevance
+    - responsibility terms
+    - knowledge yaml
+    - loader-facing policy
+  scheduler_or_control_plane:
+    triggers:
+    - scheduler
+    - scheduled job
+    - watchdog
+    - healer
+    - pause
+    - resume
+    - runtime policy
+    - enable scheduled jobs
+    - disable scheduled jobs
+    - control plane
+  ui_local_changes:
+    triggers:
+    - button
+    - page
+    - panel
+    - menu
+    - layout
+    - label
+    - mobile
+    - web ui
+    - ui shell
+    - frontend
+  audit_and_integrity:
+    triggers:
+    - audit
+    - integrity
+    - ledger
+    - evidence
+    - append-only
+    - truth ownership
+    - commit journal
+    - tamper
+    - unauthorized create
+    - forensic
+  operator_review_and_repair:
+    triggers:
+    - review artifact
+    - operator decision
+    - approve
+    - reject
+    - rerun
+    - repair
+    - revision request
+    - retry lineage
+    - review flow
+    - decision writeback
+  experiment_or_run_validation:
+    triggers:
+    - benchmark
+    - compare runs
+    - host verification
+    - divergence
+    - run validation
+    - proof
+    - measurement
+    - regression suite
+    - validation harness
+    - verification runner
+  assistant_truth_and_identity:
+    triggers:
+    - assistant identity
+    - source of truth
+    - runtime state
+    - ledger truth
+    - transcript precedence
+    - append-only event log
+    - state snapshot
+    - write arbitration
+    - blocked state
+    - recovery-required
+    - schema version
+    - replayable mutation trail
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: task_families.yaml
+    payload:
+      families:
+      - id: scheduler_modification
+        triggers:
+        - job
+        - schedule
+        - cron
+        - run
+        - launch
+        concerns:
+        - state_consistency
+        - concurrency_control
+        - observability
+      - id: state_transition_update
+        triggers:
+        - status
+        - state
+        - update
+        - transition
+        concerns:
+        - mutation_boundary
+        - validation_rigor
+        - auditability
+      - id: recovery_logic_fix
+        triggers:
+        - retry
+        - fail
+        - rollback
+        - cleanup
+        - fix
+        concerns:
+        - recovery_integrity
+        - idempotency
+        - fail_closed_behavior
+      - id: operator_action_add
+        triggers:
+        - cli
+        - admin
+        - manual
+        - command
+        concerns:
+        - operator_safety
+        - auditability
+        - input_sanitization
+      - id: validation_enhancement
+        triggers:
+        - check
+        - assert
+        - verify
+        - schema
+        - guard
+        concerns:
+        - validation_rigor
+        - fail_closed_behavior
+        - observability
+      - id: observability_update
+        triggers:
+        - log
+        - metric
+        - trace
+        - telemetry
+        concerns:
+        - observability
+        - auditability
+      - id: concurrency_guard_fix
+        triggers:
+        - lock
+        - race
+        - mutex
+        - atomic
+        - thread
+        concerns:
+        - concurrency_control
+        - timing_correctness
+        - state_consistency
+      - id: dispatch_logic_change
+        triggers:
+        - queue
+        - send
+        - event
+        - publish
+        concerns:
+        - idempotency
+        - duplicate_suppression
+        - observability
+      - id: auth_policy_update
+        triggers:
+        - permission
+        - role
+        - access
+        - secure
+        concerns:
+        - fail_closed_behavior
+        - auditability
+        - operator_safety
+      - id: persistence_refactor
+        triggers:
+        - db
+        - query
+        - table
+        - migration
+        concerns:
+        - state_consistency
+        - mutation_boundary
+        - rollback_safety
+      - id: api_endpoint_change
+        triggers:
+        - route
+        - endpoint
+        - controller
+        - request
+        concerns:
+        - input_sanitization
+        - validation_rigor
+        - observability
+      - id: worker_logic_fix
+        triggers:
+        - worker
+        - task
+        - process
+        - consume
+        concerns:
+        - claim_integrity
+        - recovery_integrity
+        - idempotency
+      - id: reconciliation_loop_fix
+        triggers:
+        - sync
+        - drift
+        - reconcile
+        - align
+        concerns:
+        - reconciliation_correctness
+        - stale_state_handling
+        - idempotency
+      - id: audit_trail_addition
+        triggers:
+        - history
+        - journal
+        - audit
+        - track
+        concerns:
+        - auditability
+        - state_consistency
+      - id: timeout_handling_fix
+        triggers:
+        - timeout
+        - deadline
+        - hang
+        - wait
+        concerns:
+        - timing_correctness
+        - recovery_integrity
+        - fail_closed_behavior
+      - id: resource_cleanup_fix
+        triggers:
+        - leak
+        - dispose
+        - close
+        - teardown
+        concerns:
+        - recovery_integrity
+        - side_effect_control
+      - id: idempotency_key_addition
+        triggers:
+        - unique
+        - dedupe
+        - nonce
+        - key
+        concerns:
+        - idempotency
+        - duplicate_suppression
+      - id: configuration_update
+        triggers:
+        - settings
+        - env
+        - flags
+        - options
+        concerns:
+        - operator_safety
+        - validation_rigor
+      - id: error_mapping_update
+        triggers:
+        - error
+        - exception
+        - fault
+        - catch
+        concerns:
+        - observability
+        - fail_closed_behavior
+      - id: orchestration_change
+        triggers:
+        - workflow
+        - step
+        - flow
+        - sequence
+        concerns:
+        - state_consistency
+        - observability
+        - recovery_integrity

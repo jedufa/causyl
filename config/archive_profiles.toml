@@ -1,0 +1,69 @@
+title = "Causyl archive profiles"
+
+[defaults]
+respect_gitignore = true
+always_exclude_globs = [
+  ".git/**",
+  ".venv/**",
+  "__pycache__/**",
+  ".pytest_cache/**",
+  ".mypy_cache/**",
+  ".ruff_cache/**",
+  ".tooling/**",
+  ".pipeline_workspaces/**",
+  "archives/**",
+  "Backups/**",
+  "*.zip",
+  "*.tar",
+  "*.tar.gz",
+  "*.tgz",
+  "*.tar.bz2",
+  "*.tbz2",
+  "*.tar.xz",
+  "*.txz",
+  "*.orig",
+  "*.rej",
+  "*.pyc",
+  "*:Zone.Identifier",
+  "experiments/projects/*/_artifacts/runs/**",
+  "experiments/projects/*/_artifacts/test_runs/**",
+  "cloudflared-linux-amd64.deb",
+]
+
+[profiles.share]
+description = "Whole repo for agent sharing: tracked plus untracked non-ignored files."
+include_mode = "all_visible"
+include_globs = [
+  "runtime/logs/**",
+  "logs/**",
+  "governance/agents/runtime/scheduled_jobs/reports/**",
+  "runtime/contracts/**",
+]
+
+
+
+
+[profiles.debug]
+description = "Focused debugging snapshot for the current pipeline/topic areas."
+include_mode = "curated"
+include_globs = [
+  "tests/**",
+  "tools/**",
+  "config/**",
+  "infra/mobile/android/app/src/**",
+  "pytest.ini",
+  "governance/ledger/*/*/active/**",
+  "runtime/contracts/**",
+]
+
+[profiles.weekly_full]
+description = "Broader repo archive that also includes selected ignored operational data."
+include_mode = "all_visible"
+include_ignored_globs = [
+  "benchmarks/**",
+  "jobs/**",
+  "reports/**",
+  "runtime/reports/**",
+  "runtime/artifacts/**",
+  "runtime/state/**",
+]

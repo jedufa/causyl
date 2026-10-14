@@ -1,0 +1,40 @@
+{
+  "schema_version": "experiment_storage_growth_review_process_v1",
+  "process_id": "experiment-storage-growth-review",
+  "process_version": "1.0.0",
+  "source_intent_uid": "IS-20260403-212914Z-1260",
+  "review_triggers": {
+    "tracked_repo_file_count_gte": 8000,
+    "tracked_repo_total_size_mib_gte": 24,
+    "per_experiment_tracked_file_count_gte": 1200,
+    "per_experiment_tracked_size_mib_gte": 4,
+    "governance_truth_file_count_gte": 4000,
+    "governance_truth_size_mib_gte": 8,
+    "single_tracked_file_mib_gte": 5,
+    "operator_reported_checkout_or_search_pain": true
+  },
+  "measurement_scope": {
+    "include": [
+      "git-tracked files",
+      "governance truth surfaces",
+      "experiment project metadata and light artifacts"
+    ],
+    "exclude": [
+      "runtime/",
+      "external artifact roots",
+      "local caches",
+      "generated build directories",
+      "untracked temporary outputs"
+    ]
+  },
+  "required_steps": [
+    "measure tracked file count and total tracked size",
+    "identify the heaviest tracked directories and files",
+    "classify each hotspot as canonical truth or removable/generated residue",
+    "repair artifact-boundary violations before discussing a repo split",
+    "apply the split checklist",
+    "record the outcome as keep_monorepo, keep_monorepo_with_cleanup, or split_candidate"
+  ],
+  "default_outcome_bias": "keep_monorepo_with_cleanup",
+  "escalation_rule": "Only escalate to split_candidate after cleanup and externalization options were evaluated and found insufficient."
+}

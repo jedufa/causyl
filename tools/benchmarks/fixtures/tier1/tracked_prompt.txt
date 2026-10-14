@@ -1,0 +1,3 @@
+draft prompt
+replace this text
+keep nothing

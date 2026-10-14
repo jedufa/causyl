@@ -1,0 +1,121 @@
+{
+  "schema_version": "recursive_plan_record_contract_v1",
+  "uid": "PIS-20260409-154915Z-E6CF",
+  "contract_family": "recursive_plan_lineage_graph",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_recursive_plan_record_v1.md",
+  "plan_status_vocab": [
+    "draft",
+    "blocked",
+    "invalid",
+    "validated",
+    "admitted",
+    "materialized",
+    "superseded",
+    "cancelled"
+  ],
+  "node_status_vocab": [
+    "planned",
+    "blocked",
+    "invalid",
+    "validated",
+    "admitted",
+    "materialized",
+    "cancelled"
+  ],
+  "edge_kind_vocab": [
+    "depends_on"
+  ],
+  "root_binding_types": [
+    "ledger_uid",
+    "campaign_id",
+    "job_id"
+  ],
+  "plan_required_fields": [
+    "schema_version",
+    "plan_id",
+    "root_plan_id",
+    "root_node_id",
+    "root_binding",
+    "parent_plan_id",
+    "parent_job_id",
+    "plan_status",
+    "plan_truth_refs",
+    "plan_event_refs",
+    "budget_adaptive_receipt",
+    "nodes",
+    "dependency_edges"
+  ],
+  "node_required_fields": [
+    "node_id",
+    "job_shape",
+    "node_status",
+    "declared_depth",
+    "ancestry_path",
+    "parent_node_id",
+    "child_node_ids",
+    "truth_refs",
+    "node_event_refs"
+  ],
+  "edge_required_fields": [
+    "edge_id",
+    "from_node_id",
+    "to_node_id",
+    "edge_kind"
+  ],
+  "truth_ref_fields": [
+    "ledger_uids",
+    "campaign_ids",
+    "job_ids",
+    "run_ids",
+    "receipt_refs",
+    "continuation_packet_ids",
+    "artifact_refs"
+  ],
+  "append_only_fields": [
+    "plan_event_refs",
+    "node_event_refs"
+  ],
+  "forbidden_inline_truth_fields": {
+    "task_register_snapshot": "Recursive plan records may not embed mutable task-register snapshots.",
+    "task_records": "Recursive plan records may not inline task truth that belongs to canonical task storage.",
+    "job_receipts": "Recursive plan records may not duplicate full job receipts inline.",
+    "receipt_payloads": "Recursive plan records may not carry receipt bodies instead of durable refs.",
+    "run_record": "Recursive plan records may not embed canonical run records.",
+    "transcript_summary": "Transcript summaries may explain recursive planning history but never replace durable plan truth."
+  },
+  "forbidden_node_inline_fields": {
+    "task_snapshot": "Plan nodes may not embed task snapshots.",
+    "task_record": "Plan nodes may not embed full task records.",
+    "receipt_payload": "Plan nodes may not embed receipt payload bodies.",
+    "run_payload": "Plan nodes may not embed run payload bodies.",
+    "transcript_summary": "Plan nodes may not rely on transcript summaries as canonical truth."
+  },
+  "ancestry_path_rule": {
+    "representation": "ordered_ancestor_node_ids",
+    "root_rule": "root node uses declared_depth=0 and ancestry_path=[]",
+    "non_root_rule": "non-root ancestry_path begins at root_node_id and ends at parent_node_id"
+  },
+  "dependency_edge_rules": [
+    "edge_id values must be unique",
+    "dependency edges must use explicit from_node_id and to_node_id endpoints",
+    "dependency edges must target declared node_id values",
+    "dependency edges may not self-target",
+    "edge kind vocabulary stays explicit and closed in v1"
+  ],
+  "append_only_expectations": [
+    "plan writes append durable plan_event_refs instead of mutating hidden status history",
+    "plan writes carry a durable budget_adaptive_receipt instead of burying wave caps and continuation posture in transient validation-only state",
+    "node writes append node_event_refs instead of relying on prompt memory",
+    "recursive plan records group lower-layer truth and do not replace ledger, campaign, run, or receipt stores"
+  ],
+  "anti_patterns": [
+    "lineage_inferred_from_queue_order",
+    "ancestry_reconstructed_from_prompt_memory",
+    "recursive_plan_as_shadow_task_or_run_ledger",
+    "implicit_dependencies_instead_of_edge_rows"
+  ]
+}

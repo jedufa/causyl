@@ -1,0 +1,70 @@
+{
+  "schema_version": "recursive_spawn_policy_contract_v1",
+  "uid": "PIS-20260409-154915Z-5F24",
+  "contract_family": "recursive_spawn_planning_policy",
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_recursive_spawn_policy_v1.md",
+  "job_shape_relationship_contract_rel": "governance/job_shape_relationship_contract_v1.json",
+  "budget_ledger_contract_rel": "governance/job_budget_cost_ledger_contract_v1.json",
+  "planning_mode_vocab": [
+    "dry_run_only"
+  ],
+  "planning_parent_shapes": [
+    "fanout_job",
+    "campaign_job",
+    "delegation_tree_job"
+  ],
+  "allowed_campaign_phase_categories": [
+    "planning",
+    "repair",
+    "review"
+  ],
+  "proposed_child_depth_caps": {
+    "verification_loop_job": 2,
+    "fanout_job": 2,
+    "campaign_job": 2,
+    "experiment_run_job": 1,
+    "delegation_tree_job": 3
+  },
+  "budget_balance_required_fields": [
+    "job_uid",
+    "unit",
+    "allocated_minor_units",
+    "cost_debit_minor_units",
+    "cost_credit_minor_units",
+    "remaining_minor_units"
+  ],
+  "budget_propagation_rules": {
+    "ceiling_source": "parent_budget_balance.allocated_minor_units",
+    "remaining_source": "parent_budget_balance.remaining_minor_units",
+    "reserved_budget_rule": "reserved_budget_minor_units is removed from remaining budget before any child allocation is considered",
+    "stop_threshold_rule": "minimum_parent_remaining_minor_units is a hard floor that must remain with the parent after child propagation",
+    "propagation_formula": "child allocation is legal only when remaining_minor_units - reserved_budget_minor_units - minimum_parent_remaining_minor_units >= child_budget_request_minor_units",
+    "rejection_posture": "fail_closed_with_explicit_non_launch_reasons"
+  },
+  "stop_condition_codes": [
+    "parent_shape_not_planning_eligible",
+    "planning_mode_forbidden",
+    "campaign_phase_not_planning_eligible",
+    "relationship_forbidden",
+    "ancestry_cycle_detected",
+    "ancestor_shape_path_mismatch",
+    "depth_cap_exceeded",
+    "budget_stop_threshold_hit",
+    "reserved_budget_exceeds_remaining",
+    "budget_exhausted",
+    "child_budget_exceeds_spendable"
+  ],
+  "fail_closed_rules": [
+    "planning_requests_require_explicit_dry_run_mode",
+    "spawn_legality_reuses_job_shape_relationship_matrix",
+    "forbidden_parent_shapes_rejected_before_graph_expansion",
+    "ancestry_cycle_or_depth_cap_hits_stop_recursion",
+    "budget_propagation_reuses_canonical_remaining_budget_math",
+    "reserved_budget_and_minimum_parent_remaining_are_hard_stop_thresholds",
+    "forbidden_or_exhausted_plans_emit_explicit_non_launch_reasons"
+  ]
+}

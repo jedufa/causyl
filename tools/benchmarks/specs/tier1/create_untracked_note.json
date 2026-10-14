@@ -1,0 +1,30 @@
+{
+  "schema_version": "agent_benchmark_spec_v1",
+  "label": "tier1-create-untracked-note",
+  "git_ref": "HEAD",
+  "binding": {
+    "type": "task_id",
+    "id": "mb101"
+  },
+  "objective": "Create docs/benchmark_smoke/tier1_note.txt containing exactly three lines: tier1 benchmark on the first line, local cheap chore on the second line, and done on the third line, ending with a trailing newline. Then run the exact narrow validation command `python -c \"from pathlib import Path; p = Path('docs/benchmark_smoke/tier1_note.txt'); print(repr(p.read_text()) if p.exists() else 'MISSING')\"` and report the printed result concisely. Do not modify any other files.",
+  "check_commands": [
+    "python -c \"from pathlib import Path; p = Path('docs/benchmark_smoke/tier1_note.txt'); print(repr(p.read_text()) if p.exists() else 'MISSING')\""
+  ],
+  "workflow": {
+    "enabled": true,
+    "phase_label": "Benchmark",
+    "max_steps": 200,
+    "options": {}
+  },
+  "swarm": {
+    "enabled": true,
+    "options": {
+      "max_makers": 1,
+      "max_finishers": 1,
+      "maker_lease_s": 120,
+      "finisher_lease_s": 90,
+      "wall_clock_s": 420
+    }
+  },
+  "cleanup_worktrees": true
+}

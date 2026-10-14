@@ -1,0 +1,333 @@
+pipeline:
+  tool_version: mvp2-planning
+  contract_version: "1.2"
+  schema_version: "3"
+  jobs_root: jobs
+  workspace_root: .pipeline_workspaces
+  preserve_failed_workspaces: true
+  default_log_level: INFO
+  enable_resume: true
+  max_parallel_jobs: 1
+
+models:
+  default_local_provider: ollama
+  default_remote_provider: openai
+  escalation_policy:
+    allow_remote_escalation: true
+    complexity_threshold: high
+    require_explicit_stage_support: true
+
+timeouts:
+  subprocess_default_seconds: 3000
+  search_seconds: 3000
+  patch_plan_seconds: 3000
+  static_verification_seconds: 300
+  runtime_verification_seconds: 900
+  model_seconds: 3000
+
+limits:
+  max_file_candidates: 100
+  max_selected_files: 8
+  max_snippets: 20
+  max_total_context_chars: 40000
+  max_patch_artifact_chars: 40000
+  max_patch_artifact_files: 8
+  max_bundle_files: 6
+  max_bundle_snippets: 16
+  max_snippet_chars: 2500
+  max_primary_targets: 4
+  max_test_snippets: 4
+  score_margin_keep_secondary: 0.15
+  min_file_score: 1
+  retry_limit: 2
+
+artifacts:
+  immutable: true
+  atomic_json_writes: true
+  include_version_metadata: true
+  persist_raw_model_output: true
+
+tools:
+  python_path: python3
+  rg_path: rg
+  git_path: git
+  ast_grep_path: sg
+  pytest_path: pytest
+
+planning:
+  enable_model: false
+  model_provider: openai
+  model_name: gpt-5.4-mini
+  prefer_local_model: true
+  planning_confidence_floor: 0.55
+
+policy:
+  allow_non_git: false
+  allow_zip_artifacts: false
+  allow_full_file_replacements: true
+  follow_repo_external_symlinks: false
+  commit_to_protected_branches: false
+  require_isolated_workspace: true
+
+logging:
+  redact_env_values: true
+  redact_provider_tokens: true
+  include_command_lines: true
+  include_workspace_path: true
+  emit_timing_metrics: true
+
+reporting:
+  model_response_review:
+    enabled: true
+    include_in_quick_read: true
+    max_preview_chars: 2400
+    preview_head_chars: 1800
+    preview_tail_chars: 500
+
+user_budgets:
+  max_wall_clock_minutes: 60
+  max_model_tokens_total: 100000
+  max_attempts_total: 30
+  max_stagnant_attempts: 5
+  min_progress_delta: 0.01
+
+orchestrator:
+  lock_strategy: file_lock
+  resume_policy: from_active_head
+  state_manifest_name: job_state.json
+  state_schema_version: "3"
+  branching_mode: explicit_retry_branches
+  default_retry_branch_strategy: fork_on_repair_decision
+  allow_same_branch_reentry: true
+  max_retry_branches_per_job: 3
+  lineage_retention: full
+  require_active_head_pointer: true
+  low_confidence_threshold: 0.6
+
+failure_signature:
+  weights:
+    error_type: 0.3
+    file_overlap: 0.25
+    test_overlap: 0.2
+    token_overlap: 0.15
+    message: 0.1
+  similarity_threshold: 0.7
+
+progress:
+  baseline_mode: first_attempt
+  float_tolerance: 0.001
+
+mutation:
+  min_attempts_per_level: 2
+  escalation_cooldown: 1
+  allow_backoff_on_improvement: true
+
+branching:
+  max_active_branches: 3
+  max_total_branches: 10
+
+retention:
+  max_recent_attempts: 10
+  keep_milestones: true
+
+strategy_selection:
+  order:
+    - local_fix
+    - plan_revision
+    - context_expansion
+    - task_reinterpretation
+  rules:
+    - skip_strategies_in_negative_memory
+    - skip_strategies_used_for_similar_failure
+    - prefer_lowest_viable_mutation_level
+    - escalate_only_when_required
+  fallback:
+    - abort_when_all_strategies_exhausted
+
+cost_budget:
+  max_tokens_total: 100000
+  max_model_calls: 60
+  max_expensive_stage_calls: 60
+
+repair_loop:
+  require_confidence_score: true
+  require_competing_hypotheses: true
+  max_competing_hypotheses: 3
+  allow_ambiguous_failure_classification: true
+  prefer_same_branch_repair_for_low_scope_failures: true
+  prefer_new_branch_for_scope_or_strategy_changes: true
+
+stages:
+  script_1_job_intake: {}
+  script_2_task_classifier: {}
+  script_3_search_plan: {}
+  script_4_repo_retriever: {}
+  script_5_context_ranker: {}
+  script_6_context_bundle: {}
+  script_7_patch_plan:
+    allow_remote_model: false
+    json_only: true
+  script_8_patch_generate:
+    requested_agent_tech: codex
+    agent_tech: codex
+    provider: openai
+    requested_model: gpt-5.4
+    model: gpt-5.4
+    execution_mode: live
+    allow_live_model_calls: true
+    reasoning_effort: medium
+    temperature: 0
+    max_output_tokens: 12000
+    preferred_artifact: unified_diff
+    timeout_seconds: 3000
+  script_9_artifact_validate: {}
+  script_10_patch_apply: {}
+  script_11_verify_static:
+    enable_default_python_compile: true
+  script_12_verify_runtime:
+    require_static_pass: true
+    checks: []
+  script_13_contract_verify: {}
+  script_14_repair_loop: {}
+  script_15_finalize_job: {}
+  script_16_job_report: {}
+
+
+semantic:
+  enable_semantic_retrieval: true
+  semantic_mode: off
+  semantic_provider: none
+  semantic_model_name: all-minilm
+  semantic_top_k: 32
+  semantic_score_weight: 0.35
+  semantic_timeout_seconds: 20
+  semantic_min_score: 0.2
+  semantic_fail_open: true
+  semantic_base_url: http://localhost:11434
+  semantic_prefilter_limit: 180
+  semantic_prefilter_anchor_limit: 60
+  semantic_rank_only_candidate_limit: 40
+  semantic_candidate_cap: 32
+  semantic_evidence_per_file: 2
+  semantic_lexical_bonus_cap: 2.5
+deterministic_v2:
+  enabled: true
+  deterministic_first: true
+  allow_external_llm_stages_1_7: false
+  stage_foundation_fields: true
+  failure_taxonomy:
+    enabled: true
+    expand_operator_modes: true
+    expand_system_modes: true
+    expand_concurrency_modes: true
+    expand_recovery_modes: true
+  invariants:
+    enabled: true
+    derive_requirements: true
+  search_plan:
+    enable_dual_search_plan: false
+    enable_conceptual_queries: false
+    enable_subsystem_hypotheses: false
+  retrieval_scoring:
+    enable_coverage_scoring: false
+    enable_filename_only_penalty: false
+    filename_only_match_penalty: 0.0
+    superficial_match_penalty: 0.0
+    minimum_coverage_score: 0.0
+  semantic_gate:
+    allow_local_semantic_retrieval: false
+    require_explicit_enablement: true
+    local_only: true
+  patch_contract:
+    enforce_cross_cutting_contract: false
+    require_quality_metrics: false
+
+knowledge_assets:
+  base_dir: infra/pipeline/knowledge
+  files:
+    task_families: task_families.yaml
+    task_profile_rules: task_profile_rules.yaml
+    failure_taxonomy: failure_taxonomy.yaml
+    invariant_templates: invariant_templates.yaml
+    derived_requirements: derived_requirements.yaml
+    cross_cutting_flags: cross_cutting_flags.yaml
+    subsystem_map: subsystem_map.yaml
+    conceptual_query_templates: conceptual_query_templates.yaml
+    negative_targets: negative_targets.yaml
+    responsibility_terms: responsibility_terms.yaml
+    passive_relevance_patterns: passive_relevance_patterns.yaml
+    patch_contract_templates: patch_contract_templates.yaml
+
+
+retrieval_policy:
+  hub_family_caps:
+    broad_planner: 1
+    broad_orchestrator: 1
+    route_server_entry: 1
+    broad_integration_test: 1
+    benchmark_reporting_surface: 1
+    generic_control_plane_hub: 1
+  passive_surface_caps:
+    default: 1
+    target: 0
+    reference: 1
+  duplicate_family_cap: 1
+  basename_cap: 1
+  omnibus_test_cap: 1
+  target_fallback_allowance: 1
+  owner_promotion_strength: 1.0
+  support_lane_allowance: 2
+  fallback_hub_allowance: 1
+  family_diversity_weighting: 1.0
+  owner_uncertainty_behavior: degraded
+  target_requires_subsystem_fit: true
+  stage4_structural_hint_limit: 24
+  stage4_structural_neighbor_limit: 16
+  narrow_task_pressure_multiplier: 1.25
+  task_archetype_specific_bundle_policies:
+    implementation_change:
+      rank_target_cap: 2
+      target_cap: 2
+      support_cap: 2
+      reference_cap: 2
+      witness_cap: 1
+      fallback_hub_cap: 0
+      min_bundle_files: 3
+      min_support_if_owner: 1
+      prefer_witness_with_owner: true
+    design_new_surface:
+      rank_target_cap: 1
+      target_cap: 1
+      support_cap: 2
+      reference_cap: 4
+      witness_cap: 1
+      fallback_hub_cap: 1
+      min_bundle_files: 2
+      prefer_contract_context: true
+    repo_assessment:
+      rank_target_cap: 0
+      target_cap: 0
+      support_cap: 3
+      reference_cap: 4
+      witness_cap: 2
+      fallback_hub_cap: 1
+      min_bundle_files: 3
+    information_retrieval:
+      rank_target_cap: 0
+      target_cap: 0
+      support_cap: 2
+      reference_cap: 4
+      witness_cap: 1
+      fallback_hub_cap: 1
+      min_bundle_files: 2
+    documentation_contract:
+      rank_target_cap: 0
+      target_cap: 0
+      support_cap: 2
+      reference_cap: 4
+      witness_cap: 1
+      fallback_hub_cap: 1
+      min_bundle_files: 2
+  degraded_bundle_thresholds:
+    owner_missing: degraded_owner_uncertain
+    context_sparse: degraded_context_sparse

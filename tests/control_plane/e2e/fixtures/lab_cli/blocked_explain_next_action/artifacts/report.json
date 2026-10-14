@@ -1,0 +1,20 @@
+{
+  "chain_id": "patch_apply_chain_v1::lab-cli-blocked",
+  "playbook_id": "patch_apply_chain_v1",
+  "action_family": "patch_apply",
+  "final_chain_outcome": "blocked",
+  "final_verifier_verdict": "",
+  "terminal_reason": "patch_contract_invalid",
+  "step_records": [
+    {
+      "node_id": "patch_ingest",
+      "step_outcome": "failed_known",
+      "proof_gaps": [
+        "missing_validation_commands"
+      ],
+      "decision": "block",
+      "checklist_complete": true
+    }
+  ],
+  "failure_escalation_log": []
+}

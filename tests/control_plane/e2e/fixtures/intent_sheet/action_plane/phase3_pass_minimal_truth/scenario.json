@@ -1,0 +1,31 @@
+{
+  "name": "phase3_pass_minimal_truth",
+  "entrypoint": "execute_phase3_blocked_chain_explain_and_recommend_v1",
+  "payload": {
+    "report": {
+      "action_family": "build_verify",
+      "chain_id": "build_verify_loop_v1::e2e-pass",
+      "failure_escalation_log": [],
+      "final_chain_outcome": "completed_with_pass",
+      "final_verifier_verdict": "PASS",
+      "playbook_id": "build_verify_loop_v1",
+      "step_records": [],
+      "terminal_reason": "verifier_pass"
+    }
+  },
+  "expected_terminal_status": "ok",
+  "expected_receipt": {
+    "proof_gap": false
+  },
+  "expected_snapshot": {
+    "operator_state": "pass"
+  },
+  "expected_artifacts": [
+    "receipt",
+    "report",
+    "snapshot"
+  ],
+  "forbidden_effects": [
+    "sibling_item_mutation"
+  ]
+}

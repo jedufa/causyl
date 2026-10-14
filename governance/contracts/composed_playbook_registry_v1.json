@@ -1,0 +1,24 @@
+{
+  "schema_version": "composed_playbook_registry_v1",
+  "playbooks": [
+    {
+      "playbook_id": "build_verify_loop_v1",
+      "action_family": "build_verify",
+      "graph_id": "build_verify_iteration_v1",
+      "verification_owner": "scheduler_verifier"
+    },
+    {
+      "playbook_id": "status_reconcile_v1",
+      "action_family": "status_reconcile",
+      "graph_id": "status_reconcile_v1",
+      "verification_owner": "scheduler_verifier"
+    },
+    {
+      "playbook_id": "patch_apply_chain_v1",
+      "action_family": "patch_apply",
+      "graph_id": "patch_apply_chain_v1",
+      "verification_owner": "scheduler_verifier"
+    }
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

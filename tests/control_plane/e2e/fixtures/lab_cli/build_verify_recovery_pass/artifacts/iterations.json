@@ -1,0 +1,24 @@
+[
+  {
+    "builder_summary": "iteration one incomplete",
+    "evidence_artifacts": [
+      "candidate_report_v1"
+    ],
+    "validation_commands": [],
+    "verifier_verdict": "",
+    "expected_gain": 0.5,
+    "cost_per_iteration": 1.0
+  },
+  {
+    "builder_summary": "iteration two complete",
+    "evidence_artifacts": [
+      "candidate_report_v2"
+    ],
+    "validation_commands": [
+      "python -c \"print('ok')\""
+    ],
+    "verifier_verdict": "PASS",
+    "expected_gain": 0.5,
+    "cost_per_iteration": 1.0
+  }
+]

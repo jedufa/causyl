@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+# infra/user/server-cloudflared
+# Description: Control the cloudflared tunnel sidecar used by the plane.
+
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "${script_dir}/../.." && pwd)"
+runtime_dir="${repo_root}/runtime/state/webui"
+log_dir="${runtime_dir}/launcher_logs"
+tunnel_pid_file="${runtime_dir}/cloudflared_tunnel.pid"
+tunnel_control_file="${runtime_dir}/cloudflared_control.env"
+
+mkdir -p "${log_dir}"
+
+if [[ -f "${tunnel_control_file}" ]]; then
+  # shellcheck disable=SC1090
+  source "${tunnel_control_file}"
+fi
+
+cloudflared_autostart="${EIEL_CLOUDFLARED_AUTOSTART:-1}"
+cloudflared_tunnel_name="${EIEL_CLOUDFLARED_TUNNEL_NAME:-lab-assistant}"
+cloudflared_bin="${EIEL_CLOUDFLARED_BIN:-}"
+
+ensure_cloudflared_bin() {
+  if [[ -n "${cloudflared_bin}" ]] && [[ -x "${cloudflared_bin}" ]]; then
+    return 0
+  fi
+  cloudflared_bin="$(command -v cloudflared || true)"
+  if [[ -n "${cloudflared_bin}" ]] && [[ -x "${cloudflared_bin}" ]]; then
+    return 0
+  fi
+  echo "[server-cloudflared] cloudflared binary not found" >&2
+  exit 1
+}
+
+current_pid() {
+  if [[ ! -f "${tunnel_pid_file}" ]]; then
+    return 1
+  fi
+  local pid=""
+  pid="$(cat "${tunnel_pid_file}" 2>/dev/null || true)"
+  if [[ -z "${pid}" ]]; then
+    rm -f "${tunnel_pid_file}"
+    return 1
+  fi
+  if ! kill -0 "${pid}" 2>/dev/null; then
+    rm -f "${tunnel_pid_file}"
+    return 1
+  fi
+  printf '%s\n' "${pid}"
+}
+
+write_autostart() {
+  local value="$1"
+  mkdir -p "${runtime_dir}"
+  cat > "${tunnel_control_file}" <<EOF
+export EIEL_CLOUDFLARED_AUTOSTART=${value}
+EOF
+  echo "[server-cloudflared] cloudflared_autostart=${value}"
+  echo "[server-cloudflared] cloudflared_control_file=${tunnel_control_file}"
+}
+
+start_tunnel() {
+  local pid=""
+  if pid="$(current_pid)"; then
+    echo "[server-cloudflared] already running pid=${pid}"
+    return 0
+  fi
+  ensure_cloudflared_bin
+  local stamp=""
+  local log_path=""
+  stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  log_path="${log_dir}/cloudflared_tunnel__${stamp}.log"
+  if command -v setsid >/dev/null 2>&1; then
+    setsid "${cloudflared_bin}" tunnel run "${cloudflared_tunnel_name}" >> "${log_path}" 2>&1 < /dev/null &
+  else
+    nohup "${cloudflared_bin}" tunnel run "${cloudflared_tunnel_name}" >> "${log_path}" 2>&1 < /dev/null &
+  fi
+  pid="$!"
+  echo "${pid}" > "${tunnel_pid_file}"
+  echo "[server-cloudflared] started pid=${pid}"
+  echo "[server-cloudflared] cloudflared_tunnel=${cloudflared_tunnel_name}"
+  echo "[server-cloudflared] cloudflared_log_path=${log_path}"
+}
+
+stop_tunnel() {
+  local pid=""
+  if ! pid="$(current_pid)"; then
+    echo "[server-cloudflared] already stopped"
+    return 0
+  fi
+  kill "${pid}" 2>/dev/null || true
+  echo "[server-cloudflared] sent SIGTERM to pid=${pid}"
+  local deadline=$((SECONDS + 10))
+  while kill -0 "${pid}" 2>/dev/null; do
+    if (( SECONDS >= deadline )); then
+      kill -9 "${pid}" 2>/dev/null || true
+      echo "[server-cloudflared] sent SIGKILL to pid=${pid}"
+      break
+    fi
+    sleep 1
+  done
+  rm -f "${tunnel_pid_file}"
+  echo "[server-cloudflared] stopped"
+}
+
+status_tunnel() {
+  local pid=""
+  if pid="$(current_pid)"; then
+    echo "[server-cloudflared] status=running pid=${pid}"
+  else
+    echo "[server-cloudflared] status=stopped"
+  fi
+  echo "[server-cloudflared] cloudflared_autostart=${cloudflared_autostart}"
+  echo "[server-cloudflared] cloudflared_tunnel=${cloudflared_tunnel_name}"
+  echo "[server-cloudflared] cloudflared_control_file=${tunnel_control_file}"
+  echo "[server-cloudflared] cloudflared_pid_file=${tunnel_pid_file}"
+}
+
+usage() {
+  cat <<'EOF'
+Usage: bash infra/user/server-cloudflared <command>
+
+Commands:
+  status   Show tunnel status and persistent autostart setting
+  start    Start the tunnel now
+  stop     Stop the tunnel now
+  restart  Restart the tunnel now
+  on       Enable tunnel autostart and start it now
+  off      Disable tunnel autostart and stop it now
+EOF
+}
+
+cmd="${1:-status}"
+case "${cmd}" in
+  status)
+    status_tunnel
+    ;;
+  start)
+    start_tunnel
+    ;;
+  stop)
+    stop_tunnel
+    ;;
+  restart)
+    stop_tunnel
+    start_tunnel
+    ;;
+  on)
+    write_autostart 1
+    start_tunnel
+    ;;
+  off)
+    write_autostart 0
+    stop_tunnel
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    echo "[server-cloudflared] unknown command: ${cmd}" >&2
+    usage >&2
+    exit 2
+    ;;
+esac

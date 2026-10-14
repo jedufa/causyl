@@ -1,0 +1,143 @@
+{
+  "schema_version": "literature_compendium_contract_v1",
+  "uid": "PIS-20260410-102638Z-23DF",
+  "contract_family": "research_evidence_pack",
+  "compendium_schema_version": "literature_compendium_v1",
+  "depends_on": [
+    "research_evidence_pack_v1"
+  ],
+  "contract_version": {
+    "major": 1,
+    "minor": 0
+  },
+  "canonical_doc_rel": "docs/contracts/contract_literature_compendium_v1.md",
+  "reference_compendium_rel": "governance/literature_compendium_reference_v1.json",
+  "top_level_required_fields": [
+    "schema_version",
+    "compendium_id",
+    "compendium_version",
+    "metadata",
+    "layout",
+    "evidence_pack_refs",
+    "entries",
+    "unresolved_conflicts",
+    "operator_commentary",
+    "raw_note_refs"
+  ],
+  "metadata_required_fields": [
+    "title",
+    "created_at_utc",
+    "source_intent_uid",
+    "ledger_refs"
+  ],
+  "layout_required_fields": [
+    "compendium_type",
+    "summary_layers",
+    "sections"
+  ],
+  "pack_ref_required_fields": [
+    "pack_id",
+    "pack_schema_version",
+    "pack_artifact_ref",
+    "pack_fingerprint"
+  ],
+  "entry_required_fields": [
+    "entry_id",
+    "entry_type",
+    "summary_layer",
+    "summary_text",
+    "evidence_refs"
+  ],
+  "evidence_ref_required_fields": [
+    "pack_id",
+    "claim_ids",
+    "source_ids",
+    "contradiction_ids"
+  ],
+  "unresolved_conflict_required_fields": [
+    "conflict_id",
+    "summary_text",
+    "state",
+    "evidence_refs",
+    "next_resolution_step"
+  ],
+  "commentary_required_fields": [
+    "commentary_id",
+    "commentary_type",
+    "commentary_text",
+    "related_entry_ids"
+  ],
+  "raw_note_ref_required_fields": [
+    "raw_note_ref_id",
+    "locator",
+    "boundary_note",
+    "mapped_pack_ids"
+  ],
+  "canonical_enums": {
+    "compendium_types": [
+      "topic",
+      "merged"
+    ],
+    "summary_layers": [
+      "operator_brief",
+      "sourced_synthesis",
+      "technical_detail",
+      "open_conflicts"
+    ],
+    "sections": [
+      "topic_compendium",
+      "merged_compendium",
+      "unresolved_conflicts",
+      "operator_commentary",
+      "raw_note_boundary"
+    ],
+    "entry_types": [
+      "topic_summary",
+      "merged_summary",
+      "reusable_compendium_entry"
+    ],
+    "conflict_states": [
+      "unresolved",
+      "resolved",
+      "deferred"
+    ],
+    "commentary_types": [
+      "operator_note",
+      "review_note",
+      "decision_note"
+    ]
+  },
+  "ownership_boundary": {
+    "belongs_in_compendium": [
+      "compendium index and layout metadata",
+      "summary entries that cite evidence pack, claim, source, and contradiction ids",
+      "unresolved conflict sections that preserve contradiction state",
+      "separate operator commentary linked to entries",
+      "raw-note locators that point back to mapped evidence packs"
+    ],
+    "outside_compendium": [
+      "raw note bodies",
+      "entire copied source material",
+      "unclassified mixed commentary plus sourced synthesis prose",
+      "general cross-project memory retrieval",
+      "experiment runtime artifact payloads"
+    ]
+  },
+  "forbidden_compendium_fields": {
+    "raw_notes": "Compendia may link raw notes but may not embed raw-note bodies.",
+    "raw_note_body": "Raw notes remain raw inputs until mapped through evidence pack provenance.",
+    "raw_note_bodies": "Raw notes remain raw inputs until mapped through evidence pack provenance.",
+    "source_material_body": "Reusable compendia cite source records instead of copying source material.",
+    "source_materials": "Reusable compendia cite source records instead of copying source material.",
+    "operator_commentary_text": "Operator commentary must stay in the typed operator_commentary section.",
+    "mixed_commentary_synthesis": "Sourced synthesis and operator commentary must remain separate summary layers."
+  },
+  "fail_closed_rules": [
+    "compendium_entries_without_pack_claim_source_refs_rejected",
+    "operator_commentary_must_stay_in_operator_commentary_section",
+    "raw_notes_may_be_linked_but_not_embedded",
+    "unresolved_conflicts_must_stay_visible",
+    "pack_refs_must_validate_against_referenced_pack_claim_and_source_ids",
+    "pack_refs_must_validate_against_referenced_pack_fingerprints"
+  ]
+}

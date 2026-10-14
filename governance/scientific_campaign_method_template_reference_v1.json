@@ -1,0 +1,425 @@
+{
+  "schema_version": "scientific_campaign_method_template_v1",
+  "template_id": "scmt-20260410-reference",
+  "template_version": "1.0.0",
+  "stable_identity": {
+    "canonicalization": "json_sort_keys_compact_utf8",
+    "content_hash_algorithm": "sha256",
+    "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+  },
+  "metadata": {
+    "title": "Scientific campaign method template reference instance",
+    "created_at_utc": "2026-04-10T19:55:54Z",
+    "source_intent_uid": "IS-20260403-212914Z-62FB",
+    "ledger_refs": [
+      "PIS-20260410-193415Z-2A95",
+      "PIS-20260410-193415Z-5519",
+      "PIS-20260410-193416Z-2908"
+    ]
+  },
+  "ownership_boundary": {
+    "belongs_in_method_template": [
+      "canonical method phase vocabulary",
+      "minimum structured obligations for each methodological stage",
+      "clear ownership boundaries against campaign execution records, evidence packs, continuation packets, and budget policy"
+    ],
+    "outside_method_template": [
+      "actual campaign execution state",
+      "research evidence pack payloads and claim provenance bodies",
+      "continuation packet payloads for future work handoff",
+      "budget-adaptive rigor policy"
+    ]
+  },
+  "phases": [
+    {
+      "phase_id": "question_framing",
+      "phase_order": 1,
+      "label": "Question framing",
+      "purpose": "Define the target question, scope, and decision boundary before downstream work starts.",
+      "required_inputs": [
+        "operator or ledger-bound research objective",
+        "scope constraints and non-goals"
+      ],
+      "required_outputs": [
+        "explicit problem statement",
+        "success and failure boundary notes"
+      ],
+      "completion_signals": [
+        "question wording is specific enough to falsify or complete",
+        "non-goals are explicit instead of implied"
+      ],
+      "input_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "The question-framing stage starts from the canonical campaign phase record rather than a copied execution snapshot."
+        }
+      ],
+      "output_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Framing completion is handed back through the campaign phase record so lifecycle state stays upstream."
+        }
+      ]
+    },
+    {
+      "phase_id": "prior_knowledge_consolidation",
+      "phase_order": 2,
+      "label": "Prior knowledge consolidation",
+      "purpose": "Summarize relevant prior knowledge and open contradictions before hypotheses or designs are promoted.",
+      "required_inputs": [
+        "accessible literature or evidence references",
+        "known assumptions and unresolved contradictions"
+      ],
+      "required_outputs": [
+        "evidence-linked prior knowledge summary",
+        "explicit unresolved knowledge gaps"
+      ],
+      "completion_signals": [
+        "prior art is linked rather than paraphrased into folklore",
+        "knowledge gaps are preserved for later design decisions"
+      ],
+      "input_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "The phase reads campaign lifecycle context from the canonical campaign phase record."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Prior knowledge consolidation must cite durable evidence packs instead of retelling them from memory."
+        }
+      ],
+      "output_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "The consolidated result returns to the campaign phase record as the lifecycle-owned handoff anchor."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "The phase outputs evidence-pack references rather than embedding source-provenance payloads."
+        }
+      ]
+    },
+    {
+      "phase_id": "hypothesis_registry",
+      "phase_order": 3,
+      "label": "Hypothesis registry",
+      "purpose": "Record the candidate hypotheses, assumptions, and comparison conditions that the campaign will test.",
+      "required_inputs": [
+        "question framing output",
+        "prior knowledge summary"
+      ],
+      "required_outputs": [
+        "named hypotheses or null hypotheses",
+        "claim-strength tiers, falsifiability notes, and uncertainty state for each hypothesis"
+      ],
+      "completion_signals": [
+        "hypotheses are distinct and testable",
+        "assumptions are explicit enough to challenge later"
+      ],
+      "input_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Hypothesis registration inherits campaign lifecycle status from the phase record."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Hypothesis strength is grounded in linked evidence packs rather than copied source payloads."
+        }
+      ],
+      "output_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Registered hypotheses are exposed back through the phase record without moving ownership of lifecycle truth."
+        }
+      ],
+      "hypotheses": [
+        {
+          "hypothesis_id": "hunch-polymer-drift",
+          "statement": "A humidity-linked process drift may explain the batch instability, but current evidence is still thin.",
+          "claim_strength_tier": "exploratory_hunch",
+          "falsifiability_notes": "If matched humidity and process-control runs erase the instability difference, discard this hunch.",
+          "support_basis": [
+            "operator observation from two anomalous batches"
+          ],
+          "uncertainty_notes": "Confounded by instrumentation drift and sparse repeats.",
+          "unresolved_questions": [
+            "Was sensor recalibration performed before both anomalous runs?"
+          ]
+        },
+        {
+          "hypothesis_id": "claim-surface-treatment",
+          "statement": "Surface treatment B improves adhesion retention versus baseline A under the same cure cycle.",
+          "claim_strength_tier": "strong_claim",
+          "falsifiability_notes": "If blinded matched runs do not reproduce a retention gap larger than measurement noise, demote the claim.",
+          "support_basis": [
+            "three prior matched pilot runs showed higher retention",
+            "two independent operators reproduced the preparation sequence"
+          ],
+          "uncertainty_notes": "Small sample count and cure-temperature variance still limit certainty.",
+          "unresolved_questions": [
+            "Does the effect persist after extended humidity aging?"
+          ]
+        }
+      ]
+    },
+    {
+      "phase_id": "experiment_design",
+      "phase_order": 4,
+      "label": "Experiment design",
+      "purpose": "Describe how the work will generate evidence without fixing domain-specific experimental policy in the template itself.",
+      "required_inputs": [
+        "hypothesis registry",
+        "available resource and safety constraints"
+      ],
+      "required_outputs": [
+        "design sketch or comparison plan",
+        "artifact and measurement expectations"
+      ],
+      "completion_signals": [
+        "design can be inspected for confounds",
+        "measurement expectations are concrete enough for later analysis"
+      ],
+      "input_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Experiment design reads the current campaign phase state from the canonical phase record."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Design decisions must trace back to evidence-pack references produced during prior knowledge consolidation."
+        }
+      ],
+      "output_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Design approval flows through the campaign phase record rather than a duplicate method-template status field."
+        }
+      ]
+    },
+    {
+      "phase_id": "analysis_plan",
+      "phase_order": 5,
+      "label": "Analysis plan",
+      "purpose": "Define how evidence will be interpreted, compared, or rejected before outcome narratives are written.",
+      "required_inputs": [
+        "experiment design outputs",
+        "expected evidence and measurement surfaces"
+      ],
+      "required_outputs": [
+        "analysis criteria",
+        "failure and ambiguity handling notes"
+      ],
+      "completion_signals": [
+        "success, failure, and ambiguity cases are distinguished in advance",
+        "analysis criteria do not depend on hidden prompt memory"
+      ],
+      "input_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Analysis planning inherits campaign execution context from the phase record."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Analysis criteria reference the same durable evidence-pack chain used during design."
+        }
+      ],
+      "output_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "The analysis plan is handed off through the campaign phase record for downstream execution tracking."
+        }
+      ]
+    },
+    {
+      "phase_id": "adversarial_review",
+      "phase_order": 6,
+      "label": "Adversarial review",
+      "purpose": "Stress the current plan for blind spots, missing controls, or overclaim risk before the final outcome story hardens.",
+      "required_inputs": [
+        "analysis plan",
+        "known weak assumptions or contested evidence"
+      ],
+      "required_outputs": [
+        "challenge list",
+        "repair or follow-up requirements"
+      ],
+      "completion_signals": [
+        "major alternative explanations are named",
+        "repair requirements are captured instead of silently waived"
+      ],
+      "input_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Adversarial review reads the same campaign phase truth that will own any repair or block decision."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Challenge questions stay tied to explicit evidence-pack references."
+        }
+      ],
+      "output_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Review verdicts and repair obligations are handed back through the campaign phase record."
+        }
+      ],
+      "review": {
+        "prompt": "Try to falsify the stronger adhesion claim before outcome writeup. Look for confounds, hidden operator choices, and weak comparison conditions.",
+        "challenge_questions": [
+          "Could cure-temperature variance explain the apparent treatment advantage?",
+          "What blind or randomized control is still missing before promotion beyond a working campaign claim?"
+        ],
+        "review_verdict": "pass_with_residual_risk",
+        "residual_risk_notes": "Proceed only if the next run set locks cure temperature and keeps operator sequencing blinded."
+      }
+    },
+    {
+      "phase_id": "outcome_documentation",
+      "phase_order": 7,
+      "label": "Outcome documentation",
+      "purpose": "Record what was learned, what failed, and what remains uncertain after the work is executed.",
+      "required_inputs": [
+        "analysis outcomes",
+        "adversarial review notes"
+      ],
+      "required_outputs": [
+        "outcome summary with uncertainty notes",
+        "explicit statement of what was not proved"
+      ],
+      "completion_signals": [
+        "the outcome summary distinguishes evidence from interpretation",
+        "open uncertainty remains visible"
+      ],
+      "input_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Outcome documentation reads the canonical phase lifecycle state from the campaign record."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Outcome narratives point back to evidence-pack refs instead of copying pack payloads inline."
+        }
+      ],
+      "output_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Terminal success, failure, or uncertainty state is written back through the campaign phase record."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "The phase emits evidence-pack refs for the supporting or conflicting outcome evidence."
+        }
+      ],
+      "outcome_record": {
+        "result_class": "negative_result",
+        "summary": "The planned follow-up run did not reproduce the expected adhesion-retention improvement for treatment B.",
+        "uncertainty_notes": "The negative result weakens the stronger claim but does not yet isolate whether treatment chemistry or uncontrolled curing variance dominated.",
+        "unresolved_questions": [
+          "Was the batch material itself outside normal tolerance?"
+        ],
+        "failure_notes": [
+          "The promoted stronger claim was not sustained under the follow-up run.",
+          "Instrumentation logging dropped one humidity channel during the failed attempt."
+        ]
+      }
+    },
+    {
+      "phase_id": "continuation",
+      "phase_order": 8,
+      "label": "Continuation",
+      "purpose": "Prepare the next-step handoff without embedding the continuation packet payload itself.",
+      "required_inputs": [
+        "documented outcomes",
+        "open questions and blocked follow-up items"
+      ],
+      "required_outputs": [
+        "next-step recommendation",
+        "handoff obligations for successor work"
+      ],
+      "completion_signals": [
+        "future work has a clear next decision or stop condition",
+        "continuation obligations are explicit even when the campaign stops"
+      ],
+      "input_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Continuation planning starts from the canonical campaign phase record instead of a copied execution footer."
+        },
+        {
+          "link_kind": "evidence_pack_ref",
+          "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Continuation decisions carry forward the outcome evidence by reference."
+        }
+      ],
+      "output_linkages": [
+        {
+          "link_kind": "campaign_phase_record",
+          "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "The continuation decision updates campaign lifecycle truth through the phase record."
+        },
+        {
+          "link_kind": "continuation_packet",
+          "contract_ref": "docs/contracts/continuation_packet_v1.md",
+          "link_mode": "reference_only",
+          "purpose": "Successor work receives a continuation packet link instead of an inline payload copy."
+        }
+      ],
+      "continuation_notes": {
+        "next_decision": "Run one blinded repeat with locked cure temperature before promoting or discarding the treatment claim.",
+        "handoff_summary": "Carry forward the negative-result notes, residual adversarial-review risk, and the unresolved humidity-channel gap.",
+        "stop_conditions": [
+          "Stop if the blinded repeat still fails to separate treatment effect from process noise.",
+          "Stop if the missing humidity channel cannot be recovered or replaced."
+        ]
+      }
+    }
+  ]
+}

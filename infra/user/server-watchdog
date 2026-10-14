@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/server-watchdog
+# Description: Menu-driven watchdog control and recent activity/log reader.
+# Example: bash infra/user/server-watchdog
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+python infra/bin/server_watchdog_cli.py "$@"

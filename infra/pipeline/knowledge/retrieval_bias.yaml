@@ -1,0 +1,15 @@
+status: legacy_reference_only
+runtime_loader_should_ignore: true
+canonical_replacement: retrieval_bias_rules.yaml
+notes: Historical or aggregate reference asset retained for provenance. Not canonical runtime knowledge.
+legacy_payload:
+  rules:
+  - name: owner_over_hub
+    description: Prefer owner files over hub/route files when both match.
+    priority: high
+  - name: route_hub_penalty
+    description: Penalize route aggregation files unless explicitly requested.
+    priority: high
+  - name: docs_for_boundary
+    description: Allow docs/contracts for boundary-heavy prompts.
+    priority: medium

@@ -1,0 +1,144 @@
+version: 1
+phase: 0
+notes: Deterministic mutation signal catalog. Terms are concrete state, ownership, configuration, and side-effect mutation patterns that should bias retrieval toward files performing authoritative changes.
+signals:
+- id: database_write
+  terms:
+  - insert_authoritative_run_record
+  - update_claim_owner_row
+  - delete_expired_runtime_record
+  - upsert_idempotency_receipt
+  - commit_state_transition_transaction
+- id: state_setter
+  terms:
+  - mark_run_as_running_after_claim
+  - mark_run_as_failed_with_reason
+  - transition_to_terminal_after_commit
+  - set_paused_state_with_operator_context
+  - set_recovery_pending_state
+- id: file_system_write
+  terms:
+  - write_result_manifest_to_disk
+  - persist_checkpoint_snapshot_file
+  - rename_temp_to_committed_output
+  - unlink_stale_runtime_artifact
+  - save_repair_report_bundle
+- id: queue_push
+  terms:
+  - enqueue_retry_work_item
+  - publish_dispatch_request_after_validation
+  - send_dead_letter_notification_event
+  - emit_followup_reconciliation_task
+  - push_manual_review_request
+- id: cache_update
+  terms:
+  - invalidate_stale_schedule_cache
+  - write_through_state_cache_after_commit
+  - expire_claim_lookup_cache
+  - update_health_snapshot_cache
+  - refresh_permission_decision_cache
+- id: resource_allocation
+  terms:
+  - reserve_execution_slot_for_run
+  - claim_job_ownership_token
+  - acquire_lease_for_worker_partition
+  - allocate_backfill_batch_budget
+  - take_manual_repair_lock
+- id: audit_entry
+  terms:
+  - append_operator_action_receipt
+  - write_dispatch_decision_evidence
+  - record_state_transition_audit_row
+  - emit_mutation_reason_event
+  - store_recovery_resolution_receipt
+- id: config_modification
+  terms:
+  - update_scheduler_runtime_flag
+  - set_retry_policy_override
+  - patch_retention_configuration_record
+  - write_control_plane_setting_revision
+  - bump_schema_version_marker
+- id: external_api_post
+  terms:
+  - post_committed_status_callback
+  - create_remote_execution_record
+  - update_external_job_state
+  - send_webhook_after_local_commit
+  - ack_remote_control_request
+- id: collection_mutation
+  terms:
+  - append_event_to_lineage_history
+  - remove_expired_claim_from_set
+  - replace_active_owner_mapping
+  - merge_reconciliation_delta_into_state
+  - prune_terminal_run_index
+- id: atomic_operation
+  terms:
+  - compare_and_swap_generation_field
+  - atomically_increment_attempt_counter
+  - set_if_absent_idempotency_receipt
+  - swap_active_owner_token
+  - atomic_visibility_timeout_extend
+- id: counter_increment
+  terms:
+  - increment_dispatch_attempt_metric
+  - increase_retry_budget_usage
+  - update_concurrency_slot_counter
+  - record_operator_override_count
+  - advance_heartbeat_miss_counter
+- id: identity_generation
+  terms:
+  - generate_stable_run_lineage_id
+  - derive_request_fingerprint_hash
+  - mint_new_claim_token
+  - create_compensation_receipt_id
+  - assign_external_correlation_id
+- id: permission_change
+  terms:
+  - grant_manual_repair_capability
+  - revoke_expired_override_scope
+  - write_role_binding_change
+  - update_access_policy_revision
+  - persist_temporary_elevation_record
+- id: metadata_update
+  terms:
+  - set_last_heartbeat_timestamp
+  - update_failure_family_annotation
+  - patch_schedule_window_metadata
+  - record_dependency_health_snapshot
+  - write_last_reconciled_generation
+- id: workflow_advancement
+  terms:
+  - advance_to_next_workflow_stage
+  - complete_gate_after_receipt_commit
+  - open_manual_review_stage
+  - close_recovery_stage_after_convergence
+  - set_followup_stage_pending
+- id: batch_process
+  terms:
+  - bulk_mark_expired_runs
+  - batch_enqueue_backfill_range
+  - bulk_repair_orphaned_receipts
+  - chunked_export_of_audit_records
+  - batch_release_stale_locks
+- id: idempotency_key_storage
+  terms:
+  - store_idempotency_key_before_external_call
+  - persist_replay_guard_receipt
+  - lookup_existing_fingerprint_then_write
+  - mark_seen_request_hash
+  - commit_side_effect_receipt
+- id: state_machine_transition
+  terms:
+  - validate_and_apply_state_machine_transition
+  - transition_from_running_to_paused
+  - move_from_retry_pending_to_running
+  - reject_illegal_terminal_to_running_change
+  - persist_transition_reason_code
+- id: resource_disposal
+  terms:
+  - release_claim_after_terminal_commit
+  - deallocate_execution_slot_on_abort
+  - close_worker_session_after_cleanup
+  - drop_temporary_backfill_reservation
+  - dispose_expired_runtime_handle

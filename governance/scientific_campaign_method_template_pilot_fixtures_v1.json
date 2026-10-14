@@ -1,0 +1,763 @@
+{
+  "schema_version": "scientific_campaign_method_template_pilot_fixtures_v1",
+  "fixture_family_uid": "PIS-20260410-193416Z-DFFD",
+  "fixtures": [
+    {
+      "fixture_id": "pilot_materials_corrosion_screen",
+      "campaign_label": "Electrolyte corrosion screen",
+      "campaign_kind": "scientific",
+      "focus_summary": "Demonstrates a chemistry-facing pilot campaign from literature consolidation through continuation planning.",
+      "method_template": {
+        "schema_version": "scientific_campaign_method_template_v1",
+        "template_id": "pilot-electrolyte-corrosion-screen",
+        "template_version": "1.0.0",
+        "stable_identity": {
+          "canonicalization": "json_sort_keys_compact_utf8",
+          "content_hash_algorithm": "sha256",
+          "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+        },
+        "metadata": {
+          "title": "Pilot electrolyte corrosion screen",
+          "created_at_utc": "2026-04-10T21:05:00Z",
+          "source_intent_uid": "IS-20260403-212914Z-62FB",
+          "ledger_refs": [
+            "PIS-20260410-193415Z-2A95",
+            "PIS-20260410-193416Z-2908",
+            "PIS-20260410-193416Z-DFFD"
+          ]
+        },
+        "ownership_boundary": {
+          "belongs_in_method_template": [
+            "phase structure for prior-art synthesis, falsifiable hypotheses, blinded analysis, and continuation planning",
+            "durable links to campaign phases, evidence packs, and continuation packets"
+          ],
+          "outside_method_template": [
+            "execution status for each corrosion run",
+            "raw microscopy and electrochemistry payloads",
+            "continuation packet payload details"
+          ]
+        },
+        "phases": [
+          {
+            "phase_id": "question_framing",
+            "phase_order": 1,
+            "label": "Question framing",
+            "purpose": "Define whether electrolyte additive X improves corrosion resistance enough to justify a larger battery-materials campaign.",
+            "required_inputs": [
+              "candidate additive list",
+              "operator boundary for acceptable corrosion rate change"
+            ],
+            "required_outputs": [
+              "decision question",
+              "non-goals"
+            ],
+            "completion_signals": [
+              "the corrosion question can be falsified",
+              "off-path battery-performance claims are excluded"
+            ],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Use the canonical campaign phase record as the lifecycle anchor."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Return framing completion through the campaign phase record."
+              }
+            ]
+          },
+          {
+            "phase_id": "prior_knowledge_consolidation",
+            "phase_order": 2,
+            "label": "Prior knowledge consolidation",
+            "purpose": "Summarize published corrosion mechanisms, additive compatibility notes, and unresolved contradictions before pilot design.",
+            "required_inputs": [
+              "linked literature set",
+              "known electrolyte incompatibilities"
+            ],
+            "required_outputs": [
+              "evidence-linked prior-art summary",
+              "open contradiction list"
+            ],
+            "completion_signals": [
+              "prior art is linked instead of paraphrased from memory",
+              "contradictions remain explicit for design review"
+            ],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Read lifecycle status from the canonical campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Ground prior-art synthesis in durable evidence-pack references."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Record the completed synthesis through the campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Carry evidence references forward without embedding source bodies."
+              }
+            ]
+          },
+          {
+            "phase_id": "hypothesis_registry",
+            "phase_order": 3,
+            "label": "Hypothesis registry",
+            "purpose": "Record the corrosion-reduction hypothesis and the null hypothesis for the additive screen.",
+            "required_inputs": [
+              "question framing output",
+              "prior-art summary"
+            ],
+            "required_outputs": [
+              "named hypotheses",
+              "claim-strength and uncertainty notes"
+            ],
+            "completion_signals": [
+              "hypotheses are testable",
+              "uncertainty is explicit"
+            ],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Preserve lifecycle truth in the campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Tie hypothesis strength to the cited corrosion literature."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Expose registered hypotheses through the phase record."
+              }
+            ],
+            "hypotheses": [
+              {
+                "hypothesis_id": "corrosion-reduction-additive-x",
+                "statement": "Additive X reduces corrosion current density compared with the baseline electrolyte under matched cycling conditions.",
+                "claim_strength_tier": "working_claim",
+                "falsifiability_notes": "Discard the claim if matched pilot cells show no separation outside measurement noise.",
+                "support_basis": [
+                  "two prior benchtop studies reported lower corrosion current",
+                  "one internal screening note found similar passivation morphology"
+                ],
+                "uncertainty_notes": "Electrode preparation variance may still dominate apparent gains.",
+                "unresolved_questions": [
+                  "Does the effect hold after repeated thermal cycling?"
+                ]
+              }
+            ]
+          },
+          {
+            "phase_id": "experiment_design",
+            "phase_order": 4,
+            "label": "Experiment design",
+            "purpose": "Define a matched-cell pilot with explicit controls, sample counts, and microscopy handoff expectations.",
+            "required_inputs": [
+              "hypothesis registry",
+              "available materials and safety constraints"
+            ],
+            "required_outputs": [
+              "matched pilot design",
+              "measurement expectations"
+            ],
+            "completion_signals": [
+              "controls are explicit",
+              "measurement surfaces are concrete"
+            ],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Read the current phase status from the campaign record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Carry prior-art evidence into the design rationale."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Publish design approval through the campaign phase record."
+              }
+            ]
+          },
+          {
+            "phase_id": "analysis_plan",
+            "phase_order": 5,
+            "label": "Analysis plan",
+            "purpose": "Define how corrosion current, microscopy scoring, and ambiguity cases will be interpreted before results arrive.",
+            "required_inputs": [
+              "pilot design",
+              "expected electrochemistry and microscopy outputs"
+            ],
+            "required_outputs": [
+              "analysis criteria",
+              "ambiguity handling notes"
+            ],
+            "completion_signals": [
+              "the plan distinguishes support, failure, and inconclusive outcomes",
+              "analysis does not depend on unstated memory"
+            ],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Use the phase record as the analysis-plan lifecycle anchor."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Keep interpretation tied to the same evidence chain used in prior-art review."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Hand the analysis plan back through the campaign phase record."
+              }
+            ]
+          },
+          {
+            "phase_id": "adversarial_review",
+            "phase_order": 6,
+            "label": "Adversarial review",
+            "purpose": "Stress the corrosion claim for hidden confounds before pilot execution is promoted.",
+            "required_inputs": [
+              "analysis plan",
+              "known confounds"
+            ],
+            "required_outputs": [
+              "challenge list",
+              "repair requirements"
+            ],
+            "completion_signals": [
+              "alternative explanations are named",
+              "repair obligations remain visible"
+            ],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Anchor review status to the same campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Tie challenge questions to explicit evidence references."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Return review obligations through the campaign phase record."
+              }
+            ],
+            "review": {
+              "prompt": "Try to falsify the additive-X corrosion improvement claim by looking for prep variance, thermal-history confounds, or microscopy scoring drift.",
+              "challenge_questions": [
+                "Could electrode surface prep variance explain the lower apparent corrosion current?",
+                "What happens if microscopy scoring is blinded and re-run by a second reviewer?"
+              ],
+              "review_verdict": "pass_with_residual_risk",
+              "residual_risk_notes": "Proceed only if electrode prep is locked and microscopy scoring is blinded."
+            }
+          },
+          {
+            "phase_id": "outcome_documentation",
+            "phase_order": 7,
+            "label": "Outcome documentation",
+            "purpose": "Record the pilot result, uncertainty, and failure boundary without inflating beyond the pilot evidence.",
+            "required_inputs": [
+              "analysis outputs",
+              "adversarial review notes"
+            ],
+            "required_outputs": [
+              "outcome summary",
+              "uncertainty and non-proof notes"
+            ],
+            "completion_signals": [
+              "evidence and interpretation are separated",
+              "open uncertainty remains visible"
+            ],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Read canonical lifecycle state from the campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Point back to the supporting pilot evidence packs."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Write the terminal phase outcome back through the campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Expose the evidence chain for the outcome summary."
+              }
+            ],
+            "outcome_record": {
+              "result_class": "inconclusive",
+              "summary": "The pilot suggests lower corrosion current with additive X, but the confidence interval still overlaps the matched baseline runs.",
+              "uncertainty_notes": "The microscopy readout agreed with the electrochemistry trend, but sample count remains too small for promotion beyond a working claim.",
+              "unresolved_questions": [
+                "Does the signal persist after a larger thermal-cycling matrix?"
+              ],
+              "failure_notes": [
+                "The pilot did not yet justify promotion to a strong claim."
+              ]
+            }
+          },
+          {
+            "phase_id": "continuation",
+            "phase_order": 8,
+            "label": "Continuation",
+            "purpose": "Define the next-step handoff without embedding the continuation packet payload.",
+            "required_inputs": [
+              "documented outcome",
+              "residual risks and open questions"
+            ],
+            "required_outputs": [
+              "next decision",
+              "successor obligations"
+            ],
+            "completion_signals": [
+              "future work has an explicit next decision",
+              "stop conditions remain visible"
+            ],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Start continuation planning from the canonical phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Carry forward the pilot evidence by durable reference."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Return continuation status through the campaign phase record."
+              },
+              {
+                "link_kind": "continuation_packet",
+                "contract_ref": "docs/contracts/continuation_packet_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Expose successor handoff through a continuation packet link."
+              }
+            ],
+            "continuation_notes": {
+              "next_decision": "Run a larger blinded thermal-cycling matrix before promoting additive X beyond a working claim.",
+              "handoff_summary": "Carry forward the overlapping confidence interval, microscopy agreement, and the need for blinded prep logs.",
+              "stop_conditions": [
+                "Stop if the larger matrix still overlaps the baseline within measurement noise.",
+                "Stop if blinded prep logging cannot be enforced for the follow-up matrix."
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "pilot_fabrication_alignment_triage",
+      "campaign_label": "Robotic alignment drift triage",
+      "campaign_kind": "technical",
+      "focus_summary": "Demonstrates a fabrication-facing pilot campaign using the same method template from evidence-linked prior knowledge through continuation.",
+      "method_template": {
+        "schema_version": "scientific_campaign_method_template_v1",
+        "template_id": "pilot-robotic-alignment-drift-triage",
+        "template_version": "1.0.0",
+        "stable_identity": {
+          "canonicalization": "json_sort_keys_compact_utf8",
+          "content_hash_algorithm": "sha256",
+          "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+        },
+        "metadata": {
+          "title": "Pilot robotic alignment drift triage",
+          "created_at_utc": "2026-04-10T21:10:00Z",
+          "source_intent_uid": "IS-20260403-212914Z-62FB",
+          "ledger_refs": [
+            "PIS-20260410-193415Z-2A95",
+            "PIS-20260410-193416Z-2908",
+            "PIS-20260410-193416Z-DFFD"
+          ]
+        },
+        "ownership_boundary": {
+          "belongs_in_method_template": [
+            "phase structure for diagnosing drift causes with explicit evidence and continuation handoff",
+            "cross-domain method obligations that remain neutral to the fabrication stack"
+          ],
+          "outside_method_template": [
+            "robot runtime state",
+            "raw telemetry payloads",
+            "scheduler execution semantics"
+          ]
+        },
+        "phases": [
+          {
+            "phase_id": "question_framing",
+            "phase_order": 1,
+            "label": "Question framing",
+            "purpose": "Define whether the recent alignment drift is caused by fixture slippage, calibration decay, or thermal expansion.",
+            "required_inputs": ["drift incident summary", "operator tolerance boundary"],
+            "required_outputs": ["triage question", "out-of-scope hypotheses"],
+            "completion_signals": ["candidate causes are explicit", "acceptance boundary is falsifiable"],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Anchor triage framing to the campaign phase record."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Return framing completion through the campaign phase record."
+              }
+            ]
+          },
+          {
+            "phase_id": "prior_knowledge_consolidation",
+            "phase_order": 2,
+            "label": "Prior knowledge consolidation",
+            "purpose": "Summarize prior drift incidents, calibration procedures, and thermal-load notes before new tests are designed.",
+            "required_inputs": ["incident log references", "calibration procedure notes"],
+            "required_outputs": ["evidence-linked prior incident summary", "known contradiction list"],
+            "completion_signals": ["history is linked instead of retold", "open contradictions remain visible"],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Read lifecycle context from the canonical campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Tie the prior-incident summary to durable telemetry and maintenance evidence packs."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Expose the synthesis through the campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Carry forward cited telemetry and maintenance evidence."
+              }
+            ]
+          },
+          {
+            "phase_id": "hypothesis_registry",
+            "phase_order": 3,
+            "label": "Hypothesis registry",
+            "purpose": "Record candidate causes for the alignment drift and the evidence behind each.",
+            "required_inputs": ["framing output", "prior incident synthesis"],
+            "required_outputs": ["named drift hypotheses", "uncertainty and falsifiability notes"],
+            "completion_signals": ["hypotheses are testable", "uncertainty is preserved"],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Use the phase record as the lifecycle anchor."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Ground drift hypotheses in telemetry and maintenance evidence packs."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Expose registered hypotheses through the campaign phase record."
+              }
+            ],
+            "hypotheses": [
+              {
+                "hypothesis_id": "fixture-slippage",
+                "statement": "Fixture slippage during thermal cycling caused the observed alignment drift.",
+                "claim_strength_tier": "working_claim",
+                "falsifiability_notes": "Reject if instrumented repeat runs show the drift without any clamp displacement.",
+                "support_basis": [
+                  "two incidents followed higher-than-usual fixture temperature"
+                ],
+                "uncertainty_notes": "Calibration decay could still explain the same pattern.",
+                "unresolved_questions": [
+                  "Did the clamp torque remain inside spec during both incidents?"
+                ]
+              }
+            ]
+          },
+          {
+            "phase_id": "experiment_design",
+            "phase_order": 4,
+            "label": "Experiment design",
+            "purpose": "Define a constrained repeat-run matrix with clamp-torque monitoring and calibration checks.",
+            "required_inputs": ["hypothesis registry", "safe machine access window"],
+            "required_outputs": ["repeat-run matrix", "measurement expectations"],
+            "completion_signals": ["controls are explicit", "measurements can separate the leading causes"],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Use the campaign phase record as the design handoff anchor."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Carry prior telemetry evidence into the repeat-run design."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Return design readiness through the campaign phase record."
+              }
+            ]
+          },
+          {
+            "phase_id": "analysis_plan",
+            "phase_order": 5,
+            "label": "Analysis plan",
+            "purpose": "Define how torque drift, thermal expansion, and calibration offsets will be compared before narrative conclusions are written.",
+            "required_inputs": ["repeat-run matrix", "expected telemetry surfaces"],
+            "required_outputs": ["comparison criteria", "ambiguity handling notes"],
+            "completion_signals": ["success and failure criteria are explicit", "ambiguity remains visible"],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Anchor analysis planning to the canonical campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Keep planned comparisons tied to telemetry evidence packs."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Return the analysis plan through the campaign phase record."
+              }
+            ]
+          },
+          {
+            "phase_id": "adversarial_review",
+            "phase_order": 6,
+            "label": "Adversarial review",
+            "purpose": "Challenge the leading drift explanation before scarce machine time is consumed.",
+            "required_inputs": ["analysis plan", "known confounds"],
+            "required_outputs": ["challenge questions", "repair requirements"],
+            "completion_signals": ["alternative explanations are named", "repair requirements are durable"],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Preserve review lifecycle truth in the campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Tie the challenge list to the same telemetry evidence chain."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Publish review obligations through the campaign phase record."
+              }
+            ],
+            "review": {
+              "prompt": "Try to falsify the fixture-slippage explanation before booking more machine time.",
+              "challenge_questions": [
+                "Could encoder calibration drift alone generate the same pattern even with stable clamp torque?",
+                "What measurement would cleanly separate thermal expansion from fixture slippage?"
+              ],
+              "review_verdict": "pass_with_residual_risk",
+              "residual_risk_notes": "Proceed only if repeat runs log clamp torque and calibration offsets in the same evidence pack."
+            }
+          },
+          {
+            "phase_id": "outcome_documentation",
+            "phase_order": 7,
+            "label": "Outcome documentation",
+            "purpose": "Record what the pilot triage actually learned without pretending it solved the full drift problem.",
+            "required_inputs": ["analysis outcomes", "review notes"],
+            "required_outputs": ["outcome summary", "uncertainty notes"],
+            "completion_signals": ["evidence and interpretation are separated", "remaining uncertainty is visible"],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Read lifecycle status from the campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Point back to telemetry and maintenance evidence by reference."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Write the triage outcome through the campaign phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Carry outcome evidence into closeout and follow-up review."
+              }
+            ],
+            "outcome_record": {
+              "result_class": "supporting_signal",
+              "summary": "The pilot supports fixture slippage as the leading cause, but encoder calibration decay remains a live secondary explanation.",
+              "uncertainty_notes": "The repeat-run matrix was small and only one thermal profile was sampled.",
+              "unresolved_questions": [
+                "Does the same drift pattern persist after a fresh encoder calibration?"
+              ],
+              "failure_notes": [
+                "The pilot triage narrowed causes but did not yet eliminate calibration decay."
+              ]
+            }
+          },
+          {
+            "phase_id": "continuation",
+            "phase_order": 8,
+            "label": "Continuation",
+            "purpose": "Prepare the next-step handoff for the drift investigation without embedding continuation payload state.",
+            "required_inputs": ["documented outcome", "residual uncertainties"],
+            "required_outputs": ["next decision", "successor obligations"],
+            "completion_signals": ["next action is explicit", "stop conditions remain durable"],
+            "input_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Start continuation planning from the canonical phase record."
+              },
+              {
+                "link_kind": "evidence_pack_ref",
+                "contract_ref": "docs/contracts/contract_research_evidence_pack_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Carry forward the pilot telemetry evidence by reference."
+              }
+            ],
+            "output_linkages": [
+              {
+                "link_kind": "campaign_phase_record",
+                "contract_ref": "docs/contracts/contract_campaign_record_schema_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Return continuation state through the campaign phase record."
+              },
+              {
+                "link_kind": "continuation_packet",
+                "contract_ref": "docs/contracts/continuation_packet_v1.md",
+                "link_mode": "reference_only",
+                "purpose": "Hand successor work a continuation packet link rather than an embedded payload."
+              }
+            ],
+            "continuation_notes": {
+              "next_decision": "Run one calibration-refresh control before scheduling any larger fixture redesign campaign.",
+              "handoff_summary": "Carry forward the fixture-slippage evidence, the live calibration-decay caveat, and the requirement for shared torque-plus-calibration logging.",
+              "stop_conditions": [
+                "Stop if the calibration-refresh control removes the drift signal entirely.",
+                "Stop if the combined torque and calibration logging cannot be captured durably."
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

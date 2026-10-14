@@ -1,0 +1,148 @@
+{
+  "schema_version": "composed_execution_graph_v1",
+  "artifact_vocabulary": [
+    "validation_commands",
+    "validation_commands_executed",
+    "evidence_artifacts",
+    "patch_result",
+    "build_prepare",
+    "status_reconcile_result",
+    "pis_assess_result",
+    "validation_results",
+    "final_verifier_result",
+    "proof_gaps"
+  ],
+  "graphs": [
+    {
+      "graph_id": "build_verify_iteration_v1",
+      "terminal_verifier_node": "scheduler_verifier_gate",
+      "nodes": [
+        {
+          "node_id": "build_prepare",
+          "handler_id": "build_prepare_v1",
+          "requires_artifacts": [],
+          "resolves_proof_gaps": false
+        },
+        {
+          "node_id": "validation_subset",
+          "handler_id": "validation_subset_v1",
+          "requires_artifacts": [
+            "validation_commands"
+          ],
+          "resolves_proof_gaps": false
+        },
+        {
+          "node_id": "scheduler_verifier_gate",
+          "handler_id": "scheduler_verifier_gate_v1",
+          "requires_artifacts": [
+            "validation_commands_executed",
+            "evidence_artifacts"
+          ],
+          "resolves_proof_gaps": false
+        }
+      ],
+      "edges": [
+        [
+          "build_prepare",
+          "validation_subset"
+        ],
+        [
+          "validation_subset",
+          "scheduler_verifier_gate"
+        ]
+      ]
+    },
+    {
+      "graph_id": "status_reconcile_v1",
+      "terminal_verifier_node": "scheduler_verifier_gate",
+      "nodes": [
+        {
+          "node_id": "status_reconcile_prepare",
+          "handler_id": "status_reconcile_prepare_v1",
+          "requires_artifacts": [],
+          "resolves_proof_gaps": false
+        },
+        {
+          "node_id": "validation_subset",
+          "handler_id": "validation_subset_v1",
+          "requires_artifacts": [
+            "validation_commands"
+          ],
+          "resolves_proof_gaps": false
+        },
+        {
+          "node_id": "scheduler_verifier_gate",
+          "handler_id": "scheduler_verifier_gate_v1",
+          "requires_artifacts": [
+            "validation_commands_executed",
+            "evidence_artifacts"
+          ],
+          "resolves_proof_gaps": false
+        }
+      ],
+      "edges": [
+        [
+          "status_reconcile_prepare",
+          "validation_subset"
+        ],
+        [
+          "validation_subset",
+          "scheduler_verifier_gate"
+        ]
+      ]
+    },
+    {
+      "graph_id": "patch_apply_chain_v1",
+      "terminal_verifier_node": "scheduler_verifier_gate",
+      "nodes": [
+        {
+          "node_id": "patch_ingest_repair",
+          "handler_id": "patch_ingest_repair_v1",
+          "requires_artifacts": [],
+          "resolves_proof_gaps": false
+        },
+        {
+          "node_id": "validation_subset",
+          "handler_id": "validation_subset_v1",
+          "requires_artifacts": [
+            "validation_commands"
+          ],
+          "resolves_proof_gaps": false
+        },
+        {
+          "node_id": "pis_assess",
+          "handler_id": "pis_assess_v1",
+          "requires_artifacts": [
+            "validation_commands_executed",
+            "evidence_artifacts"
+          ],
+          "resolves_proof_gaps": false
+        },
+        {
+          "node_id": "scheduler_verifier_gate",
+          "handler_id": "scheduler_verifier_gate_v1",
+          "requires_artifacts": [
+            "validation_commands_executed",
+            "evidence_artifacts"
+          ],
+          "resolves_proof_gaps": false
+        }
+      ],
+      "edges": [
+        [
+          "patch_ingest_repair",
+          "validation_subset"
+        ],
+        [
+          "validation_subset",
+          "pis_assess"
+        ],
+        [
+          "pis_assess",
+          "scheduler_verifier_gate"
+        ]
+      ]
+    }
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

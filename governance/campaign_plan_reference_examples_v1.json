@@ -1,0 +1,313 @@
+{
+  "schema_version": "campaign_plan_reference_examples_v1",
+  "examples": [
+    {
+      "example_id": "broad_intent_valid",
+      "example_class": "valid_broad_intent_plan",
+      "expected_validation_outcome": "accepted",
+      "campaign_plan": {
+        "schema_version": "campaign_plan_v1",
+        "plan_id": "plan_intent_to_campaign_demo_v1",
+        "plan_version": "1.0.0",
+        "stable_identity": {
+          "canonicalization": "json_sort_keys_compact_utf8",
+          "content_hash_algorithm": "sha256",
+          "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+        },
+        "metadata": {
+          "title": "Broad Intent to Campaign Plan Demo",
+          "created_at_utc": "2026-04-11T11:35:58Z",
+          "source_intent_uid": "IS-20260403-212914Z-C623",
+          "ledger_refs": [
+            "PIS-20260411-113558Z-0B60"
+          ]
+        },
+        "vocabulary_boundary": {
+          "intent_sheet": [
+            "operator goal framing",
+            "mission non-goals",
+            "allowed broad ambiguity"
+          ],
+          "campaign_plan": [
+            "phased plan structure",
+            "named ambiguity policy",
+            "policy-linked provenance"
+          ],
+          "pis": [
+            "bounded implementation slice",
+            "proof target",
+            "narrow acceptance surface"
+          ],
+          "job": [
+            "router payload",
+            "runtime receipt",
+            "execution lifecycle"
+          ]
+        },
+        "ambiguity_policy": {
+          "allowed_in_campaign_plan": [
+            "Exact experiment sequence may remain open pending prior-knowledge review.",
+            "Later child-PIS grouping may stay advisory until campaign phases are approved."
+          ],
+          "must_resolve_before_pis": [
+            "Target phase owner and acceptance boundary for each child slice.",
+            "Concrete validation surface for each generated PIS."
+          ],
+          "named_contract_violation": "campaign_plan_contract_violation"
+        },
+        "provenance": {
+          "source_intent_uid": "IS-20260403-212914Z-C623",
+          "upstream_contract_refs": [
+            "governance/campaign_record_contract_v1.json",
+            "governance/scientific_campaign_method_template_v1.json",
+            "governance/budget_adaptive_research_policy_v1.json"
+          ],
+          "supporting_artifact_refs": [
+            "governance/ledger/intent_sheets/causyl/verified/2026/04/IS-20260403-212914Z-C623__intent-sheet-to-campaign-plan-compiler/intent_sheet.md"
+          ],
+          "lineage_hash": "sha256:intent_to_campaign_demo_v1"
+        },
+        "policy_enrichment": {
+          "method_template_ref": "governance/scientific_campaign_method_template_reference_v1.json",
+          "budget_policy_ref": "governance/budget_adaptive_research_policy_v1.json",
+          "selected_budget_mode": "campaign",
+          "declared_constraints": [
+            {
+              "constraint_id": "keep_continuation_visible",
+              "constraint_kind": "require_method_phase",
+              "phase_id": "phase_prepare_child_slices",
+              "method_phase_id": "continuation",
+              "advisory_only": false,
+              "rationale": "Continuation posture must remain visible before any child PIS handoff."
+            }
+          ],
+          "enrichment_receipts": [
+            {
+              "receipt_id": "method_phase_prepare_child_slices",
+              "policy_source_kind": "method_template",
+              "policy_ref": "governance/scientific_campaign_method_template_reference_v1.json",
+              "target_phase_ids": [
+                "phase_prepare_child_slices"
+              ],
+              "changed_fields": [
+                "deliverables"
+              ],
+              "change_summary": "Added required method-template outputs to the campaign phase deliverables.",
+              "reason_codes": [
+                "method_required_outputs_bound"
+              ],
+              "receipt_state": "applied"
+            },
+            {
+              "receipt_id": "budget_phase_prepare_child_slices",
+              "policy_source_kind": "budget_policy",
+              "policy_ref": "governance/budget_adaptive_research_policy_v1.json",
+              "target_phase_ids": [
+                "phase_prepare_child_slices"
+              ],
+              "changed_fields": [
+                "budget_mode",
+                "deliverables"
+              ],
+              "change_summary": "Aligned final handoff phase budget mode; attached minimum deliverable floors for the selected budget mode.",
+              "reason_codes": [
+                "budget_mode_aligned",
+                "minimum_deliverable_floor_bound"
+              ],
+              "receipt_state": "applied"
+            },
+            {
+              "receipt_id": "constraint_keep_continuation_visible",
+              "policy_source_kind": "declared_constraint",
+              "policy_ref": "governance/scientific_campaign_method_template_reference_v1.json",
+              "target_phase_ids": [
+                "phase_prepare_child_slices"
+              ],
+              "changed_fields": [],
+              "change_summary": "Continuation posture must remain visible before any child PIS handoff.",
+              "reason_codes": [
+                "constraint_verified"
+              ],
+              "receipt_state": "validated_no_change"
+            }
+          ]
+        },
+        "phases": [
+          {
+            "phase_id": "phase_shape_intent",
+            "label": "Shape intent into campaign phases",
+            "goal": "Translate broad operator intent into a phased plan without collapsing into one giant PIS.",
+            "deliverables": [
+              "phase map",
+              "ambiguity register",
+              "policy-linked planning note"
+            ],
+            "method_template_phase_ids": [
+              "question_framing",
+              "prior_knowledge_consolidation",
+              "hypothesis_registry"
+            ],
+            "budget_mode": "campaign",
+            "allowed_ambiguities": [
+              "Exact downstream PIS count may remain advisory at this stage."
+            ],
+            "must_resolve_before_pis": [
+              "Confirm which ambiguity markers are acceptable for each child PIS handoff."
+            ],
+            "pis_readiness": "advisory_only"
+          },
+          {
+            "phase_id": "phase_prepare_child_slices",
+            "label": "Prepare bounded child-PIS slices",
+            "goal": "Identify candidate child-PIS boundaries and their proof surfaces from the approved phase map.",
+            "deliverables": [
+              "candidate child-PIS set",
+              "phase-to-PIS mapping",
+              "readiness note"
+            ],
+            "method_template_phase_ids": [
+              "experiment_design",
+              "analysis_plan",
+              "adversarial_review",
+              "continuation"
+            ],
+            "budget_mode": "campaign",
+            "allowed_ambiguities": [],
+            "must_resolve_before_pis": [],
+            "pis_readiness": "ready_for_pis_generation"
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "pseudo_pis_invalid",
+      "example_class": "invalid_pseudo_pis_plan",
+      "expected_validation_outcome": "rejected",
+      "campaign_plan": {
+        "schema_version": "campaign_plan_v1",
+        "plan_id": "plan_invalid_pseudo_pis",
+        "plan_version": "1.0.0",
+        "stable_identity": {
+          "canonicalization": "json_sort_keys_compact_utf8",
+          "content_hash_algorithm": "sha256",
+          "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+        },
+        "metadata": {
+          "title": "Bad Pseudo-PIS Campaign Plan",
+          "created_at_utc": "2026-04-11T11:35:58Z",
+          "source_intent_uid": "IS-20260403-212914Z-C623",
+          "ledger_refs": [
+            "PIS-20260411-113558Z-0B60"
+          ]
+        },
+        "vocabulary_boundary": {
+          "intent_sheet": [
+            "operator goal framing"
+          ],
+          "campaign_plan": [
+            "phased plan structure"
+          ],
+          "pis": [
+            "bounded implementation slice"
+          ],
+          "job": [
+            "router payload"
+          ]
+        },
+        "ambiguity_policy": {
+          "allowed_in_campaign_plan": [
+            "PIS grouping can remain provisional."
+          ],
+          "must_resolve_before_pis": [
+            "Validation selector per child slice."
+          ],
+          "named_contract_violation": "campaign_plan_contract_violation"
+        },
+        "provenance": {
+          "source_intent_uid": "IS-20260403-212914Z-C623",
+          "upstream_contract_refs": [
+            "governance/scientific_campaign_method_template_v1.json",
+            "governance/budget_adaptive_research_policy_v1.json"
+          ],
+          "supporting_artifact_refs": [
+            "governance/ledger/intent_sheets/causyl/verified/2026/04/IS-20260403-212914Z-C623__intent-sheet-to-campaign-plan-compiler/intent_sheet.md"
+          ],
+          "lineage_hash": "sha256:invalid_pseudo_pis"
+        },
+        "patch_plan": [
+          "Edit infra/controlplane/compiler.py",
+          "Run pytest -q"
+        ],
+        "phases": [
+          {
+            "phase_id": "phase_break_boundary",
+            "label": "Do code edits directly",
+            "goal": "Smuggle implementation detail into the planning layer.",
+            "deliverables": [
+              "file patch"
+            ],
+            "method_template_phase_ids": [
+              "question_framing"
+            ],
+            "budget_mode": "standard",
+            "allowed_ambiguities": [
+              "none"
+            ],
+            "must_resolve_before_pis": [
+              "none"
+            ],
+            "pis_readiness": "blocked",
+            "file_paths": [
+              "infra/controlplane/compiler.py"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "example_id": "under_specified_invalid",
+      "example_class": "invalid_under_specified_plan",
+      "expected_validation_outcome": "rejected",
+      "campaign_plan": {
+        "schema_version": "campaign_plan_v1",
+        "plan_id": "plan_invalid_under_specified",
+        "plan_version": "1.0.0",
+        "stable_identity": {
+          "canonicalization": "json_sort_keys_compact_utf8",
+          "content_hash_algorithm": "sha256",
+          "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+        },
+        "metadata": {
+          "title": "Too Vague To Count",
+          "created_at_utc": "2026-04-11T11:35:58Z",
+          "source_intent_uid": "IS-20260403-212914Z-C623",
+          "ledger_refs": [
+            "PIS-20260411-113558Z-0B60"
+          ]
+        },
+        "vocabulary_boundary": {
+          "intent_sheet": [],
+          "campaign_plan": [],
+          "pis": [],
+          "job": []
+        },
+        "ambiguity_policy": {
+          "allowed_in_campaign_plan": [],
+          "must_resolve_before_pis": [],
+          "named_contract_violation": "campaign_plan_contract_violation"
+        },
+        "provenance": {
+          "source_intent_uid": "IS-20260403-212914Z-C623",
+          "upstream_contract_refs": [
+            "governance/scientific_campaign_method_template_v1.json"
+          ],
+          "supporting_artifact_refs": [
+            "governance/ledger/intent_sheets/causyl/verified/2026/04/IS-20260403-212914Z-C623__intent-sheet-to-campaign-plan-compiler/intent_sheet.md"
+          ],
+          "lineage_hash": "sha256:invalid_under_specified"
+        },
+        "phases": []
+      }
+    }
+  ]
+}

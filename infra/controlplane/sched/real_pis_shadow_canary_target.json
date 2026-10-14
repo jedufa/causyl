@@ -1,0 +1,14 @@
+{
+  "schema_version": "real_pis_scheduler_v2_shadow_canary_target_v1",
+  "target_uid": "PIS-20260410-041110Z-1695",
+  "target_kind": "intent_family_parent_pis",
+  "source_intent_uid": "IS-20260410-041026Z-4C86",
+  "selected_by_child_uid": "PIS-20260410-041856Z-A480",
+  "canonical_executor": "scheduler_v1",
+  "shadow_executor": "infra.controlplane.sched.run_shadow_tick",
+  "rationale": "Use the current real canary execution-family parent as the repeatable target because it is a small existing PIS-derived workflow with one implementation child, one intent-validation child, and one closeout child. This keeps v1 scheduler state canonical while exercising the existing scheduler v2 shadow compile/project path.",
+  "approved_artifact_roots": [
+    "governance/evidence/benchmarks/scheduler",
+    "infra/controlplane/sched"
+  ]
+}

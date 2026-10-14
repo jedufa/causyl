@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-enable-disable-jobs
+# Description: Interactive CLI to pick scheduled jobs and enable/disable them.
+# Example: infra/user/scheduler-enable-disable-jobs
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/scheduler_enable_disable_jobs.py "$@"

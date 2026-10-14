@@ -1,0 +1,33 @@
+{
+  "schema_version": "action_entrypoints_v1",
+  "allowed_execution_modes": [
+    "controller_only",
+    "deterministic_only",
+    "deterministic_then_codex"
+  ],
+  "entrypoints": [
+    {
+      "entrypoint_id": "api_action_execute",
+      "requires_explicit_authority": true
+    },
+    {
+      "entrypoint_id": "cli_action_execute",
+      "requires_explicit_authority": true
+    },
+    {
+      "entrypoint_id": "scheduler_action_dispatch",
+      "requires_explicit_authority": true
+    },
+    {
+      "entrypoint_id": "snapshot_drift_trigger",
+      "requires_explicit_authority": true
+    }
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md",
+  "required_fields": [
+    "task_id",
+    "action_family",
+    "execution_mode",
+    "context_bundle_id"
+  ]
+}

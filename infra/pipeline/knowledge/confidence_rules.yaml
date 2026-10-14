@@ -1,0 +1,212 @@
+version: 1
+phase: 2
+notes: Deterministic confidence scoring rules for Stage 2 classification. Rules use bounded deltas, explicit ambiguity penalties, and widening actions only when evidence is incomplete or conflicting.
+rules:
+- id: conf_001
+  name: strong_family_match
+  description: Top family has at least two high-precision trigger hits and a clear score gap over the next family.
+  trigger_condition: top_family_trigger_match_count >= 2 AND top_family_score_gap >= 0.15
+  confidence_delta: '+0.18'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+- id: conf_002
+  name: explicit_safety_hardening_term
+  description: Task explicitly requests hardening, fail-closed behavior, invariant preservation, or duplicate suppression.
+  trigger_condition: hardening_term_present OR invariant_term_present OR duplicate_suppression_term_present
+  confidence_delta: '+0.08'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: supporting
+  ambiguity_sensitivity: low
+- id: conf_003
+  name: multi_family_ambiguity
+  description: Three or more families remain active with a narrow gap, indicating unstable routing.
+  trigger_condition: active_family_count >= 3 AND top_family_score_gap < 0.15
+  confidence_delta: '-0.16'
+  widening_action: expand_query_diversity
+  effect_direction: negative
+  evidence_quality: ambiguity
+  ambiguity_sensitivity: high
+- id: conf_004
+  name: single_trigger_only
+  description: Only one family trigger matched and no supporting subsystem, signal, or cross-cutting evidence exists.
+  trigger_condition: family_trigger_match_count == 1 AND cross_cutting_flag_count == 0 AND subsystem_key_match_count == 0 AND strong_signal_match_count == 0
+  confidence_delta: '-0.18'
+  widening_action: add_generic_fallback_queries
+  effect_direction: negative
+  evidence_quality: weak
+  ambiguity_sensitivity: high
+- id: conf_005
+  name: explicit_patch_term_present
+  description: Task includes a concrete change verb and identifies a file, symbol, subsystem, or behavior target.
+  trigger_condition: explicit_patch_term_present AND (target_symbol_present OR target_file_present OR subsystem_name_present)
+  confidence_delta: '+0.14'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+- id: conf_006
+  name: no_family_activated
+  description: No task family activates above minimum confidence; routing evidence is absent.
+  trigger_condition: active_family_count == 0
+  confidence_delta: '-0.22'
+  widening_action: activate_generic_failure_taxonomy_queries
+  effect_direction: negative
+  evidence_quality: missing
+  ambiguity_sensitivity: high
+- id: conf_007
+  name: high_risk_family_activated
+  description: Activated family touches concurrency, ownership, scheduling, or recovery surfaces where under-retrieval is costly.
+  trigger_condition: high_risk_family_active == true
+  confidence_delta: '-0.04'
+  widening_action: require_bundle_guard_coverage
+  effect_direction: negative
+  evidence_quality: risk_adjustment
+  ambiguity_sensitivity: medium
+- id: conf_008
+  name: cross_cutting_flag_stack
+  description: Two or more cross-cutting flags align with the same family and subsystem hypothesis.
+  trigger_condition: cross_cutting_flag_count >= 2 AND aligned_flag_count >= 2
+  confidence_delta: '+0.10'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: supporting
+  ambiguity_sensitivity: low
+- id: conf_009
+  name: design_mode_indicator
+  description: Task asks for design, review, planning, or investigation rather than direct code change.
+  trigger_condition: design_mode_term_present == true
+  confidence_delta: '-0.08'
+  widening_action: prefer_reference_context
+  effect_direction: negative
+  evidence_quality: mode_shift
+  ambiguity_sensitivity: medium
+- id: conf_010
+  name: vague_description
+  description: Task lacks concrete nouns, targets, or behavior constraints and reads as underspecified.
+  trigger_condition: specific_target_count == 0 AND strong_signal_match_count == 0
+  confidence_delta: '-0.14'
+  widening_action: expand_reference_and_generic_queries
+  effect_direction: negative
+  evidence_quality: weak
+  ambiguity_sensitivity: high
+- id: conf_011
+  name: operator_action_keyword
+  description: Task explicitly names pause, resume, cancel, retry, override, or backfill actions.
+  trigger_condition: operator_action_term_present == true
+  confidence_delta: '+0.08'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: supporting
+  ambiguity_sensitivity: low
+- id: conf_012
+  name: concurrency_term_present
+  description: Task explicitly references lock, lease, race, duplicate dispatch, generation, or ownership conflict.
+  trigger_condition: concurrency_term_present == true
+  confidence_delta: '+0.10'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+- id: conf_013
+  name: recovery_repair_term_present
+  description: Task explicitly references retry, reconcile, heal, stale state, orphan cleanup, or replay safety.
+  trigger_condition: recovery_term_present == true
+  confidence_delta: '+0.10'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+- id: conf_014
+  name: conflicting_family_signals
+  description: Task contains strong terms from two incompatible families, such as docs-only output plus authoritative mutation.
+  trigger_condition: conflicting_family_pair_present == true
+  confidence_delta: '-0.16'
+  widening_action: separate_primary_and_reference_queries
+  effect_direction: negative
+  evidence_quality: conflict
+  ambiguity_sensitivity: high
+- id: conf_015
+  name: test_implication_present
+  description: Task requests regression coverage, unit tests, stress tests, or failure reproductions.
+  trigger_condition: test_implication_present == true
+  confidence_delta: '+0.06'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: supporting
+  ambiguity_sensitivity: low
+- id: conf_016
+  name: idempotency_concern_explicit
+  description: Task explicitly references duplicate suppression, replay safety, or idempotency guards.
+  trigger_condition: idempotency_term_present == true
+  confidence_delta: '+0.09'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+- id: conf_017
+  name: stale_state_reference
+  description: Task references stale claims, stale cache, outdated generation, or drifted persisted truth.
+  trigger_condition: stale_state_term_present == true
+  confidence_delta: '+0.09'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+- id: conf_018
+  name: subsystem_name_explicit
+  description: Task explicitly names a known subsystem, path, or owned component.
+  trigger_condition: subsystem_name_present == true
+  confidence_delta: '+0.12'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+- id: conf_019
+  name: negation_or_exclusion_language
+  description: Task contains must-not-change or negative-target language that narrows safe retrieval.
+  trigger_condition: negation_term_present == true OR explicit_exclusion_term_present == true
+  confidence_delta: '-0.05'
+  widening_action: respect_exclusion_filters
+  effect_direction: negative
+  evidence_quality: constraint
+  ambiguity_sensitivity: medium
+- id: conf_020
+  name: generic_fallback_active
+  description: Generic fallback routing remains active because targeted evidence did not clear minimum thresholds.
+  trigger_condition: generic_fallback_active == true
+  confidence_delta: '-0.10'
+  widening_action: broaden_queries_but_hold_confidence_guarded
+  effect_direction: negative
+  evidence_quality: fallback
+  ambiguity_sensitivity: high
+- id: conf_021
+  name: observable_state_transition_explicit
+  description: Task explicitly references a legal or illegal state transition, terminal state, or lifecycle gate.
+  trigger_condition: state_transition_term_present == true
+  confidence_delta: '+0.11'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+- id: conf_022
+  name: ownership_fence_explicit
+  description: Task explicitly references claim ownership, fencing tokens, lease expiry, or generation guards.
+  trigger_condition: ownership_term_present == true
+  confidence_delta: '+0.12'
+  widening_action: null
+  effect_direction: positive
+  evidence_quality: strong
+  ambiguity_sensitivity: low
+supplemental:
+  calibration_policy:
+    positive_delta_range:
+    - '+0.06'
+    - '+0.18'
+    negative_delta_range:
+    - '-0.04'
+    - '-0.22'
+    ambiguity_penalties_should_outweigh_single_weak_positive: true
+    high_risk_family_adjustments_reduce_release_confidence_even_when_family_match_is_clear: true

@@ -1,0 +1,21 @@
+{
+  "schema_version": "proof_gap_uncertainty_surface_v1",
+  "required_fields": [
+    "confidence_bucket",
+    "contradiction_present",
+    "evidence_references",
+    "proof_gap_present",
+    "required_next_proof_steps",
+    "schema_version",
+    "stale_evidence_present",
+    "unresolved_items"
+  ],
+  "allowed_confidence_buckets": [
+    "contradictory",
+    "degraded",
+    "medium",
+    "high",
+    "low"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

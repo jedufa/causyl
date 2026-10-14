@@ -1,0 +1,152 @@
+{
+  "schema_version": "research_evidence_pack_v1",
+  "pack_id": "rep-20260410-reference",
+  "pack_version": "1.0.0",
+  "stable_identity": {
+    "canonicalization": "json_sort_keys_compact_utf8",
+    "content_hash_algorithm": "sha256",
+    "schema_migration_policy": "versioned_backward_compatible_or_explicit_migration"
+  },
+  "metadata": {
+    "title": "Research evidence pack reference instance",
+    "created_at_utc": "2026-04-10T10:26:37Z",
+    "source_intent_uid": "IS-20260403-212914Z-5E8C",
+    "ledger_refs": [
+      "PIS-20260410-102637Z-DCFE"
+    ]
+  },
+  "pack_scope": {
+    "belongs_in_evidence_pack": [
+      "source records",
+      "claim records",
+      "claim-source links",
+      "contradictions and unresolved conflict notes",
+      "summary layers that cite claim and contradiction ids"
+    ],
+    "outside_evidence_pack": [
+      "continuation packet payloads",
+      "hypothesis registry payloads",
+      "experiment runtime artifact bodies"
+    ]
+  },
+  "sources": [
+    {
+      "source_id": "src-clean-paper",
+      "source_type": "paper",
+      "title": "Reference source for a clean claim",
+      "locator": "doi:10.0000/reference-clean",
+      "captured_at_utc": "2026-04-10T10:26:37Z"
+    },
+    {
+      "source_id": "src-weak-note",
+      "source_type": "lab_note",
+      "title": "Reference source with weak evidence",
+      "locator": "governance/example-lab-note#section-observation",
+      "captured_at_utc": "2026-04-10T10:26:37Z"
+    },
+    {
+      "source_id": "src-conflict-preprint",
+      "source_type": "preprint",
+      "title": "Reference source with conflicting interpretation",
+      "locator": "arxiv:0000.00000#discussion",
+      "captured_at_utc": "2026-04-10T10:26:37Z"
+    }
+  ],
+  "source_quality_notes": [
+    {
+      "source_id": "src-clean-paper",
+      "quality_level": "strong",
+      "note": "Peer-reviewed reference source used for the clean-claim example."
+    },
+    {
+      "source_id": "src-weak-note",
+      "quality_level": "weak",
+      "note": "Single lab note; preserve as weak evidence instead of upgrading into consensus."
+    },
+    {
+      "source_id": "src-conflict-preprint",
+      "quality_level": "moderate",
+      "note": "Preprint-level evidence that conflicts with the lab-note interpretation."
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "claim-clean",
+      "statement": "The reference material reports a reproducible baseline observation.",
+      "claim_type": "finding",
+      "status": "clean"
+    },
+    {
+      "claim_id": "claim-weak",
+      "statement": "A single lab note suggests the effect increases under the alternate preparation.",
+      "claim_type": "finding",
+      "status": "weak_evidence"
+    },
+    {
+      "claim_id": "claim-conflict",
+      "statement": "A preprint reports no increase under a similar alternate preparation.",
+      "claim_type": "finding",
+      "status": "contested"
+    }
+  ],
+  "claim_source_links": [
+    {
+      "link_id": "link-clean",
+      "claim_id": "claim-clean",
+      "source_id": "src-clean-paper",
+      "support_type": "supports",
+      "evidence_locator": "doi:10.0000/reference-clean#results"
+    },
+    {
+      "link_id": "link-weak",
+      "claim_id": "claim-weak",
+      "source_id": "src-weak-note",
+      "support_type": "weakly_supports",
+      "evidence_locator": "governance/example-lab-note#section-observation"
+    },
+    {
+      "link_id": "link-conflict",
+      "claim_id": "claim-conflict",
+      "source_id": "src-conflict-preprint",
+      "support_type": "supports",
+      "evidence_locator": "arxiv:0000.00000#discussion"
+    }
+  ],
+  "contradictions": [
+    {
+      "contradiction_id": "contradiction-alt-prep",
+      "source_claim_id": "claim-weak",
+      "target_claim_id": "claim-conflict",
+      "conflict_type": "direct_conflict",
+      "severity": "medium",
+      "status": "unresolved",
+      "evidence_link_ids": [
+        "link-weak",
+        "link-conflict"
+      ]
+    }
+  ],
+  "unresolved_conflict_notes": [
+    {
+      "note_id": "unresolved-alt-prep",
+      "contradiction_id": "contradiction-alt-prep",
+      "note": "The conflict remains visible; no consensus summary should erase the weak evidence state.",
+      "next_resolution_step": "Compare preparation details before promoting either claim."
+    }
+  ],
+  "summary_layers": [
+    {
+      "layer_id": "operator-summary",
+      "summary_type": "operator_summary",
+      "summary_text": "One clean claim is sourced; one weak claim conflicts with a preprint and remains unresolved.",
+      "claim_ids": [
+        "claim-clean",
+        "claim-weak",
+        "claim-conflict"
+      ],
+      "contradiction_ids": [
+        "contradiction-alt-prep"
+      ]
+    }
+  ]
+}

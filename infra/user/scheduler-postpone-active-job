@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/server_postpone_active_job
+# Description: Postpone the currently active once-job so the next pipeline run happens later.
+# Example: bash infra/user/server_postpone_active_job --job-id 12345 --days 3 --no-resume-next
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/scheduler_postpone_active_job.py "$@"

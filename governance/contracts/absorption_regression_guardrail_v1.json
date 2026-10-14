@@ -1,0 +1,22 @@
+{
+  "schema_version": "absorption_regression_guardrail_v1",
+  "required_fields": [
+    "blocked_reason",
+    "proof_requirements",
+    "proposal_id",
+    "required_regression_suite_class",
+    "rollback_expectations",
+    "rollout_eligibility",
+    "schema_version"
+  ],
+  "allowed_regression_suite_classes": [
+    "targeted_regression",
+    "focused_end_to_end",
+    "family_regression"
+  ],
+  "allowed_rollout_eligibility": [
+    "blocked",
+    "eligible_for_guarded_rollout"
+  ],
+  "definition_provenance": "reconstructed_source_v1; see governance/contracts/README.md"
+}

@@ -1,0 +1,334 @@
+version: 1
+phase: 1
+notes: Deterministic taxonomy of operator control actions for Stage 1 classification
+  and Stage 2 safety flag activation. Verb terms were narrowed to reduce overlap between
+  restart, repair, replay, and destructive actions.
+actions:
+- key: manual_launch
+  verb_terms:
+  - launch now
+  - trigger now
+  - start job
+  - run immediately
+  - dispatch manually
+  - kick off run
+  safety_flags:
+  - eligibility_correctness
+  - concurrency_control
+  - idempotency
+  invariant_refs:
+  - at most one active execution may exist for a logical job instance at any time
+  - dispatch must require current eligibility, enabled state, and non-stale ownership
+    truth
+  risk_level: high
+- key: manual_cancel
+  verb_terms:
+  - cancel run
+  - abort run
+  - stop execution
+  - terminate attempt
+  - halt job
+  safety_flags:
+  - state_consistency
+  - concurrency_control
+  - auditability
+  invariant_refs:
+  - pause, resume, cancel, restart, and force actions must validate current lifecycle
+    state
+  - recorded completion cause must agree with the final persisted state
+  risk_level: medium
+- key: manual_pause
+  verb_terms:
+  - pause run
+  - hold execution
+  - suspend processing
+  - freeze job
+  - place on hold
+  safety_flags:
+  - operator_safety
+  - state_consistency
+  - timing_correctness
+  invariant_refs:
+  - pause, resume, cancel, restart, and force actions must validate current lifecycle
+    state
+  - deadline truth must survive pause, resume, restart, and recovery
+  risk_level: medium
+- key: manual_resume
+  verb_terms:
+  - resume run
+  - continue execution
+  - unpause job
+  - resume from checkpoint
+  - lift hold
+  safety_flags:
+  - eligibility_correctness
+  - state_consistency
+  - recovery_integrity
+  invariant_refs:
+  - resume must start from the latest committed checkpoint that is legal for the current
+    lineage
+  - work may launch only when all required dependencies are durably satisfied
+  risk_level: high
+- key: manual_restart
+  verb_terms:
+  - restart attempt
+  - rerun attempt
+  - restart worker
+  - start fresh attempt
+  - relaunch execution
+  safety_flags:
+  - idempotency
+  - concurrency_control
+  - recovery_integrity
+  - state_consistency
+  invariant_refs:
+  - restart must not create a second active attempt in the same lineage
+  - retry attempt counters must increase monotonically within a lineage and survive
+    restart
+  risk_level: high
+- key: manual_force
+  verb_terms:
+  - force override
+  - bypass guard
+  - skip validation
+  - force through
+  - override check
+  safety_flags:
+  - operator_safety
+  - validation_rigor
+  - auditability
+  - fail_closed_behavior
+  invariant_refs:
+  - manual override paths must enforce the same legality checks as automatic control
+    paths
+  - protected mutations must validate schema, version, and state legality before commit
+  risk_level: critical
+- key: manual_backfill
+  verb_terms:
+  - backfill range
+  - run historical interval
+  - catch up window
+  - replay date range
+  - historical catchup
+  safety_flags:
+  - idempotency
+  - duplicate_suppression
+  - timing_correctness
+  - eligibility_correctness
+  invariant_refs:
+  - backfill runs must be explicitly distinguishable from ordinary scheduled runs
+  - historical intervals must not be processed twice without explicit override evidence
+  risk_level: high
+- key: manual_repair
+  verb_terms:
+  - repair state
+  - reconcile now
+  - heal orphan
+  - correct durable state
+  - repair lineage
+  safety_flags:
+  - state_consistency
+  - recovery_integrity
+  - auditability
+  invariant_refs:
+  - recovery passes must be safe to rerun without creating duplicate active entities
+  - corrective mutations must emit durable evidence linking the repair to the original
+    failure lineage
+  risk_level: high
+- key: manual_drain
+  verb_terms:
+  - drain queue
+  - flush queue
+  - empty backlog
+  - drain worker queue
+  - purge inflight queue
+  safety_flags:
+  - concurrency_control
+  - ownership_control
+  - side_effect_control
+  invariant_refs:
+  - each work item may have at most one active consumer claim at a time
+  - acknowledgement must not occur before the durable processing outcome is committed
+  risk_level: high
+- key: manual_promote
+  verb_terms:
+  - promote stage
+  - advance workflow
+  - move to next stage
+  - mark stage ready
+  - promote leader
+  safety_flags:
+  - state_consistency
+  - validation_rigor
+  - auditability
+  invariant_refs:
+  - workflow transitions must follow the declared legal state graph with no skipped
+    mandatory states
+  - at most one active coordinator may own a fenced responsibility at a time
+  risk_level: high
+- key: manual_demote
+  verb_terms:
+  - rollback stage
+  - revert state
+  - move back stage
+  - demote leader
+  - restore previous state
+  safety_flags:
+  - rollback_safety
+  - state_consistency
+  - auditability
+  invariant_refs:
+  - deadline extensions must be explicit, durable, reviewable, and lineage-scoped
+  - cleanup rollback must not restore stale data as current truth
+  risk_level: high
+- key: manual_reassign
+  verb_terms:
+  - reassign owner
+  - transfer ownership
+  - hand off lease
+  - change assignee
+  - reassign claim
+  safety_flags:
+  - ownership_control
+  - concurrency_control
+  - claim_integrity
+  invariant_refs:
+  - ownership transfer must fence, revoke, or supersede the prior owner before reassignment
+  - failover must fence the previous owner before reassignment
+  risk_level: high
+- key: manual_disable
+  verb_terms:
+  - disable job
+  - deactivate schedule
+  - turn off worker
+  - suppress dispatch
+  - inhibit launch
+  safety_flags:
+  - state_consistency
+  - eligibility_correctness
+  - auditability
+  invariant_refs:
+  - dispatch must require current eligibility, enabled state, and non-stale ownership
+    truth
+  - blocked reasons must remain stable until dependency truth changes
+  risk_level: medium
+- key: manual_enable
+  verb_terms:
+  - enable job
+  - activate schedule
+  - unsuppress dispatch
+  - turn on worker
+  - re-enable processing
+  safety_flags:
+  - eligibility_correctness
+  - concurrency_control
+  - state_consistency
+  invariant_refs:
+  - dispatch must require current eligibility, enabled state, and non-stale ownership
+    truth
+  - healthy workers must emit liveness evidence within configured windows
+  risk_level: medium
+- key: manual_delete
+  verb_terms:
+  - delete record
+  - purge state
+  - remove artifact
+  - destroy lineage
+  - wipe history
+  safety_flags:
+  - ownership_control
+  - auditability
+  - rollback_safety
+  - stale_state_handling
+  invariant_refs:
+  - cleanup must not remove active, recoverable, or still-referenced truth
+  - destructive cleanup operations must emit durable evidence and target identity
+  risk_level: critical
+- key: manual_snapshot
+  verb_terms:
+  - capture snapshot
+  - export state snapshot
+  - save current state
+  - take checkpoint snapshot
+  - capture evidence
+  safety_flags:
+  - state_consistency
+  - stale_state_handling
+  - auditability
+  invariant_refs:
+  - each execution must bind to a stable configuration revision or snapshot
+  - every externally visible mutation must produce durable evidence with stable correlation
+    identity
+  risk_level: low
+- key: manual_approve
+  verb_terms:
+  - approve request
+  - authorize action
+  - sign off change
+  - allow operation
+  - grant approval
+  safety_flags:
+  - operator_safety
+  - auditability
+  - validation_rigor
+  invariant_refs:
+  - manual actions must emit actor identity, reason code, target identity, and resulting
+    outcome
+  - validation decisions must be explainable from durable or reproducible inputs
+  risk_level: medium
+- key: manual_reject
+  verb_terms:
+  - reject request
+  - deny action
+  - block operation
+  - refuse change
+  - fail closed
+  safety_flags:
+  - fail_closed_behavior
+  - validation_rigor
+  - auditability
+  invariant_refs:
+  - invalid requests must fail closed rather than mutate partial truth
+  - manual actions must emit actor identity, reason code, target identity, and resulting
+    outcome
+  risk_level: medium
+- key: manual_extend_deadline
+  verb_terms:
+  - extend deadline
+  - increase timeout
+  - postpone expiry
+  - grant more time
+  - extend ttl
+  safety_flags:
+  - timing_correctness
+  - operator_safety
+  - auditability
+  invariant_refs:
+  - deadline extensions must be explicit, durable, reviewable, and lineage-scoped
+  - remaining time calculations must use a single consistent clock source
+  risk_level: medium
+- key: manual_cleanup
+  verb_terms:
+  - archive records
+  - prune history
+  - compact data
+  - run retention cleanup
+  - remove expired artifacts
+  safety_flags:
+  - auditability
+  - rollback_safety
+  - stale_state_handling
+  invariant_refs:
+  - cleanup must not remove active, recoverable, or still-referenced truth
+  - retention policy must preserve evidence required for audit, replay safety, and
+    deduplication
+  risk_level: high
+supplemental:
+  extracted_from_bundle:
+    source_file: many_files_to_split.yaml
+    asset_name: operator_action_taxonomy.yaml
+    payload:
+      canonical_runtime_source: operator_action_taxonomy.yaml
+      bundle_extract_status: noncanonical_duplicate
+      use_bundle_extract_for_runtime: false
+      reason: bundle_extract_creates_overlap_and_should_not_override_canonical_asset

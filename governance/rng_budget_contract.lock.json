@@ -1,0 +1,6 @@
+{
+  "schema_version": "rng_budget_contract_lock_v1",
+  "contract_path": "governance/rng_budget_contract.json",
+  "contract_sha256": "01adfaab4d7fa20552745a2893a0f2cdd3eaa9d53155cc289f9bc970d8b1fd5a",
+  "contract_version": "phase_e_e2_budget_v1"
+}

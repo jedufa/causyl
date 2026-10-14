@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-resume
+# Description: Resume the scheduler pipeline safely.
+# Example: bash infra/user/scheduler-resume
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+python infra/bin/scheduler_resume.py "$@"

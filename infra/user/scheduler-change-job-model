@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# infra/user/scheduler-change-job-model
+# Description: Inspect and change a scheduled job's agent model via an interactive shim.
+# Example: infra/user/scheduler-change-job-model overnight_20260314_q4a6b_rw_20_7ed3dcbf
+
+set -euo pipefail
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$repo_root"
+PYTHONPATH=. python infra/bin/scheduler_change_job_model.py "$@"
