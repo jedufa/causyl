@@ -9,6 +9,13 @@
       "normalized": false
     },
     {
+      "path": ".github/FUNDING.yml",
+      "sha256": "35589552a5cb401583f86d149230d2456941500e2c40923d023bddba689ba0e3",
+      "bytes": 161,
+      "mode": 420,
+      "normalized": false
+    },
+    {
       "path": ".github/workflows/source-preview.yml",
       "sha256": "40014f1c1be6a0d797953bee6257fa2976d881f5b6f542207bbd8a53727b2f8b",
       "bytes": 681,
@@ -937,21 +944,21 @@
       "sha256": "35982b422c8095c7972f1fe8cce88fd8ef0609dfd93fc6ba746499d8aca225a4",
       "bytes": 12537,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "governance/agents/prompts/role__generalist_mobile.md",
       "sha256": "1e37588bf2e8c5b85d1d449779b113f09a6d8d042f027768ec93118c9940cc32",
       "bytes": 10124,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "governance/agents/prompts/role__orchestrator_mobile.md",
       "sha256": "0898d9c8dbccf4005ba3f5d23c16a90a925969e6e3aa816ce79f5332ffd38403",
       "bytes": 9457,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "governance/agents/prompts/role__plane_mobile.md",
@@ -965,7 +972,7 @@
       "sha256": "385c731365e02522634362e31233484c43263daef5c6cbcdb95b7fc0caa5716d",
       "bytes": 12164,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "governance/agents/prompts/swarm_finisher.md",
@@ -1581,7 +1588,7 @@
       "sha256": "381e9391cf9e515f5f219d57156b097a67058bd40dbb708ac790bce76f6547e0",
       "bytes": 7563,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/agents/jeff/engine.py",
@@ -1959,7 +1966,7 @@
       "sha256": "ff02f77efcfa1f0ecce4e3c950dc398c7cc7876fc25b29d8022a44c4c3648746",
       "bytes": 54342,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/bin/lab_e2e.py",
@@ -2344,7 +2351,7 @@
       "sha256": "1ff0393e32e727792908eed80eaa24edb89f97ecee148a77e88adfeed25b1f56",
       "bytes": 12749,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/bin/server_status.sh",
@@ -3366,14 +3373,14 @@
       "sha256": "b7fa9e33885846d77ca7cbf13ef3ca7dadb30200cc8ecb8ecb775968abd35397",
       "bytes": 4191,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/android/app/build.gradle.kts",
       "sha256": "f01b067cc6d98da5fc74c7f1362a9563ba3e33cad4809b30e9fce76f1e05fec0",
       "bytes": 6428,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/android/app/proguard-rules.pro",
@@ -3548,7 +3555,7 @@
       "sha256": "e78892f757a85b67917da06e942e8dcfc1477875ac96d0eb815de96ac06aa64b",
       "bytes": 48526,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/android/app/src/main/java/com/eiel/chat/ui/OverviewScreen.kt",
@@ -3730,7 +3737,7 @@
       "sha256": "9c47225a20c7610671e6834678dbbfe484c825aacf414d8e73591a9ff227b009",
       "bytes": 715,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/android/app/src/test/java/com/eiel/chat/domain/ChatAttachmentPromptTest.kt",
@@ -3828,7 +3835,7 @@
       "sha256": "2b879dcceaf6a8890c0a56c78a9a510b5f0df34c487efa5101e4f9cd3f3a9f39",
       "bytes": 16099,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/android/app/src/test/java/com/eiel/chat/ui/OverviewFrontDoorModelTest.kt",
@@ -3849,7 +3856,7 @@
       "sha256": "e1a0d3b90807ac018677deb4de72e690fd2e6bb4ce196cd8cf8bc31e6575a9cd",
       "bytes": 29196,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/android/app/src/test/java/com/eiel/chat/ui/SchedulerStatusProjectionTest.kt",
@@ -3940,21 +3947,21 @@
       "sha256": "c68697d2d7b99088a7b1413506536af5fba73d32c8755707e3a026fa897f81b0",
       "bytes": 3014,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/build_server_apk.sh",
       "sha256": "ec38d065b4ec0205d17e62920a2feeb2e12e9488ed3bb89247e0fa1aec5bd02e",
       "bytes": 7637,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/deploy_debug_phone.sh",
       "sha256": "bf5c9917d655820c81fa58f31333c6ace6bc80e9c0be03f3f705a5ea815d5c9e",
       "bytes": 6190,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/mobile/install_android_apk.sh",
@@ -3989,7 +3996,7 @@
       "sha256": "4c5ea1f0dc6891d5179f1e05ba9fd91e2d35bde0c8e773f15f3d0312b0f56e99",
       "bytes": 2711,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/module_parts_loader.py",
@@ -4535,7 +4542,7 @@
       "sha256": "f05b1bbe74de2c5b8fb20fe8079069e35f018688abe4473e001f954ca3db695e",
       "bytes": 2616,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/pipeline/knowledge_mining_tool/knowledge_miner.py",
@@ -4605,7 +4612,7 @@
       "sha256": "c0b0041c75ba70e1ce4b3788d51fbba3f793f9e5326df1ea71e92a59169eb783",
       "bytes": 16631,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/pipeline/knowledge_mining_tool/requirements.txt",
@@ -4941,7 +4948,7 @@
       "sha256": "41e76a2b024872cc0155dd36bca2d1ea7cc8cdc0588d14b1b0fb155089f2396f",
       "bytes": 5327,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/user/action-execute",
@@ -5053,7 +5060,7 @@
       "sha256": "19db5f948cf251aa18968315e6675f9c0696131a879e7ee1253ff69a551f7192",
       "bytes": 4301,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/user/next-jobs",
@@ -5501,7 +5508,7 @@
       "sha256": "413a1bd79a56a3aa19f0387a0ca92ccc072f5e16340b57cb67505f8680ff89fa",
       "bytes": 80529,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/webui/server_archives.py",
@@ -5550,7 +5557,7 @@
       "sha256": "b72d2a4f63f3c84eecd837a3570db4d47dadc4b30d9f36e46e3f55ed81c614cd",
       "bytes": 57166,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/webui/server_command_submission.py",
@@ -5935,7 +5942,7 @@
       "sha256": "9a14c3503f0074477dd9b32639b2aff1bb9d479f7d5fcacdeaac842904b6f3de",
       "bytes": 48218,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "infra/webui/server_run_discovery.py",
@@ -6194,7 +6201,7 @@
       "sha256": "504b475ce6e016e83c37c3a28d5e0448a24027414990c4995f2e56c41cf8fda7",
       "bytes": 9252,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/benchmark/test_promptset_reference_builder.py",
@@ -7146,7 +7153,7 @@
       "sha256": "a071657b445102fe211de622fc5cd61c69b48ef755c8845a3068dbe634e022fd",
       "bytes": 1486,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/control_plane/test_compiled_execution_contract.py",
@@ -7160,7 +7167,7 @@
       "sha256": "70ee8ad0fc1a77fad1d4217b1ecb5989c4a4ec23122f00af820d374f3d5d389d",
       "bytes": 31790,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/control_plane/test_compiled_execution_ir.py",
@@ -7524,7 +7531,7 @@
       "sha256": "b27e4033d9bb096b010c18067937eea27aa56738cbdd2349f3e1557ff3e875eb",
       "bytes": 61784,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/control_plane/test_labsh_cli.py",
@@ -7741,7 +7748,7 @@
       "sha256": "fb2ac269c531f1c9a0cbd4c39d55d3dbb4c319273dbe7e6182ec4d517a3a6003",
       "bytes": 12950,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/control_plane/test_sched_v2_e2e.py",
@@ -8364,7 +8371,7 @@
       "sha256": "07049fdb336e10bcfff8b1dbaecfb0c4c6bc7bc53cdec714986b41dd3ab767ed",
       "bytes": 35235,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/control_plane/webui/test_experiment_control_action_policy_e2e.py",
@@ -8595,7 +8602,7 @@
       "sha256": "e2b394d3e844a291be202fabcefba394fe7cef4d75138a22bbfd4431816eefb2",
       "bytes": 163801,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/control_plane/webui/test_mobile_chat_agents_scheduler_projection.py",
@@ -8742,7 +8749,7 @@
       "sha256": "294a4f615119a1d19b799416d013f7b0f94ab032eee039d2f5afb94ef5c81acc",
       "bytes": 76596,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/control_plane/webui/test_webui_agents_orchestration.py",
@@ -9407,7 +9414,7 @@
       "sha256": "2bf0fb56aea9f18cf1c668a930cba39b187536e3fab7f528028cbc80f9d2302a",
       "bytes": 24128,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/tools/test_deterministic_tooling_fabric.py",
@@ -9421,7 +9428,7 @@
       "sha256": "bb194e2239bbbca00964635fe4bec522f3f1de1e4f54b4e398898493389fda55",
       "bytes": 4020,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/tools/test_idea_note_manager.py",
@@ -9491,7 +9498,7 @@
       "sha256": "43f3f61e64150456350b7712c0ec1a609aebed1d764eb2e5cda2db467ebfa77c",
       "bytes": 17582,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/tools/test_maintainability_guards.py",
@@ -9617,7 +9624,7 @@
       "sha256": "0a045af383810b8a12075ba78270b8a0f45f81a67bcc683dcaf15e56e0523b35",
       "bytes": 5406,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tests/tools/test_runtime_health_probe.py",
@@ -9715,7 +9722,7 @@
       "sha256": "f3ef3e8b2f92067e886aa6fef96714b79a9ff07b9faee5e2e733163534df4b34",
       "bytes": 127975,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tools/benchmarks/fixtures/tier1/tracked_brief.md",
@@ -10786,7 +10793,7 @@
       "sha256": "1ff0393e32e727792908eed80eaa24edb89f97ecee148a77e88adfeed25b1f56",
       "bytes": 12749,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tools/bin/server_status.sh",
@@ -11143,7 +11150,7 @@
       "sha256": "fa2981b8799f6c4c4f8d955d4b7aa488d8af239f844d5aedce02541b1cfd9d5d",
       "bytes": 2260,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tools/git/git-commit-tag.sh",
@@ -11395,7 +11402,7 @@
       "sha256": "ec38d065b4ec0205d17e62920a2feeb2e12e9488ed3bb89247e0fa1aec5bd02e",
       "bytes": 7637,
       "mode": 493,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tools/module_parts_loader.py",
@@ -11437,7 +11444,7 @@
       "sha256": "d28df97ad3fdc416a903d750c27b3a487019672e34104d158d59ac588136d0db",
       "bytes": 60858,
       "mode": 420,
-      "normalized": true
+      "normalized": false
     },
     {
       "path": "tools/pis_improvement_intent_validation.py",
@@ -11581,8 +11588,8 @@
     },
     {
       "path": "tools/release/source_allowlist.txt",
-      "sha256": "2b8445908d7ef6d9433a7f3f9c16e1dfd8eb08f2178fd0b245e9d6122e0d558e",
-      "bytes": 83532,
+      "sha256": "a5f8b9c5f31401c2cf62f01f95004b9cb7b43e90432557b96b38d5216d353c03",
+      "bytes": 83552,
       "mode": 420,
       "normalized": false
     },
